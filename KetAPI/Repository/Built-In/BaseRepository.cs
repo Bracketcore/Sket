@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KetAPI.Interfaces;
-using KetAPI.Model;
+using Bracketcore.KetAPI.Interfaces;
+using Bracketcore.KetAPI.Model;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 
-namespace KetAPI.Repository
+namespace Bracketcore.KetAPI.Repository
 {
     public abstract class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
     {

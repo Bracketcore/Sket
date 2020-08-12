@@ -1,4 +1,4 @@
-﻿namespace KetAPI.Model
+﻿namespace Bracketcore.KetAPI.Model
 {
     public enum RoleEnum
     {

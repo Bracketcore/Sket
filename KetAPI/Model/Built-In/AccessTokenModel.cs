@@ -1,10 +1,21 @@
 using System.Collections.Generic;
+using MongoDB.Entities;
 
-namespace KetAPI.Model
+namespace Bracketcore.KetAPI.Model
 {
-    public abstract class AccessTokenModel: PersistedModel
+    [Name("AccessToken")]
+    public sealed class AccessTokenModel: PersistedModel
     {
+        public string Tk { get; set; }
         public int ttl { get; set; }
         public List<string> Scope { get; set; }
+
+        public AccessTokenModel()
+        {
+            DB.Index<AccessTokenModel>()
+                .Key(o => o.Tk, KeyType.Descending)
+                .Key(o => o.OwnerID, KeyType.Descending)
+                .CreateAsync();
+        }
     }
 }

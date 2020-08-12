@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using KetAPI.Model;
+using Bracketcore.KetAPI.Misc;
+using Bracketcore.KetAPI.Model;
+using Bracketcore.KetAPI.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace KetAPI.Repository
+namespace Bracketcore.KetAPI.Repository
 {
     public class UserRepository<T> : BaseRepository<T> where T : UserModel
     {
@@ -32,7 +36,7 @@ namespace KetAPI.Repository
             return savedPasswordHash;
         }
 
-        public override async Task<DataResponse<T>> Create(T doc)
+        public override async Task<T> Create(T doc)
         {
             //Todo create the shortner url for verification and then send email after registration
             try
@@ -47,27 +51,27 @@ namespace KetAPI.Repository
 
                 await AfterCreate(before);
 
-                return new DataResponse<T>("Created", "Ok", doc);
+                return doc;
             }
             catch (Exception e)
             {
                 if (e.Message.Contains("Email"))
                 {
-                    return new DataResponse<T>("Email is linked to another account", "Error", null);
+                    return null;
                 }
                 else if (e.Message.Contains("Username"))
                 {
-                    return new DataResponse<T>("Username Not Available ", "Error", null);
+                    return null;
                 }
                 else
                 {
-                    return new DataResponse<T>("Phone number is linked to another account", "Error", null);
+                    return null;
                 }
             }
         }
 
 
-        public async Task<DataResponse<LoginResponse>> Login(Customer user)
+        public async Task<LoginResponse> Login(T user)
         {
             try
             {
@@ -92,10 +96,10 @@ namespace KetAPI.Repository
                     {
                         TK = tk,
                         ModifiedOn = DateTime.UtcNow,
-                        UserInfo = JsonConvert.DeserializeObject<Customer>(returnUser.ToString()),
+                        UserInfo = JsonConvert.DeserializeObject<UserModel>(returnUser.ToString()),
                         Message = "Ok"
                     };
-                    return new DataResponse<LoginResponse>("Ok", "Ok", endVerification);
+                    return endVerification;
                 }
             }
             catch (Exception e)
@@ -105,19 +109,19 @@ namespace KetAPI.Repository
             }
         }
 
-        private static async Task<Customer> Verify(Customer user)
+        private static async Task<T> Verify(T user)
         {
             try
             {
-                Customer checkedUser;
+                T checkedUser;
 
                 if (user.Password == null) return null!;
                 /* Fetch the stored value */
                 if (user.Email != null)
-                    checkedUser = await DB.Queryable<Customer>().FirstOrDefaultAsync(i =>
+                    checkedUser = await DB.Queryable<T>().FirstOrDefaultAsync(i =>
                         i.Email == user.Email);
                 else
-                    checkedUser = await DB.Queryable<Customer>().FirstOrDefaultAsync(i =>
+                    checkedUser = await DB.Queryable<T>().FirstOrDefaultAsync(i =>
                         i.Username == user.Username);
 
 
@@ -151,17 +155,17 @@ namespace KetAPI.Repository
             }
         }
 
-        public async Task<bool> LogOut(Customer user)
+        public async Task<bool> LogOut(T user)
         {
-            var tok = await _AccessTokenRepository.DestroyByUserId(user.ID);
+            var Token = await _AccessTokenRepository.DestroyByUserId(user.ID);
 
-            if (tok.Contains("Deleted"))
+            if (Token.Contains("Deleted"))
                 return true;
             else
                 return true;
         }
 
-        public async Task<DataResponse<string>> Confirm(string email, string userId, string token)
+        public async Task<string> Confirm(string email, string userId, string token)
         {
             try
             {
@@ -174,13 +178,10 @@ namespace KetAPI.Repository
                     {
                         user.EmailVerified = true;
                         await Update(userId, user);
-                        return new DataResponse<string>("Email Verified",
-                            "ok",
-                            "Ok"
-                        );
+                        return "Ok";
                     }
 
-                    return new DataResponse<string>("Verification Failed", "Error", "Error");
+                    return "Error";
                 }
             }
             catch (Exception e)

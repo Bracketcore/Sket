@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using KetAPI.Model;
+using Bracketcore.KetAPI.Model;
 
-namespace KetAPI.Interfaces
+namespace Bracketcore.KetAPI.Interfaces
 {
     public interface IBaseRepository<T>
     {

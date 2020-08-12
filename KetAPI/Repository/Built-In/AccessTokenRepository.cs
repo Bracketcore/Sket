@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using KetAPI.Model;
+using Bracketcore.KetAPI.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 
-namespace KetAPI.Repository
+namespace Bracketcore.KetAPI.Repository
 {
     /// <summary>
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class AccessTokenRepository<T> : BaseRepository<T>
+    public sealed class AccessTokenRepository : BaseRepository<AccessTokenModel>
     {
         private readonly IConfiguration _config;
 
@@ -25,7 +27,7 @@ namespace KetAPI.Repository
         }
 
         /// <summary>
-        /// 
+        /// Creates Token on user login successfully
         /// </summary>
         /// <param name="userModelInfo"></param>
         /// <returns></returns>
@@ -38,37 +40,46 @@ namespace KetAPI.Repository
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, userModelInfo.ID),
+                    new Claim(ClaimTypes.NameIdentifier, userModelInfo.ID),
                     new Claim(ClaimTypes.Email, userModelInfo.Email),
+                    new Claim(ClaimTypes.Role, (await userModelInfo.Role.ToEntityAsync()).Name),
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(14),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var Tk = tokenHandler.WriteToken(token);
             
-            await DB.Collection<Token>()
-                .InsertOneAsync(new Token
-                {
+            await DB.Collection<AccessTokenModel>()
+                .InsertOneAsync(new AccessTokenModel()
+                { 
                     Tk = Tk, 
                     OwnerID = userModelInfo.ID,
-                    CustomerId = userModelInfo.ID, 
                 });
             return Tk;
             
         }
 
-        public bool VerifyAccessToken(string token)
+        /// <summary>
+        /// Verify if the token exist and valid
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public async Task<bool> VerifyAccessToken(string token)
         {
+            var find = (await ExistToken(token));
+            
+            if (find) return false;
+            
             var data = Convert.FromBase64String(token);
             var when = DateTime.FromBinary(BitConverter.ToInt64(data, 0));
-            return when < DateTime.UtcNow.AddDays(-7);
+            return when < DateTime.UtcNow.AddDays(-14) ;
         }
 
-        public override async Task<Token> FindById(string TokenId)
+        public override async Task<AccessTokenModel> FindById(string TokenId)
         {
-            var search = await DB.Find<Token>().OneAsync(TokenId);
+            var search = await DB.Find<AccessTokenModel>().OneAsync(TokenId);
 
             return search;
         }
@@ -78,15 +89,15 @@ namespace KetAPI.Repository
         /// </summary>
         /// <param name="Token">Token Value</param>
         /// <returns> returns token and token owner id</returns>
-        public async Task<Token> FindByToken(string Token)
+        public async Task<AccessTokenModel> FindByToken(string Token)
         {
-            var search = await DB.Queryable<Token>().FirstOrDefaultAsync(i => i.Tk == Token);
+            var search = await DB.Queryable<AccessTokenModel>().FirstOrDefaultAsync(i => i.Tk == Token);
             return search;
         }
 
-        public async Task<Token> FindByUserId(string userId)
+        public async Task<AccessTokenModel> FindByUserId(string userId)
         {
-            var search = await DB.Queryable<Token>().FirstOrDefaultAsync(i => i.OwnerID == userId);
+            var search = await DB.Queryable<AccessTokenModel>().FirstOrDefaultAsync(i => i.OwnerID == userId);
             return search ?? null;
         }
 
@@ -97,16 +108,16 @@ namespace KetAPI.Repository
         /// <returns></returns>
         public async Task<string> DestroyByUserId(string UserId)
         {
-            var tokenId = await DB.Queryable<Token>().Where(i => i.OwnerID == UserId).ToListAsync();
+            var tokenId = await DB.Queryable<AccessTokenModel>().Where(i => i.OwnerID == UserId).ToListAsync();
 
             if (tokenId.Count != 0)
             {
                 var ls = new List<string>();
 
-                foreach (var tk in tokenId)
+                foreach (var Token in tokenId)
                 {
-                    await DestroyById(tk.ID);
-                    ls.Add(tk.ID);
+                    await DestroyById(Token.ID);
+                    ls.Add(Token.ID);
                 }
 
                 return $"{string.Join(",", ls.ToArray())} Deleted";
@@ -124,9 +135,9 @@ namespace KetAPI.Repository
         /// <returns></returns>
         public async Task<bool> ExistToken(string Token)
         {
-            var exist = await DB.Queryable<Token>().FirstOrDefaultAsync(i => i.Tk == Token);
+            var exist = await DB.Queryable<AccessTokenModel>().FirstOrDefaultAsync(i => i.Tk == Token);
 
-            return exist != null ? true : false;
+            return exist != null ;
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Bracketcore.KetAPI.Interfaces
 {
     public interface IBaseRepository<T>
     {
-        Task<ContextModel<T>> BeforeCreate(T Doc);
+        Task<SketContextModel<T>> BeforeCreate(T Doc);
         Task<T> Create(T Doc);
         Task<T> AfterCreate(T Doc);
         Task<string> CreateBulk(IEnumerable<T> fix);

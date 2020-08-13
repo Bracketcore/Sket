@@ -12,14 +12,14 @@ namespace Bracketcore.KetAPI
         public static async Task SetupKet()
         {
             // Setup roles
-          var getRoles = await  DB.Queryable<RoleModel>().ToListAsync();
-          var normalRole =  RoleEnum.GetValues(typeof(RoleEnum)).Cast<RoleEnum>();
+          var getRoles = await  DB.Queryable<SketRoleModel>().ToListAsync();
+          var normalRole =  SketRoleEnum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
 
           if (getRoles.Count <= normalRole.ToList().Count)
           {
               foreach (var role in normalRole)
               {
-                 await DB.SaveAsync(new RoleModel()
+                 await DB.SaveAsync(new SketRoleModel()
                   {
                       Name = role.ToString()
                   });

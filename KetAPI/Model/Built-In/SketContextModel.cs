@@ -1,6 +1,6 @@
 ﻿namespace Bracketcore.KetAPI.Model
 {
-    public sealed class ContextModel<T>
+    public sealed class SketContextModel<T>
     {
         public T Model { get; set; }
         

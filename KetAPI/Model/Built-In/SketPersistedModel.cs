@@ -6,11 +6,10 @@ using MongoDB.Entities;
 namespace Bracketcore.KetAPI.Model
 {
 
-    public abstract class PersistedModel : Entity, ICreatedOn
+    public abstract class SketPersistedModel : Entity, ICreatedOn
     {
-        public DateTime ModifiedOn { get; set; }
         public DateTime CreatedOn { get; set; }
-        public One<UserModel> OwnerID { get; set; }
+        public One<SketUserModel> OwnerID { get; set; }
 
     }
 }

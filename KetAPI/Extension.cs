@@ -30,10 +30,10 @@ namespace Bracketcore.KetAPI
             }
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.AddSingleton<AccessTokenRepository>();
-            services.AddSingleton<EmailRepository>();
-            services.AddSingleton<RoleRepository>();
-            services.AddSingleton<UserRepository<UserModel>>();
+            services.AddSingleton<SketAccessTokenRepository>();
+            services.AddSingleton<SketEmailRepository>();
+            services.AddSingleton<SketRoleRepository>();
+            services.AddSingleton<SketUserRepository<SketUserModel>>();
             // services.AddSingleton(new KetAPI());
             await KetAPI.SetupKet();
             return services;

@@ -11,13 +11,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Bracketcore.KetAPI.Repository
 {
-    public  class UserRepository<T> : BaseRepository<T> where T : UserModel
+    public  class SketUserRepository<T> : SketBaseRepository<T> where T : SketUserModel
     {
-        private AccessTokenRepository _AccessTokenRepository { get; set; }
+        private SketAccessTokenRepository SketAccessTokenRepository { get; set; }
 
-        public UserRepository(AccessTokenRepository access)
+        public SketUserRepository(SketAccessTokenRepository sketAccess)
         {
-            _AccessTokenRepository = access;
+            SketAccessTokenRepository = sketAccess;
         }
 
         private static string HashPassword(T doc)
@@ -92,12 +92,11 @@ namespace Bracketcore.KetAPI.Repository
                     returnUser.Remove("Password");
                     returnUser.Remove("PhoneOtp");
 
-                    var tk = await _AccessTokenRepository.CreateAccessToken(verified);
+                    var tk = await SketAccessTokenRepository.CreateAccessToken(verified);
 
                     var endVerification = new LoginResponse()
                     {
                         TK = tk,
-                        ModifiedOn = DateTime.UtcNow,
                         UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
                         Message = "Ok"
                     };
@@ -161,7 +160,7 @@ namespace Bracketcore.KetAPI.Repository
 
         public async Task<bool> LogOut(T user)
         {
-            var Token = await _AccessTokenRepository.DestroyByUserId(user.ID);
+            var Token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
 
             if (Token.Contains("Deleted"))
                 return true;

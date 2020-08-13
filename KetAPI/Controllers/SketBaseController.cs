@@ -18,20 +18,20 @@ namespace Bracketcore.KetAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public abstract class BaseController<T, TC> : ControllerBase
-        where T : PersistedModel 
-        where TC : BaseRepository<T>
+    public abstract class SketBaseController<T, TC> : ControllerBase
+        where T : SketPersistedModel 
+        where TC : SketBaseRepository<T>
     {
         public TC Repo { get; set; }
         // public virtual H Hub { get; set; }
 
-        public BaseController(TC repo)
+        public SketBaseController(TC repo)
         {
             Repo = repo;
             // Hub = hub;
         }
 
-        [AllowAnonymous]
+        
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
@@ -49,8 +49,7 @@ namespace Bracketcore.KetAPI.Controllers
             var check = await Repo.FindById(id).ConfigureAwait(false);
             return Ok(check);
         }
-
-        [AllowAnonymous]
+        
         [HttpPost]
         public virtual async Task<IActionResult> Create([FromBody] T doc)
         {
@@ -60,10 +59,12 @@ namespace Bracketcore.KetAPI.Controllers
             if (cre == null) return BadRequest();
             return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
         }
-
+        
+        [Authorize(Roles = "User,Admin,Support")]
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Update(string id, T replace)
         {
+            //Check if user is owner
             var exist = await Repo.Exist(id).ConfigureAwait(false);
 
             if (exist)
@@ -74,7 +75,8 @@ namespace Bracketcore.KetAPI.Controllers
 
             return NotFound();
         }
-
+        
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Remove(string id)
         {
@@ -84,7 +86,8 @@ namespace Bracketcore.KetAPI.Controllers
             var del = await Repo.DestroyById(id).ConfigureAwait(false);
             return Ok(del);
         }
-
+        
+        [Authorize(Roles = "App")]
         [HttpGet("exist/{id}")]
         public virtual IActionResult Exist(string id)
         {

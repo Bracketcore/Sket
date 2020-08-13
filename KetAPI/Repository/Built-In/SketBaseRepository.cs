@@ -13,14 +13,14 @@ namespace Bracketcore.KetAPI.Repository
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public   class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
+    public   class SketBaseRepository<T> : IBaseRepository<T> where T : SketPersistedModel
     {
         
-        public  ContextModel<T> ContextModel { get; set; }
+        public  SketContextModel<T> SketContextModel { get; set; }
 
-        public BaseRepository()
+        public SketBaseRepository()
         {
-            ContextModel = new ContextModel<T>();
+            SketContextModel = new SketContextModel<T>();
         }
 
         /// <summary>
@@ -28,10 +28,10 @@ namespace Bracketcore.KetAPI.Repository
         /// </summary>
         /// <param name="Doc"></param>
         /// <returns></returns>
-        public virtual Task<ContextModel<T>> BeforeCreate(T Doc)
+        public virtual Task<SketContextModel<T>> BeforeCreate(T Doc)
         {
-            ContextModel.Model = Doc;
-            return Task.FromResult(ContextModel);
+            SketContextModel.Model = Doc;
+            return Task.FromResult(SketContextModel);
         }
 
         public virtual async Task<T> Create(T Doc)

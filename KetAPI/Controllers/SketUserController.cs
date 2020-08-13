@@ -10,19 +10,19 @@ using Newtonsoft.Json;
 
 namespace Bracketcore.KetAPI.Controllers
 {
-    public class UserController : BaseController<UserModel, UserRepository<UserModel>>
+    public class SketUserController : SketBaseController<SketUserModel, SketUserRepository<SketUserModel>>
     {
-        private readonly UserRepository<UserModel> _repo;
-        public UserController(UserRepository<UserModel> repo) : base(repo)
+        private readonly SketUserRepository<SketUserModel> _repo;
+        public SketUserController(SketUserRepository<SketUserModel> repo) : base(repo)
         {
             _repo = repo;
         }
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public virtual async Task<IActionResult> Login([FromBody] UserModel user)
+        public virtual async Task<IActionResult> Login([FromBody] SketUserModel sketUser)
         {
-            var verify = await _repo.Login(user);
+            var verify = await _repo.Login(sketUser);
             
             var cred = new ClaimsPrincipal();
 

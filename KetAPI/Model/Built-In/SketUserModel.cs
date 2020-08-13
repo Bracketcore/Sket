@@ -9,7 +9,7 @@ namespace Bracketcore.KetAPI.Model
         public virtual string Password { get; set; }
         public virtual string Email { get; set; }
         public virtual bool EmailVerified { get; set; }
-        public virtual One<SketRoleModel> Role { get; set; }
+        public virtual Many<SketRoleModel> Role { get; set; }
         public virtual string VerificationToken { get; set; }
         public virtual double PhoneVerification { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Bracketcore.KetAPI.Model;
 using Bracketcore.KetAPI.Repository;
@@ -31,13 +32,15 @@ namespace Bracketcore.KetAPI.Controllers
                 return Unauthorized();
             }
             
+            
+            
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim("Profile", JsonConvert.SerializeObject(verify.UserInfo)),
                 new Claim(ClaimTypes.Email, verify.UserInfo.Email),
                 new Claim(ClaimTypes.NameIdentifier, verify.UserInfo.ID),
                 new Claim("Token", verify.TK),
-                new Claim(ClaimTypes.Role,  (await verify.UserInfo.Role.ToEntityAsync()).Name)
+                new Claim(ClaimTypes.Role,  ( verify.UserInfo.Role)
             }, CookieAuthenticationDefaults.AuthenticationScheme);
             
             var principal = new ClaimsPrincipal(identity);
@@ -49,8 +52,18 @@ namespace Bracketcore.KetAPI.Controllers
 
             return Ok(verify);
         }
-        
-        
+
+        [HttpPost("logout")]
+        public virtual async Task Logout([FromBody] SketUserModel user)
+        {
+
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                new AuthenticationProperties()
+                {
+                    AllowRefresh = true,
+                    RedirectUri = "/"
+                });
+        }
 
       
     }

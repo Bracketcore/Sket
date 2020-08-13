@@ -30,15 +30,13 @@ namespace Bracketcore.KetAPI.Controllers
             Repo = repo;
             // Hub = hub;
         }
-
         
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
             return Ok(await Repo.FindAll().ConfigureAwait(false));
         }
-
-
+        
         [HttpGet("{id}")]
         public virtual async Task<IActionResult> GetById(string id)
         {

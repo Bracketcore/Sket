@@ -1,17 +1,21 @@
-﻿using Bracketcore.KetAPI.Model;
+﻿using System.Threading.Tasks;
+using Bracketcore.KetAPI.Model;
 using Bracketcore.KetAPI.Repository;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using MongoDB.Entities;
+using Share.Repository;
 
 namespace Bracketcore.KetAPI
 {
     public static class Extension
     {
-        public static IServiceCollection AddKetAPI(
+        public static  IServiceCollection AddKetAPI(
             this IServiceCollection services, KetAPISetting settings)
         {
+             
+            
             if (settings.EnableJwt)
             {
                 settings.EnableCookies = false;
@@ -27,7 +31,11 @@ namespace Bracketcore.KetAPI
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
             services.AddSingleton<AccessTokenRepository>();
-            services.AddSingleton(new KetAPI());
+            services.AddSingleton<EmailRepository>();
+            services.AddSingleton<RoleRepository>();
+            services.AddSingleton<UserRepository<UserModel>>();
+            // services.AddSingleton(new KetAPI());
+            KetAPI.SetupKet();
             return services;
         }
     }

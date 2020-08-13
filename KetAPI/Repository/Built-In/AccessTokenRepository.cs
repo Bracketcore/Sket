@@ -17,7 +17,7 @@ namespace Bracketcore.KetAPI.Repository
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class AccessTokenRepository : BaseRepository<AccessTokenModel>
+    public  class AccessTokenRepository : BaseRepository<AccessTokenModel>
     {
         private readonly IConfiguration _config;
 
@@ -97,7 +97,7 @@ namespace Bracketcore.KetAPI.Repository
 
         public async Task<AccessTokenModel> FindByUserId(string userId)
         {
-            var search = await DB.Queryable<AccessTokenModel>().FirstOrDefaultAsync(i => i.OwnerID == userId);
+            var search = await DB.Queryable<AccessTokenModel>().FirstOrDefaultAsync(i => i.OwnerID.ID == userId);
             return search ?? null;
         }
 
@@ -108,7 +108,7 @@ namespace Bracketcore.KetAPI.Repository
         /// <returns></returns>
         public async Task<string> DestroyByUserId(string UserId)
         {
-            var tokenId = await DB.Queryable<AccessTokenModel>().Where(i => i.OwnerID == UserId).ToListAsync();
+            var tokenId = await DB.Queryable<AccessTokenModel>().Where(i => i.OwnerID.ID == UserId).ToListAsync();
 
             if (tokenId.Count != 0)
             {

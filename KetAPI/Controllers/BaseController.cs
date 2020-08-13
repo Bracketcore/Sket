@@ -13,14 +13,14 @@ namespace Bracketcore.KetAPI.Controllers
     /// <summary>
     /// 
     /// </summary>
-    /// <typeparam name="T">Controller Repository</typeparam>
+    /// <typeparam name="T">Controller model</typeparam>
     /// <typeparam name="TC">Controller model</typeparam>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
     public abstract class BaseController<T, TC> : ControllerBase
-        where TC : BaseRepository<T> 
-        where T : PersistedModel, new()
+        where T : PersistedModel 
+        where TC : BaseRepository<T>
     {
         public TC Repo { get; set; }
         // public virtual H Hub { get; set; }
@@ -31,7 +31,7 @@ namespace Bracketcore.KetAPI.Controllers
             // Hub = hub;
         }
 
-        [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+        [AllowAnonymous]
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {

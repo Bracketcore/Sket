@@ -96,9 +96,11 @@ namespace Bracketcore.KetAPI.Repository
                     {
                         TK = tk,
                         ModifiedOn = DateTime.UtcNow,
-                        UserInfo = JsonConvert.DeserializeObject<UserModel>(returnUser.ToString()),
+                        UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
                         Message = "Ok"
                     };
+                    
+                    
                     return endVerification;
                 }
             }

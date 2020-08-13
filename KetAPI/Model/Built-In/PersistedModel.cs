@@ -10,10 +10,7 @@ namespace Bracketcore.KetAPI.Model
     {
         public DateTime ModifiedOn { get; set; }
         public DateTime CreatedOn { get; set; }
-
-        [BsonRepresentation(BsonType.ObjectId)]
-        [BsonIgnoreIfDefault]
-        public string OwnerID { get; set; }
+        public One<UserModel> OwnerID { get; set; }
 
     }
 }

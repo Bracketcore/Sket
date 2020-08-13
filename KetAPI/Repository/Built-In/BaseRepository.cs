@@ -9,7 +9,11 @@ using MongoDB.Entities;
 
 namespace Bracketcore.KetAPI.Repository
 {
-    public abstract class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
+    /// <summary>
+    /// Based Repository 
+    /// </summary>
+    /// <typeparam name="T">Repository Model</typeparam>
+    public  class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
     {
         
         public  ContextModel<T> ContextModel { get; set; }

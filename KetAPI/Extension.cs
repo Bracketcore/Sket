@@ -11,7 +11,7 @@ namespace Bracketcore.KetAPI
 {
     public static class Extension
     {
-        public static  IServiceCollection AddKetAPI(
+        public static async Task<IServiceCollection> AddKetAPI(
             this IServiceCollection services, KetAPISetting settings)
         {
              
@@ -35,7 +35,7 @@ namespace Bracketcore.KetAPI
             services.AddSingleton<RoleRepository>();
             services.AddSingleton<UserRepository<UserModel>>();
             // services.AddSingleton(new KetAPI());
-            KetAPI.SetupKet();
+            await KetAPI.SetupKet();
             return services;
         }
     }

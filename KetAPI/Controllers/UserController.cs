@@ -19,7 +19,7 @@ namespace Bracketcore.KetAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
+        [HttpPost("login")]
         public virtual async Task<IActionResult> Login([FromBody] UserModel user)
         {
             var verify = await _repo.Login(user);
@@ -49,6 +49,8 @@ namespace Bracketcore.KetAPI.Controllers
 
             return Ok(verify);
         }
+        
+        
 
       
     }

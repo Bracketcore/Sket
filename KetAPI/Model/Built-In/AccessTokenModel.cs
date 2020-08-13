@@ -13,7 +13,9 @@ namespace Bracketcore.KetAPI.Model
         public AccessTokenModel()
         {
             DB.Index<AccessTokenModel>()
-                .Key(o => o.Tk, KeyType.Descending)
+                .Key(o => o.Tk, KeyType.Text)
+                .Option(o=> o.Unique = true)
+
                 .Key(o => o.OwnerID, KeyType.Descending)
                 .CreateAsync();
         }

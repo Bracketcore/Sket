@@ -9,22 +9,24 @@ namespace Bracketcore.KetAPI
     public class KetAPI
     {
 
-        public static  void SetupKet()
+        public static async Task SetupKet()
         {
             // Setup roles
-          var getRoles =   DB.Queryable<RoleModel>().ToListAsync().Result;
+          var getRoles = await  DB.Queryable<RoleModel>().ToListAsync();
           var normalRole =  RoleEnum.GetValues(typeof(RoleEnum)).Cast<RoleEnum>();
 
           if (getRoles.Count <= normalRole.ToList().Count)
           {
               foreach (var role in normalRole)
               {
-                  DB.SaveAsync(new RoleModel()
+                 await DB.SaveAsync(new RoleModel()
                   {
                       Name = role.ToString()
                   });
               }
+              
           }
+      
         }
     }
 }

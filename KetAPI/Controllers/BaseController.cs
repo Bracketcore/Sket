@@ -50,13 +50,14 @@ namespace Bracketcore.KetAPI.Controllers
             return Ok(check);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public virtual async Task<IActionResult> Create([FromBody] T doc)
         {
             if (doc == null) return BadRequest();
 
-            var cre = await Repo.Create(doc).ConfigureAwait(false);
-            Console.WriteLine(typeof(T).Name);
+            var cre = await Repo.Create(doc);
+            if (cre == null) return BadRequest();
             return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
         }
 

@@ -1,7 +1,7 @@
 namespace Share.Repository
 {
     //Todo work on the send email services
-    public  class EmailRepository
+    public   class EmailRepository
     {
         public bool TokenSend()
         {

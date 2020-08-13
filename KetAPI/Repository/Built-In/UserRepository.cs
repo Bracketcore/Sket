@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bracketcore.KetAPI.Repository
 {
-    public class UserRepository<T> : BaseRepository<T> where T : UserModel
+    public  class UserRepository<T> : BaseRepository<T> where T : UserModel
     {
         private AccessTokenRepository _AccessTokenRepository { get; set; }
 
@@ -36,6 +36,8 @@ namespace Bracketcore.KetAPI.Repository
             return savedPasswordHash;
         }
 
+      
+
         public override async Task<T> Create(T doc)
         {
             //Todo create the shortner url for verification and then send email after registration
@@ -51,7 +53,7 @@ namespace Bracketcore.KetAPI.Repository
 
                 await AfterCreate(before);
 
-                return doc;
+                return await base.Create(doc);
             }
             catch (Exception e)
             {

@@ -13,7 +13,7 @@ namespace Bracketcore.KetAPI.Repository
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public  class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
+    public   class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
     {
         
         public  ContextModel<T> ContextModel { get; set; }

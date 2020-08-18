@@ -8,22 +8,30 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bracketcore.KetAPI.Controllers
 {
-    public class SketUserController : SketBaseController<SketUserModel, SketUserRepository<SketUserModel>>
+    public class UserController : BaseController<
+    UserModel, UserRepository<
+    UserModel>>
     {
-        private readonly SketUserRepository<SketUserModel> _repo;
-        public SketUserController(SketUserRepository<SketUserModel> repo) : base(repo)
+        private readonly UserRepository<
+        UserModel> _repo;
+        public UserController(UserRepository<
+        UserModel> repo) : base(repo)
         {
             _repo = repo;
         }
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public virtual async Task<IActionResult> Login([FromBody] SketUserModel sketUser)
+        public virtual async Task<IActionResult> Login([FromBody] 
+        UserModel 
+        User)
         {
-            var verify = await _repo.Login(sketUser);
+            var verify = await _repo.Login(
+            User);
             
             var cred = new ClaimsPrincipal();
 
@@ -32,15 +40,13 @@ namespace Bracketcore.KetAPI.Controllers
                 return Unauthorized();
             }
             
-            
-            
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim("Profile", JsonConvert.SerializeObject(verify.UserInfo)),
                 new Claim(ClaimTypes.Email, verify.UserInfo.Email),
                 new Claim(ClaimTypes.NameIdentifier, verify.UserInfo.ID),
-                new Claim("Token", verify.TK),
-                new Claim(ClaimTypes.Role,  ( verify.UserInfo.Role)
+                new Claim("Token", verify.Tk),
+                new Claim(ClaimTypes.Role,  JsonSerializer.Serialize(verify.UserInfo.Role))
             }, CookieAuthenticationDefaults.AuthenticationScheme);
             
             var principal = new ClaimsPrincipal(identity);
@@ -54,7 +60,8 @@ namespace Bracketcore.KetAPI.Controllers
         }
 
         [HttpPost("logout")]
-        public virtual async Task Logout([FromBody] SketUserModel user)
+        public virtual async Task Logout([FromBody] 
+        UserModel user)
         {
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme,

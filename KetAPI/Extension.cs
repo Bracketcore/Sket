@@ -1,21 +1,20 @@
-﻿using System.Threading.Tasks;
-using Bracketcore.KetAPI.Model;
+﻿using Bracketcore.KetAPI.Model;
 using Bracketcore.KetAPI.Repository;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 using MongoDB.Entities;
-using Share.Repository;
+using System;
 
 namespace Bracketcore.KetAPI
 {
     public static class Extension
     {
-        public static async Task<IServiceCollection> AddKetAPI(
-            this IServiceCollection services, KetAPISetting settings)
+        public static IServiceCollection AddSket(
+            this IServiceCollection services, SketSettings settings)
         {
-             
-            
+
+
             if (settings.EnableJwt)
             {
                 settings.EnableCookies = false;
@@ -23,30 +22,29 @@ namespace Bracketcore.KetAPI
             }
             else
             {
-                services.AddAuthenticationCore(options =>
+                //services.AddAuthentication(options =>
+                //{
+                //    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //});
+
+                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
                 {
-                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.LoginPath = new PathString("/auth/login");
+                    options.AccessDeniedPath = new PathString("/auth/denied");
                 });
             }
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.AddSingleton<SketAccessTokenRepository>();
-            services.AddSingleton<SketEmailRepository>();
-            services.AddSingleton<SketRoleRepository>();
-            services.AddSingleton<SketUserRepository<SketUserModel>>();
+            services.AddSingleton<AccessTokenRepository>();
+            services.AddSingleton<EmailRepository>();
+            services.AddSingleton<RoleRepository>();
+            services.AddSingleton<UserRepository<UserModel>>();
             // services.AddSingleton(new KetAPI());
-            await KetAPI.SetupKet();
+            _ = Sket.SetupSket().IsCompleted;
+
+            Console.WriteLine("Database " + DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
             return services;
         }
-    }
-
-    public class KetAPISetting
-    {
-        public bool EnableCookies { get; set; } = true;
-        public bool EnableJwt { get; set; } = false;
-        public string DatabaseName { get; set; }
-
-        public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings()
-            {Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority};
     }
 }

@@ -13,34 +13,34 @@ namespace Bracketcore.KetAPI.Repository
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public   class SketBaseRepository<T> : IBaseRepository<T> where T : SketPersistedModel
+    public   class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
     {
         
-        public  SketContextModel<T> SketContextModel { get; set; }
+        public  ContextModel<T> ContextModel { get; set; }
 
-        public SketBaseRepository()
+        public BaseRepository()
         {
-            SketContextModel = new SketContextModel<T>();
+            ContextModel = new ContextModel<T>();
         }
 
         /// <summary>
         /// Send every document modification to _context model
         /// </summary>
-        /// <param name="Doc"></param>
+        /// <param name="doc"></param>
         /// <returns></returns>
-        public virtual Task<SketContextModel<T>> BeforeCreate(T Doc)
+        public virtual Task<ContextModel<T>> BeforeCreate(T doc)
         {
-            SketContextModel.Model = Doc;
-            return Task.FromResult(SketContextModel);
+            ContextModel.Model = doc;
+            return Task.FromResult(ContextModel);
         }
 
-        public virtual async Task<T> Create(T Doc)
+        public virtual async Task<T> Create(T doc)
         {
             try
             {
-                var before = await BeforeCreate(Doc);
+                var before = await BeforeCreate(doc);
                 await DB.SaveAsync(before.Model);
-                var after = await AfterCreate(Doc);
+                var after = await AfterCreate(doc);
                 
                 return after;
             }
@@ -51,9 +51,9 @@ namespace Bracketcore.KetAPI.Repository
             }
         }
 
-        public virtual Task<T> AfterCreate(T Doc)
+        public virtual Task<T> AfterCreate(T doc)
         {
-            return Task.FromResult(Doc);
+            return Task.FromResult(doc);
         }
 
         public virtual async Task<string> CreateBulk(IEnumerable<T> fix)
@@ -82,65 +82,65 @@ namespace Bracketcore.KetAPI.Repository
             return await DB.Queryable<T>().ToListAsync();
         }
 
-        public virtual async Task<T> FindById(string Id)
+        public virtual async Task<T> FindById(string id)
         {
-            return await DB.Find<T>().OneAsync(Id);
+            return await DB.Find<T>().OneAsync(id);
         }
 
-        public virtual async Task<string> Update(string Id, T Doc)
+        public virtual async Task<string> Update(string id, T doc)
         {
-            Doc.ID = Id;
-            var filter = Builders<T>.Filter.Eq(i => i.ID, Id);
+            doc.ID = id;
+            var filter = Builders<T>.Filter.Eq(i => i.ID, id);
 
-            await DB.Collection<T>().ReplaceOneAsync(filter, Doc, new ReplaceOptions() {IsUpsert = true});
+            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() {IsUpsert = true});
 
-            return $"{Id} updated";
+            return $"{id} updated";
         }
 
-        public virtual async Task<string> BulkUpdate(IEnumerable<T> Doc)
+        public virtual async Task<string> BulkUpdate(IEnumerable<T> doc)
         {
             var ls = new List<string>();
-            foreach (var Document in Doc)
+            foreach (var document in doc)
             {
-                await Update(Document.ID, Document);
-                ls.Add(Document.ID);
+                await Update(document.ID, document);
+                ls.Add(document.ID);
             }
 
             return $"Updated {string.Join(",", ls.ToArray())}";
         }
 
-        public virtual async Task<string> DestroyAll(IEnumerable<T> Doc)
+        public virtual async Task<string> DestroyAll(IEnumerable<T> doc)
         {
             var ls = new List<string>();
 
-            foreach (var Docs in Doc)
+            foreach (var docs in doc)
             {
-                await DestroyById(Docs.ID);
-                ls.Add(Docs.ID);
+                await DestroyById(docs.ID);
+                ls.Add(docs.ID);
             }
 
             return $"{string.Join(",", ls.ToArray())} Deleted";
         }
 
-        public virtual Task<string> BeforeDestroyById(string Id)
+        public virtual Task<string> BeforeDestroyById(string id)
         {
-            return Task.FromResult(Id);
+            return Task.FromResult(id);
         }
 
-        public virtual async Task<string> DestroyById(string Id)
+        public virtual async Task<string> DestroyById(string id)
         {
-            var d = await DB.Collection<T>().DeleteOneAsync(i => i.ID == Id);
+            var d = await DB.Collection<T>().DeleteOneAsync(i => i.ID == id);
             return $"{d}";
         }
 
-        public virtual Task<string> AfterDestroyById(string Id)
+        public virtual Task<string> AfterDestroyById(string id)
         {
-            return Task.FromResult(Id);
+            return Task.FromResult(id);
         }
 
-        public virtual async Task<bool> Exist(string Id)
+        public virtual async Task<bool> Exist(string id)
         {
-            var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.ID == Id);
+            var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.ID == id);
 
             return exist != null;
         }

@@ -11,13 +11,13 @@ using Newtonsoft.Json.Linq;
 
 namespace Bracketcore.KetAPI.Repository
 {
-    public  class SketUserRepository<T> : SketBaseRepository<T> where T : SketUserModel
+    public  class UserRepository<T> : BaseRepository<T> where T : UserModel
     {
-        private SketAccessTokenRepository SketAccessTokenRepository { get; set; }
+        private AccessTokenRepository AccessTokenRepository { get; set; }
 
-        public SketUserRepository(SketAccessTokenRepository sketAccess)
+        public UserRepository(AccessTokenRepository access)
         {
-            SketAccessTokenRepository = sketAccess;
+            AccessTokenRepository = access;
         }
 
         private static string HashPassword(T doc)
@@ -92,11 +92,11 @@ namespace Bracketcore.KetAPI.Repository
                     returnUser.Remove("Password");
                     returnUser.Remove("PhoneOtp");
 
-                    var tk = await SketAccessTokenRepository.CreateAccessToken(verified);
+                    var tk = await AccessTokenRepository.CreateAccessToken(verified);
 
                     var endVerification = new LoginResponse()
                     {
-                        TK = tk,
+                        Tk = tk,
                         UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
                         Message = "Ok"
                     };
@@ -160,9 +160,9 @@ namespace Bracketcore.KetAPI.Repository
 
         public async Task<bool> LogOut(T user)
         {
-            var Token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
+            var token = await AccessTokenRepository.DestroyByUserId(user.ID);
 
-            if (Token.Contains("Deleted"))
+            if (token.Contains("Deleted"))
                 return true;
             else
                 return true;
@@ -208,9 +208,9 @@ namespace Bracketcore.KetAPI.Repository
         /// <summary>
         /// Reset user password with the sent token.
         /// </summary>
-        /// <param name="ResetToken"></param>
+        /// <param name="resetToken"></param>
         /// <returns></returns>
-        public void changePassword(string userId, string oldPassword, string newPassword, string ResetToken)
+        public void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
         {
             //verify the reset token and give user a form to change password
         }

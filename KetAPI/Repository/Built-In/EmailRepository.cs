@@ -1,7 +1,7 @@
-namespace Share.Repository
+namespace Bracketcore.KetAPI.Repository
 {
     //Todo work on the send email services
-    public class SketEmailRepository
+    public class EmailRepository
     {
         public bool TokenSend()
         {

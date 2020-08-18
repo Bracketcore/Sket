@@ -3,14 +3,15 @@
 namespace Bracketcore.KetAPI.Model
 {
     [Name("Roles")]
-    public sealed class SketRoleModel: SketPersistedModel
+    public class RoleModel: 
+        PersistedModel
     {
         public  string Name { get; set; }
         public  string Description { get; set; }
 
-        public SketRoleModel()
+        public RoleModel()
         {
-            DB.Index<SketRoleModel>()
+            DB.Index<RoleModel>()
                 .Key(n=>n.Name, KeyType.Text)
                 .Option(o=> o.Unique = true)
                 .Create();

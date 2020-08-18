@@ -1,10 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using Bracketcore.KetAPI.Model;
 using Bracketcore.KetAPI.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 
 //Todo add a rate limiter
@@ -16,27 +15,27 @@ namespace Bracketcore.KetAPI.Controllers
     /// <typeparam name="T">Controller model</typeparam>
     /// <typeparam name="TC">Controller model</typeparam>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[Controller]")]
     [Authorize]
-    public abstract class SketBaseController<T, TC> : ControllerBase
-        where T : SketPersistedModel 
-        where TC : SketBaseRepository<T>
+    public abstract class BaseController<T, TC> : ControllerBase
+        where T : PersistedModel
+        where TC : BaseRepository<T>
     {
         public TC Repo { get; set; }
         // public virtual H Hub { get; set; }
 
-        public SketBaseController(TC repo)
+        public BaseController(TC repo)
         {
             Repo = repo;
             // Hub = hub;
         }
-        
+
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
             return Ok(await Repo.FindAll().ConfigureAwait(false));
         }
-        
+
         [HttpGet("{id}")]
         public virtual async Task<IActionResult> GetById(string id)
         {
@@ -47,7 +46,7 @@ namespace Bracketcore.KetAPI.Controllers
             var check = await Repo.FindById(id).ConfigureAwait(false);
             return Ok(check);
         }
-        
+
         [HttpPost]
         public virtual async Task<IActionResult> Create([FromBody] T doc)
         {
@@ -57,7 +56,7 @@ namespace Bracketcore.KetAPI.Controllers
             if (cre == null) return BadRequest();
             return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
         }
-        
+
         [Authorize(Roles = "User,Admin,Support")]
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Update(string id, T replace)
@@ -73,7 +72,7 @@ namespace Bracketcore.KetAPI.Controllers
 
             return NotFound();
         }
-        
+
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Remove(string id)
@@ -84,7 +83,7 @@ namespace Bracketcore.KetAPI.Controllers
             var del = await Repo.DestroyById(id).ConfigureAwait(false);
             return Ok(del);
         }
-        
+
         [Authorize(Roles = "App")]
         [HttpGet("exist/{id}")]
         public virtual IActionResult Exist(string id)

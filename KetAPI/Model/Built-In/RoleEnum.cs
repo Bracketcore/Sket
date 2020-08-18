@@ -1,6 +1,6 @@
 ﻿namespace Bracketcore.KetAPI.Model
 {
-    public enum SketRoleEnum
+    public enum RoleEnum
     {
         Admin,
         App,

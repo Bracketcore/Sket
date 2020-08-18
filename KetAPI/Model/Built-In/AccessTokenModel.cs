@@ -1,20 +1,20 @@
-using System.Collections.Generic;
 using MongoDB.Entities;
+using System.Collections.Generic;
 
 namespace Bracketcore.KetAPI.Model
 {
     [Name("AccessToken")]
-    public sealed class SketAccessTokenModel: SketPersistedModel
+    public class AccessTokenModel : PersistedModel
     {
         public string Tk { get; set; }
-        public int ttl { get; set; }
+        public int Ttl { get; set; }
         public List<string> Scope { get; set; }
 
-        public SketAccessTokenModel()
+        public AccessTokenModel()
         {
-            DB.Index<SketAccessTokenModel>()
+            DB.Index<AccessTokenModel>()
                 .Key(o => o.Tk, KeyType.Text)
-                .Option(o=> o.Unique = true)
+                .Option(o => o.Unique = true)
 
                 .Key(o => o.OwnerID, KeyType.Descending)
                 .CreateAsync();

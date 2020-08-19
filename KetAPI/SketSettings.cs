@@ -8,6 +8,8 @@ namespace Bracketcore.KetAPI
         public bool EnableJwt { get; set; } = false;
         public string DatabaseName { get; set; }
 
+        public bool EnableCamelCase { get; set; } = false;
+
         public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings()
             { Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority };
     }

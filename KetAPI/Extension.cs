@@ -13,8 +13,23 @@ namespace Bracketcore.KetAPI
         public static IServiceCollection AddSket(
             this IServiceCollection services, SketSettings settings)
         {
+            Auth(settings, services);
+            
+            services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
+            services.AddSingleton<AccessTokenRepository>();
+            services.AddSingleton<EmailRepository>();
+            services.AddSingleton<RoleRepository>();
+            services.AddSingleton<UserRepository<UserModel>>();
+            // services.AddSingleton(new KetAPI());
+            _ = Sket.SetupSket().IsCompleted;
 
+            Console.WriteLine("Database " +
+                              DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
+            return services;
+        }
 
+        static void Auth(SketSettings settings, IServiceCollection services)
+        {
             if (settings.EnableJwt)
             {
                 settings.EnableCookies = false;
@@ -34,17 +49,12 @@ namespace Bracketcore.KetAPI
                     options.AccessDeniedPath = new PathString("/auth/denied");
                 });
             }
+        }
 
-            services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.AddSingleton<AccessTokenRepository>();
-            services.AddSingleton<EmailRepository>();
-            services.AddSingleton<RoleRepository>();
-            services.AddSingleton<UserRepository<UserModel>>();
-            // services.AddSingleton(new KetAPI());
-            _ = Sket.SetupSket().IsCompleted;
-
-            Console.WriteLine("Database " + DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
-            return services;
+        static void JsonCamelCase(SketSettings settings, IServiceCollection services)
+        {
+           
+           // work on json
         }
     }
 }

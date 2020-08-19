@@ -21,7 +21,7 @@ namespace Bracketcore.KetAPI.Controllers
         where T : PersistedModel
         where TC : BaseRepository<T>
     {
-        public TC Repo { get; set; }
+        protected TC Repo { get; set; }
         // public virtual H Hub { get; set; }
 
         public BaseController(TC repo)
@@ -64,13 +64,10 @@ namespace Bracketcore.KetAPI.Controllers
             //Check if user is owner
             var exist = await Repo.Exist(id).ConfigureAwait(false);
 
-            if (exist)
-            {
-                var up = await Repo.Update(id, replace).ConfigureAwait(false);
-                return Ok(up);
-            }
+            if (!exist) return NotFound();
+            _ = await Repo.Update(id, replace).ConfigureAwait(false);
+            return NoContent();
 
-            return NotFound();
         }
 
         [Authorize(Roles = "SuperAdmin,Admin")]
@@ -80,8 +77,8 @@ namespace Bracketcore.KetAPI.Controllers
             var exist = await Repo.Exist(id).ConfigureAwait(false);
 
             if (!exist) return NotFound();
-            var del = await Repo.DestroyById(id).ConfigureAwait(false);
-            return Ok(del);
+            _ = await Repo.DestroyById(id).ConfigureAwait(false);
+            return NoContent();
         }
 
         [Authorize(Roles = "App")]

@@ -4,7 +4,7 @@ using System;
 namespace Bracketcore.KetAPI.Model
 {
 
-    public abstract class PersistedModel : Entity, IModifiedOn
+    public abstract class PersistedModel : Entity
     {
         public One<UserModel> OwnerID { get; set; }
 

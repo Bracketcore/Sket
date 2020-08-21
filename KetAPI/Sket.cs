@@ -1,33 +1,51 @@
-﻿using Bracketcore.KetAPI.Model;
+﻿using Bracketcore.Sket.Model;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
-    internal static class Sket
+    public class Sket
     {
+        public static IEnumerable<ContextModel<PersistedModel>> Context = new List<ContextModel<PersistedModel>>();
+        public static IEnumerable<RoleModel> Roles = new List<RoleModel>();
+        public static List<Type> _context;
 
-        internal static async Task SetupSket()
+        public Sket()
+        {
+            SetupRoles();
+            GetModelContext();
+        }
+
+        private void GetModelContext()
+        {
+            var type = typeof(PersistedModel);
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
+                .Where(p => type.IsAssignableFrom(p));
+
+            _context = types.ToList();
+        }
+
+        private void SetupRoles()
         {
             // Setup roles
-            var getRoles = await DB.Queryable<RoleModel>().ToListAsync();
+            var getRoles = DB.Queryable<RoleModel>().ToList();
             var normalRole = Enum.GetValues(typeof(RoleEnum)).Cast<RoleEnum>();
 
-            if (getRoles.Count <= normalRole.ToList().Count)
+            if (getRoles.Count < normalRole.ToList().Count)
             {
                 foreach (var role in normalRole)
                 {
-                    await DB.SaveAsync(new RoleModel()
+                    DB.Save(new RoleModel()
                     {
                         Name = role.ToString()
                     });
                 }
 
             }
-
         }
+
     }
 }

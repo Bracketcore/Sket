@@ -1,12 +1,12 @@
-﻿using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Repository;
+﻿using Bracketcore.Sket.Model;
+using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Entities;
 using System;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
     public static class Extension
     {
@@ -14,14 +14,15 @@ namespace Bracketcore.KetAPI
             this IServiceCollection services, SketSettings settings)
         {
             Auth(settings, services);
-            
+
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
             services.AddSingleton<AccessTokenRepository>();
             services.AddSingleton<EmailRepository>();
             services.AddSingleton<RoleRepository>();
             services.AddSingleton<UserRepository<UserModel>>();
-            // services.AddSingleton(new KetAPI());
-            _ = Sket.SetupSket().IsCompleted;
+
+            new Sket();
+
 
             Console.WriteLine("Database " +
                               DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
@@ -53,8 +54,8 @@ namespace Bracketcore.KetAPI
 
         static void JsonCamelCase(SketSettings settings, IServiceCollection services)
         {
-           
-           // work on json
+
+            // work on json
         }
     }
 }

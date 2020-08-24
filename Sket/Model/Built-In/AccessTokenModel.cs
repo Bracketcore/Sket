@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Bracketcore.KetAPI.Model
 {
     [Name("AccessToken")]
-    public class AccessTokenModel : PersistedModel
+    public class AccessTokenModel : SketPersistedModel
     {
         public string Tk { get; set; }
         public int Ttl { get; set; }

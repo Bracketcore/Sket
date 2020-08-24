@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Bracketcore.KetAPI.Interfaces;
 using Bracketcore.KetAPI.Model;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bracketcore.KetAPI.Repository
 {
@@ -13,12 +13,12 @@ namespace Bracketcore.KetAPI.Repository
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public   class BaseRepository<T> : IBaseRepository<T> where T : PersistedModel
+    public class SketBaseRepository<T> : IBaseRepository<T> where T : SketPersistedModel
     {
-        
-        public  ContextModel<T> ContextModel { get; set; }
 
-        public BaseRepository()
+        public ContextModel<T> ContextModel { get; set; }
+
+        public SketBaseRepository()
         {
             ContextModel = new ContextModel<T>();
         }
@@ -41,7 +41,7 @@ namespace Bracketcore.KetAPI.Repository
                 var before = await BeforeCreate(doc);
                 await DB.SaveAsync(before.Model);
                 var after = await AfterCreate(doc);
-                
+
                 return after;
             }
             catch (Exception e)
@@ -92,7 +92,7 @@ namespace Bracketcore.KetAPI.Repository
             doc.ID = id;
             var filter = Builders<T>.Filter.Eq(i => i.ID, id);
 
-            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() {IsUpsert = true});
+            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() { IsUpsert = true });
 
             return $"{id} updated";
         }
@@ -144,6 +144,6 @@ namespace Bracketcore.KetAPI.Repository
 
             return exist != null;
         }
-        
+
     }
 }

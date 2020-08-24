@@ -1,6 +1,6 @@
 namespace Bracketcore.KetAPI.Model
 {
-    public abstract class EmailModel: PersistedModel
+    public abstract class EmailModel: SketPersistedModel
     {
         public string To { get; set; }
         public string From { get; set; }

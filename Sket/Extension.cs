@@ -1,25 +1,32 @@
-﻿using Bracketcore.Sket.Model;
-using Bracketcore.Sket.Repository;
+﻿using Bracketcore.KetAPI.Interfaces;
+using Bracketcore.KetAPI.Model;
+using Bracketcore.KetAPI.Repository;
+using Bracketcore.KetAPI.Stores;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Entities;
 using System;
 
-namespace Bracketcore.Sket
+namespace Bracketcore.KetAPI
 {
     public static class Extension
     {
         public static IServiceCollection AddSket(
             this IServiceCollection services, SketSettings settings)
         {
+            services.AddIdentityCore<string>(opt => { });
+            services.AddScoped<IUserStore<SketUserModel>, SketUserStore>();
             Auth(settings, services);
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
             services.AddSingleton<AccessTokenRepository>();
+            services.AddSingleton<IBaseRepository<SketPersistedModel>, SketBaseRepository<SketPersistedModel>>();
             services.AddSingleton<EmailRepository>();
             services.AddSingleton<RoleRepository>();
-            services.AddSingleton<UserRepository<UserModel>>();
+            services.AddSingleton<SketUserRepository<SketUserModel>>();
 
             new Sket();
 
@@ -27,6 +34,11 @@ namespace Bracketcore.Sket
             Console.WriteLine("Database " +
                               DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
             return services;
+        }
+
+        public static IApplicationBuilder UseSket(this IApplicationBuilder app)
+        {
+            return app;
         }
 
         static void Auth(SketSettings settings, IServiceCollection services)

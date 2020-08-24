@@ -1,15 +1,14 @@
-﻿using Bracketcore.Sket.Model;
-using MongoDB.Driver;
-using MongoDB.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bracketcore.KetAPI.Model;
+using MongoDB.Entities;
 
-namespace Bracketcore.Sket
+namespace Bracketcore.KetAPI
 {
     public class Sket
     {
-        public static IEnumerable<ContextModel<PersistedModel>> Context = new List<ContextModel<PersistedModel>>();
+        public static IEnumerable<ContextModel<SketPersistedModel>> Context = new List<ContextModel<SketPersistedModel>>();
         public static IEnumerable<RoleModel> Roles = new List<RoleModel>();
         public static List<Type> _context;
 
@@ -21,7 +20,7 @@ namespace Bracketcore.Sket
 
         private void GetModelContext()
         {
-            var type = typeof(PersistedModel);
+            var type = typeof(SketPersistedModel);
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p));
 

@@ -16,15 +16,15 @@ namespace Bracketcore.KetAPI.Controllers
     /// <typeparam name="TC">Controller model</typeparam>
     [ApiController]
     [Route("api/[Controller]")]
-    [Authorize]
-    public abstract class BaseController<T, TC> : ControllerBase
-        where T : PersistedModel
-        where TC : BaseRepository<T>
+    //[Authorize]
+    public abstract class SketBaseController<T, TC> : ControllerBase
+        where T : SketPersistedModel
+        where TC : SketBaseRepository<T>
     {
         protected TC Repo { get; set; }
         // public virtual H Hub { get; set; }
 
-        public BaseController(TC repo)
+        public SketBaseController(TC repo)
         {
             Repo = repo;
             // Hub = hub;

@@ -2,7 +2,7 @@
 
 namespace Bracketcore.KetAPI.Repository
 {
-    public  class RoleRepository : BaseRepository<RoleModel>
+    public  class RoleRepository : SketBaseRepository<RoleModel>
     {
         
     }

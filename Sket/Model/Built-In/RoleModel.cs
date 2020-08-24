@@ -4,7 +4,7 @@ namespace Bracketcore.KetAPI.Model
 {
     [Name("Roles")]
     public class RoleModel: 
-        PersistedModel
+        SketPersistedModel
     {
         public  string Name { get; set; }
         public  string Description { get; set; }

@@ -4,9 +4,9 @@ using System;
 namespace Bracketcore.KetAPI.Model
 {
 
-    public abstract class PersistedModel : Entity
+    public abstract class SketPersistedModel : Entity
     {
-        public One<UserModel> OwnerID { get; set; }
+        public One<SketUserModel> OwnerID { get; set; }
 
         public DateTime ModifiedOn { get; set; }
     }

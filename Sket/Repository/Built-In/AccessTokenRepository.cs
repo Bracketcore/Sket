@@ -34,6 +34,7 @@ namespace Bracketcore.KetAPI.Repository
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_key);
+            var ttl = DateTime.UtcNow.AddDays(7);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -42,7 +43,7 @@ namespace Bracketcore.KetAPI.Repository
                     new Claim(ClaimTypes.NameIdentifier, userModelInfo.ID),
                     new Claim(ClaimTypes.Role, userModelInfo.Role.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = ttl,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -53,6 +54,7 @@ namespace Bracketcore.KetAPI.Repository
                 .InsertOneAsync(new SketAccessTokenModel()
                 {
                     Tk = tk,
+                    Ttl = ttl,
                     OwnerID = userModelInfo.ID,
                 });
             return tk;

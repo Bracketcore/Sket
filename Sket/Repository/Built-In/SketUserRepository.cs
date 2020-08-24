@@ -46,9 +46,11 @@ namespace Bracketcore.KetAPI.Repository
 
                 if (u == null)
                 {
-
                     var before = (await BeforeCreate(doc)).Model;
                     before.Password = HashPassword(doc.Password);
+                    var role = await DB.Queryable<SketRoleModel>()
+                        .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
+                    before.Role.Add(role);
                     before.VerificationToken = RandomValue.ToString(8, false);
                     before.PhoneVerification = RandomValue.ToNumber(100000, 999999);
                     // doc.Role = false;

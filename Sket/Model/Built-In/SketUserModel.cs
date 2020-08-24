@@ -11,7 +11,7 @@ namespace Bracketcore.KetAPI.Model
         public string PasswordHash { get; set; }
         public string Email { get; set; }
         public bool EmailVerified { get; set; }
-        public Many<RoleModel> Role { get; set; }
+        public Many<SketRoleModel> Role { get; set; }
         public string VerificationToken { get; set; }
         public double PhoneVerification { get; set; }
 

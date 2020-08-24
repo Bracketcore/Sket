@@ -1,11 +1,9 @@
 ﻿using Bracketcore.KetAPI.Interfaces;
 using Bracketcore.KetAPI.Model;
 using Bracketcore.KetAPI.Repository;
-using Bracketcore.KetAPI.Stores;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Entities;
 using System;
@@ -17,12 +15,19 @@ namespace Bracketcore.KetAPI
         public static IServiceCollection AddSket(
             this IServiceCollection services, SketSettings settings)
         {
+
+            if (string.IsNullOrEmpty(settings.JwtKey))
+            {
+                throw new Exception("JwtKey is required");
+            }
             services.AddIdentityCore<string>(opt => { });
-            services.AddScoped<IUserStore<SketUserModel>, SketUserStore>();
+            services.AddAuthentication();
+            services.AddAuthorizationCore();
+
             Auth(settings, services);
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.AddSingleton<AccessTokenRepository>();
+            services.AddSingleton<AccessTokenRepository>(new AccessTokenRepository(settings.JwtKey));
             services.AddSingleton<IBaseRepository<SketPersistedModel>, SketBaseRepository<SketPersistedModel>>();
             services.AddSingleton<EmailRepository>();
             services.AddSingleton<RoleRepository>();
@@ -38,6 +43,9 @@ namespace Bracketcore.KetAPI
 
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
+
+            app.UseAuthentication();
+
             return app;
         }
 

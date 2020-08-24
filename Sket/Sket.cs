@@ -8,8 +8,8 @@ namespace Bracketcore.KetAPI
 {
     public class Sket
     {
-        public static IEnumerable<ContextModel<SketPersistedModel>> Context = new List<ContextModel<SketPersistedModel>>();
-        public static IEnumerable<RoleModel> Roles = new List<RoleModel>();
+        public static IEnumerable<SketContextModel<SketPersistedModel>> Context = new List<SketContextModel<SketPersistedModel>>();
+        public static IEnumerable<SketRoleModel> Roles = new List<SketRoleModel>();
         public static List<Type> _context;
 
         public Sket()
@@ -30,14 +30,14 @@ namespace Bracketcore.KetAPI
         private void SetupRoles()
         {
             // Setup roles
-            var getRoles = DB.Queryable<RoleModel>().ToList();
-            var normalRole = Enum.GetValues(typeof(RoleEnum)).Cast<RoleEnum>();
+            var getRoles = DB.Queryable<SketRoleModel>().ToList();
+            var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
 
             if (getRoles.Count < normalRole.ToList().Count)
             {
                 foreach (var role in normalRole)
                 {
-                    DB.Save(new RoleModel()
+                    DB.Save(new SketRoleModel()
                     {
                         Name = role.ToString()
                     });

@@ -1,39 +1,11 @@
 ﻿using Bracketcore.KetAPI.Model;
 using Bracketcore.KetAPI.Repository;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Entities;
-using System.Threading.Tasks;
 
 namespace Bracketcore.KetAPI.Controllers
 {
     public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>> where T : SketUserModel
     {
         private SketUserRepository<T> _repo;
-        private UserManager<T> userManager;
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public virtual async Task<IActionResult> Register(T model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await userManager.FindByNameAsync(model.Username);
-
-                if (user == null)
-                {
-                    user = model;
-                    var result = await userManager.CreateAsync(user, model.Password);
-                    await DB.SaveAsync(user);
-                    return Ok("Successful");
-                }
-
-            }
-
-            return NoContent();
-
-        }
 
 
         //[AllowAnonymous]
@@ -85,10 +57,11 @@ namespace Bracketcore.KetAPI.Controllers
         //}
 
 
-        protected SketUserController(SketUserRepository<T> repo, UserManager<T> userManager) : base(repo)
+        protected SketUserController(SketUserRepository<T> repo) : base(repo)
         {
             _repo = repo;
-            this.userManager = userManager;
         }
+
+
     }
 }

@@ -1,17 +1,19 @@
 ﻿using Bracketcore.KetAPI.Misc;
 using Bracketcore.KetAPI.Model;
-using Microsoft.AspNetCore.Identity;
+using Bracketcore.KetAPI.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bracketcore.KetAPI.Repository
 {
-    public class SketUserRepository<T> : SketBaseRepository<T>, IUserStore<T>, IUserPasswordStore<T> where T : SketUserModel
+    public class SketUserRepository<T> : SketBaseRepository<T> where T : SketUserModel
     {
+
         private AccessTokenRepository AccessTokenRepository { get; set; }
 
         public SketUserRepository(AccessTokenRepository access)
@@ -19,12 +21,12 @@ namespace Bracketcore.KetAPI.Repository
             AccessTokenRepository = access;
         }
 
-        private static string HashPassword(T doc)
+        public static string HashPassword(string password)
         {
             byte[] salt;
             new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
 
-            var pbkdf2 = new Rfc2898DeriveBytes(doc.Password, salt, 100000);
+            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000);
             var hash = pbkdf2.GetBytes(20);
 
             var hashBytes = new byte[36];
@@ -34,8 +36,6 @@ namespace Bracketcore.KetAPI.Repository
             var savedPasswordHash = Convert.ToBase64String(hashBytes);
             return savedPasswordHash;
         }
-
-
 
         public override async Task<T> Create(T doc)
         {
@@ -48,7 +48,7 @@ namespace Bracketcore.KetAPI.Repository
                 {
 
                     var before = (await BeforeCreate(doc)).Model;
-                    before.Password = HashPassword(doc);
+                    before.Password = HashPassword(doc.Password);
                     before.VerificationToken = RandomValue.ToString(8, false);
                     before.PhoneVerification = RandomValue.ToNumber(100000, 999999);
                     // doc.Role = false;
@@ -82,44 +82,44 @@ namespace Bracketcore.KetAPI.Repository
         }
 
 
-        //private async Task<LoginResponse> Login(T user)
-        //{
-        //    try
-        //    {
-        //        var verified = await Verify(user);
+        private async Task<LoginResponse> Login(T user)
+        {
+            try
+            {
+                var verified = await Verify(user);
 
-        //        if (verified == null)
-        //        {
-        //            return null!;
-        //        }
-        //        else
-        //        {
-        //            // return basic user info and authentication token
-
-
-        //            var returnUser = JObject.Parse(JsonConvert.SerializeObject(verified));
-        //            returnUser.Remove("Password");
-        //            returnUser.Remove("PhoneOtp");
-
-        //            var tk = await AccessTokenRepository.CreateAccessToken(verified);
-
-        //            var endVerification = new LoginResponse()
-        //            {
-        //                Tk = tk,
-        //                UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
-        //                Message = "Ok"
-        //            };
+                if (verified == null)
+                {
+                    return null!;
+                }
+                else
+                {
+                    // return basic user info and authentication token
 
 
-        //            return endVerification;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e.Message);
-        //        throw;
-        //    }
-        //}
+                    var returnUser = JObject.Parse(JsonConvert.SerializeObject(verified));
+                    returnUser.Remove("Password");
+                    returnUser.Remove("PhoneOtp");
+
+                    var tk = await AccessTokenRepository.CreateAccessToken(verified);
+
+                    var endVerification = new LoginResponse()
+                    {
+                        Tk = tk,
+                        UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
+                        Message = "Ok"
+                    };
+
+
+                    return endVerification;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+        }
 
         private static async Task<T> Verify(T user)
         {
@@ -226,88 +226,6 @@ namespace Bracketcore.KetAPI.Repository
 
         public void Dispose()
         {
-        }
-
-        public async Task<string> GetUserIdAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await FindById(user.ID);
-
-            return u.Username;
-
-        }
-
-        public async Task<string> GetUserNameAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await FindById(user.ID);
-
-            return u.Username;
-        }
-
-        public Task SetUserNameAsync(T user, string userName, CancellationToken cancellationToken)
-        {
-            user.Username = userName;
-
-            return Task.CompletedTask;
-        }
-
-        public Task<string> GetNormalizedUserNameAsync(T user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(user.NormalizedUsername);
-        }
-
-        public Task SetNormalizedUserNameAsync(T user, string normalizedName, CancellationToken cancellationToken)
-        {
-            user.NormalizedUsername = normalizedName;
-
-            return Task.CompletedTask;
-        }
-
-        public async Task<IdentityResult> CreateAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = this.Create(user);
-            return IdentityResult.Success;
-        }
-
-        public async Task<IdentityResult> UpdateAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await this.Update(user.ID, user);
-            return IdentityResult.Success;
-        }
-
-        public async Task<IdentityResult> DeleteAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await this.DestroyById(user.ID);
-            return IdentityResult.Success;
-        }
-
-        public async Task<T> FindByIdAsync(string userId, CancellationToken cancellationToken)
-        {
-            var u = await this.FindById(userId);
-
-            return u;
-        }
-
-        public async Task<T> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
-        {
-            var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == normalizedUserName);
-
-            return u;
-        }
-
-        public Task SetPasswordHashAsync(T user, string passwordHash, CancellationToken cancellationToken)
-        {
-            user.PasswordHash = passwordHash;
-            return Task.FromResult(user.PasswordHash);
-        }
-
-        public Task<string> GetPasswordHashAsync(T user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(user.Password);
-        }
-
-        public Task<bool> HasPasswordAsync(T user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(user.PasswordHash != null);
         }
     }
 }

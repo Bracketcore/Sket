@@ -1,7 +1,7 @@
-using MongoDB.Entities;
 using System;
+using MongoDB.Entities;
 
-namespace Bracketcore.KetAPI.Model
+namespace Bracketcore.Sket.Model
 {
 
     public abstract class SketPersistedModel : Entity

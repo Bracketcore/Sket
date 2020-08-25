@@ -1,8 +1,8 @@
-using MongoDB.Entities;
 using System;
 using System.Collections.Generic;
+using MongoDB.Entities;
 
-namespace Bracketcore.KetAPI.Model
+namespace Bracketcore.Sket.Model
 {
     [Name("AccessToken")]
     public class SketAccessTokenModel : SketPersistedModel

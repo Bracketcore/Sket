@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bracketcore.KetAPI.Model;
+using Bracketcore.Sket.Model;
 using MongoDB.Entities;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
     public class Sket
     {

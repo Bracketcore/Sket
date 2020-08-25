@@ -1,6 +1,6 @@
 ﻿using MongoDB.Entities;
 
-namespace Bracketcore.KetAPI.Model
+namespace Bracketcore.Sket.Model
 {
     [Name("Users")]
     public abstract class SketUserModel : SketPersistedModel

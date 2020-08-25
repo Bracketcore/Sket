@@ -1,6 +1,6 @@
-﻿using Bracketcore.KetAPI.Model;
+﻿using Bracketcore.Sket.Model;
 
-namespace Bracketcore.KetAPI.Responses
+namespace Bracketcore.Sket.Responses
 {
     public class LoginResponse : SketPersistedModel
     {

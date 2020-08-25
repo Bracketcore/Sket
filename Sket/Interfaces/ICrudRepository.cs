@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI.Interfaces
+namespace Bracketcore.Sket.Interfaces
 {
     public interface ICrudRepository<T>
     {

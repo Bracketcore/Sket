@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
-        <AssemblyName>Bracketcore.KetAPI</AssemblyName>
-        <RootNamespace>Bracketcore.KetAPI</RootNamespace>
+        <AssemblyName>Bracketcore.Sket</AssemblyName>
+        <RootNamespace>Bracketcore.Sket</RootNamespace>
         <Title>Sket</Title>
         <Authors>Bracketcore</Authors>
         <PackageTags>API, Bracketcore</PackageTags>

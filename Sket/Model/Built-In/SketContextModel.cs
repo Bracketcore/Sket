@@ -1,4 +1,4 @@
-﻿namespace Bracketcore.KetAPI.Model
+﻿namespace Bracketcore.Sket.Model
 {
     public sealed class SketContextModel<T>
     {

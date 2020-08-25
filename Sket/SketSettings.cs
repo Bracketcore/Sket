@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
     public class SketSettings
     {

@@ -1,6 +1,6 @@
-﻿using Bracketcore.KetAPI.Model;
+﻿using Bracketcore.Sket.Model;
 
-namespace Bracketcore.KetAPI.Repository
+namespace Bracketcore.Sket.Repository
 {
     public  class RoleRepository : SketBaseRepository<SketRoleModel>
     {

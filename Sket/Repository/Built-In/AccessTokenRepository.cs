@@ -1,16 +1,16 @@
-using Bracketcore.KetAPI.Model;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-using MongoDB.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Model;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+using MongoDB.Entities;
 
-namespace Bracketcore.KetAPI.Repository
+namespace Bracketcore.Sket.Repository
 {
     /// <summary>
     /// 

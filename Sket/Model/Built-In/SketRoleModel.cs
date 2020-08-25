@@ -1,6 +1,6 @@
 ﻿using MongoDB.Entities;
 
-namespace Bracketcore.KetAPI.Model
+namespace Bracketcore.Sket.Model
 {
     [Name("Roles")]
     public class SketRoleModel :

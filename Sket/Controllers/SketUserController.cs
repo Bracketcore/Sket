@@ -1,7 +1,7 @@
-﻿using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Repository;
+﻿using Bracketcore.Sket.Model;
+using Bracketcore.Sket.Repository;
 
-namespace Bracketcore.KetAPI.Controllers
+namespace Bracketcore.Sket.Controllers
 {
     public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>> where T : SketUserModel
     {

@@ -1,15 +1,15 @@
-﻿using Bracketcore.KetAPI.Misc;
-using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Responses;
+﻿using System;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Bracketcore.Sket.Misc;
+using Bracketcore.Sket.Model;
+using Bracketcore.Sket.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI.Repository
+namespace Bracketcore.Sket.Repository
 {
     public class SketUserRepository<T> : SketBaseRepository<T> where T : SketUserModel
     {

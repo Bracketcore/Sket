@@ -1,6 +1,6 @@
-﻿using Bracketcore.KetAPI.Interfaces;
-using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Repository;
+﻿using Bracketcore.Sket.Interfaces;
+using Bracketcore.Sket.Model;
+using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Entities;
 using System;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
     public static class Extension
     {

@@ -1,24 +1,26 @@
-﻿using System;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using Bracketcore.Sket.Misc;
+﻿using Bracketcore.Sket.Misc;
 using Bracketcore.Sket.Model;
 using Bracketcore.Sket.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Bracketcore.Sket.Interfaces;
 
 namespace Bracketcore.Sket.Repository
 {
-    public class SketUserRepository<T> : SketBaseRepository<T> where T : SketUserModel
+    /// <inheritdoc />
+    public abstract class SketSketUserRepository<T> : SketSketBaseRepository<T>, ISketBaseRepository<T> where T : SketUserModel
     {
 
-        private AccessTokenRepository AccessTokenRepository { get; set; }
+        private SketSketAccessTokenRepository SketSketAccessTokenRepository { get; set; }
 
-        public SketUserRepository(AccessTokenRepository access)
+        public SketSketUserRepository(SketSketAccessTokenRepository sketSketAccess)
         {
-            AccessTokenRepository = access;
+            SketSketAccessTokenRepository = sketSketAccess;
         }
 
         public static string HashPassword(string password)
@@ -103,7 +105,7 @@ namespace Bracketcore.Sket.Repository
                     returnUser.Remove("Password");
                     returnUser.Remove("PhoneOtp");
 
-                    var tk = await AccessTokenRepository.CreateAccessToken(verified);
+                    var tk = await SketSketAccessTokenRepository.CreateAccessToken(verified);
 
                     var endVerification = new LoginResponse()
                     {
@@ -169,15 +171,15 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-        //private async Task<bool> LogOut(T user)
-        //{
-        //    var token = await AccessTokenRepository.DestroyByUserId(user.ID);
+        private async Task<bool> LogOut(T user)
+        {
+            var token = await SketSketAccessTokenRepository.DestroyByUserId(user.ID);
 
-        //    if (token.Contains("Deleted"))
-        //        return true;
-        //    else
-        //        return true;
-        //}
+            if (token.Contains("Deleted"))
+                return true;
+            else
+                return true;
+        }
 
         private async Task<string> Confirm(string email, string userId, string token)
         {
@@ -226,8 +228,5 @@ namespace Bracketcore.Sket.Repository
             //verify the reset token and give user a form to change password
         }
 
-        public void Dispose()
-        {
-        }
     }
 }

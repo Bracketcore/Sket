@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Bracketcore.Sket.Interfaces;
 using Bracketcore.Sket.Model;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Repository
 {
@@ -13,12 +13,12 @@ namespace Bracketcore.Sket.Repository
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public class SketBaseRepository<T> : IBaseRepository<T> where T : SketPersistedModel
+    public abstract class SketSketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
     {
 
         public SketContextModel<T> SketContextModel { get; set; }
 
-        public SketBaseRepository()
+        public SketSketBaseRepository()
         {
             SketContextModel = new SketContextModel<T>();
         }
@@ -145,5 +145,17 @@ namespace Bracketcore.Sket.Repository
             return exist != null;
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

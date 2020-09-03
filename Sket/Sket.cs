@@ -1,21 +1,30 @@
-﻿using System;
+﻿using Bracketcore.Sket.Model;
+using Bracketcore.Sket.Repository;
+using MongoDB.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bracketcore.Sket.Model;
-using MongoDB.Entities;
+using System.Threading.Tasks;
 
 namespace Bracketcore.Sket
 {
-    public class Sket
+    public class Sket : IDisposable
     {
         public static IEnumerable<SketContextModel<SketPersistedModel>> Context = new List<SketContextModel<SketPersistedModel>>();
         public static IEnumerable<SketRoleModel> Roles = new List<SketRoleModel>();
         public static List<Type> _context;
+        private readonly SketRoleRepository<SketRoleModel> _sketRoleManager;
 
-        public Sket()
+        public Sket(SketRoleRepository<SketRoleModel> sketRoleManager)
         {
-            SetupRoles();
-            GetModelContext();
+            this._sketRoleManager = sketRoleManager;
+            Task.Run(async () =>
+            {
+                await SetupRoles();
+                GetModelContext();
+            });
+
+
         }
 
         private void GetModelContext()
@@ -27,10 +36,11 @@ namespace Bracketcore.Sket
             _context = types.ToList();
         }
 
-        private void SetupRoles()
+        private async Task SetupRoles()
         {
             // Setup roles
-            var getRoles = DB.Queryable<SketRoleModel>().ToList();
+            //var getRoles = DB.Queryable<SketRoleModel>().ToList();
+            var getRoles = await _sketRoleManager.FindAll();
             var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
 
             if (getRoles.Count < normalRole.ToList().Count)
@@ -46,5 +56,17 @@ namespace Bracketcore.Sket
             }
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

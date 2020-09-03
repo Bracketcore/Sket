@@ -1,4 +1,5 @@
-﻿using Bracketcore.Sket.Misc;
+﻿using Bracketcore.Sket.Interfaces;
+using Bracketcore.Sket.Misc;
 using Bracketcore.Sket.Model;
 using Bracketcore.Sket.Responses;
 using MongoDB.Driver.Linq;
@@ -8,22 +9,21 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Bracketcore.Sket.Interfaces;
 
 namespace Bracketcore.Sket.Repository
 {
     /// <inheritdoc />
-    public abstract class SketSketUserRepository<T> : SketSketBaseRepository<T>, ISketBaseRepository<T> where T : SketUserModel
+    public sealed class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
 
-        private SketSketAccessTokenRepository SketSketAccessTokenRepository { get; set; }
+        private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
-        public SketSketUserRepository(SketSketAccessTokenRepository sketSketAccess)
+        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess)
         {
-            SketSketAccessTokenRepository = sketSketAccess;
+            SketAccessTokenRepository = sketAccess;
         }
 
-        public static string HashPassword(string password)
+        public string HashPassword(string password)
         {
             byte[] salt;
             new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
@@ -86,7 +86,7 @@ namespace Bracketcore.Sket.Repository
         }
 
 
-        private async Task<LoginResponse> Login(T user)
+        public async Task<LoginResponse> Login(T user)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace Bracketcore.Sket.Repository
                     returnUser.Remove("Password");
                     returnUser.Remove("PhoneOtp");
 
-                    var tk = await SketSketAccessTokenRepository.CreateAccessToken(verified);
+                    var tk = await SketAccessTokenRepository.CreateAccessToken(verified);
 
                     var endVerification = new LoginResponse()
                     {
@@ -125,7 +125,7 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-        private static async Task<T> Verify(T user)
+        public async Task<T> Verify(T user)
         {
             try
             {
@@ -171,9 +171,9 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-        private async Task<bool> LogOut(T user)
+        public async Task<bool> LogOut(T user)
         {
-            var token = await SketSketAccessTokenRepository.DestroyByUserId(user.ID);
+            var token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
 
             if (token.Contains("Deleted"))
                 return true;
@@ -181,7 +181,7 @@ namespace Bracketcore.Sket.Repository
                 return true;
         }
 
-        private async Task<string> Confirm(string email, string userId, string token)
+        public async Task<string> Confirm(string email, string userId, string token)
         {
             try
             {

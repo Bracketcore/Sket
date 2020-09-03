@@ -4,7 +4,7 @@ using Bracketcore.Sket.Model;
 
 namespace Bracketcore.Sket.Interfaces
 {
-    public interface IBaseRepository<T>
+    public interface ISketBaseRepository<T>
     {
         Task<SketContextModel<T>> BeforeCreate(T doc);
         Task<T> Create(T doc);

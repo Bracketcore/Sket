@@ -1,6 +1,6 @@
 ﻿namespace Bracketcore.Sket.Model
 {
-    public sealed class SketContextModel<T>
+    public class SketContextModel<T>
     {
         public T Model { get; set; }
 

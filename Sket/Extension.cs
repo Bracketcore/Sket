@@ -1,9 +1,5 @@
-﻿using Bracketcore.Sket.Interfaces;
-using Bracketcore.Sket.Model;
-using Bracketcore.Sket.Repository;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Entities;
 using System;
@@ -20,20 +16,20 @@ namespace Bracketcore.Sket
             {
                 throw new Exception("JwtKey is required");
             }
-            services.AddIdentityCore<string>(opt => { });
-            services.AddAuthentication();
-            services.AddAuthorizationCore();
+
+            services.Add(new ServiceDescriptor(typeof(SketSettings), settings));
+            //services.AddAuthentication();
+            //services.AddAuthorizationCore();
 
             Auth(settings, services);
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.AddSingleton<AccessTokenRepository>(new AccessTokenRepository(settings.JwtKey));
-            services.AddSingleton<IBaseRepository<SketPersistedModel>, SketBaseRepository<SketPersistedModel>>();
-            services.AddSingleton<EmailRepository>();
-            services.AddSingleton<RoleRepository>();
-            services.AddSingleton<SketUserRepository<SketUserModel>>();
-
-            new Sket();
+            services.AddTransient(typeof(SketAccessTokenRepository<>));
+            services.AddTransient(typeof(SketEmailRepository<>));
+            services.AddTransient(typeof(SketRoleRepository<>));
+            services.AddTransient(typeof(SketUserRepository<>));
+            services.AddTransient<Sket>();
+            // new Sket();
 
 
             Console.WriteLine("Database " +
@@ -44,7 +40,7 @@ namespace Bracketcore.Sket
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
 
             return app;
         }
@@ -64,11 +60,11 @@ namespace Bracketcore.Sket
                 //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 //});
 
-                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-                {
-                    options.LoginPath = new PathString("/auth/login");
-                    options.AccessDeniedPath = new PathString("/auth/denied");
-                });
+                //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+                //{
+                //    options.LoginPath = new PathString("/auth/login");
+                //    options.AccessDeniedPath = new PathString("/auth/denied");
+                //});
             }
         }
 

@@ -1,5 +1,8 @@
+using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Interfaces;
-using Bracketcore.Sket.Model;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
@@ -13,13 +16,17 @@ namespace Bracketcore.Sket.Repository
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("Custom")]
     public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
     {
-
+        private IDataProtector _protector;
         public SketContextModel<T> SketContextModel { get; set; }
 
-        public SketBaseRepository()
+        public SketBaseRepository(IDataProtectionProvider provider)
         {
+            _protector = provider.CreateProtector(this.GetType().Name.Replace("`1", null));
             SketContextModel = new SketContextModel<T>();
         }
 

@@ -1,4 +1,5 @@
-using Bracketcore.Sket.Model;
+using Bracketcore.Sket.Entity;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -20,11 +21,11 @@ namespace Bracketcore.Sket.Repository
     {
         private string _config;
 
-
-        public SketAccessTokenRepository(SketSettings config)
+        public SketAccessTokenRepository(IDataProtectionProvider provider, Sket sket) : base(provider)
         {
-            this._config = config.JwtKey;
+            this._config = sket.SketSettings.JwtKey;
         }
+
 
         /// <summary>
         /// Creates Token on user login successfully
@@ -140,6 +141,8 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
+
+
     }
 
 

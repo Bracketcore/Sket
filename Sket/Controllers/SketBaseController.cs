@@ -1,9 +1,9 @@
-using Bracketcore.Sket.Model;
 using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
 
 
 //Todo add a rate limiter

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 
 namespace Bracketcore.Sket
 {
@@ -14,8 +13,6 @@ namespace Bracketcore.Sket
         public string JwtKey { get; set; }
 
         public bool EnableCamelCase { get; set; } = false;
-
-        public List<string> CorsDomains { get; set; }
 
         public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings()
         { Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority };

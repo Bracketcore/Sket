@@ -1,8 +1,7 @@
-﻿using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Interfaces;
+﻿using Bracketcore.Sket.Interfaces;
 using Bracketcore.Sket.Misc;
+using Bracketcore.Sket.Model;
 using Bracketcore.Sket.Responses;
-using Microsoft.AspNetCore.DataProtection;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Newtonsoft.Json;
@@ -19,8 +18,12 @@ namespace Bracketcore.Sket.Repository
 
         private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
+        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess)
+        {
+            SketAccessTokenRepository = sketAccess;
+        }
 
-        public static string HashPassword(string password)
+        public string HashPassword(string password)
         {
             byte[] salt;
             new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
@@ -82,10 +85,6 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-        string ISketUserRepository<T>.HashPassword(string password)
-        {
-            return HashPassword(password);
-        }
 
         public async Task<LoginResponse> Login(T user)
         {
@@ -229,16 +228,5 @@ namespace Bracketcore.Sket.Repository
             //verify the reset token and give user a form to change password
         }
 
-        public async Task<T> FindByUsername(string username)
-        {
-            var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
-            return user;
-        }
-
-        //todo work on data protection
-        public SketUserRepository(IDataProtectionProvider provider, SketAccessTokenRepository<SketAccessTokenModel> sketAccess) : base(provider)
-        {
-            SketAccessTokenRepository = sketAccess;
-        }
     }
 }

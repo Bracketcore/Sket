@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Model;
 
 namespace Bracketcore.Sket.Interfaces
 {

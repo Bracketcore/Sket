@@ -1,4 +1,4 @@
-﻿using Bracketcore.Sket.Entity;
+﻿using Bracketcore.Sket.Model;
 
 namespace Bracketcore.Sket.Responses
 {

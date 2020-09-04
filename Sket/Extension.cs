@@ -1,11 +1,6 @@
-﻿using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Repository;
-using Bracketcore.Sket.Stores;
+﻿using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
 using System;
 
@@ -22,88 +17,30 @@ namespace Bracketcore.Sket
                 throw new Exception("JwtKey is required");
             }
 
-
+            services.Add(new ServiceDescriptor(typeof(SketSettings), settings));
             //services.AddAuthentication();
             //services.AddAuthorizationCore();
 
             Auth(settings, services);
 
-            #region Sket Dependency injection section
-
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.TryAddScoped(typeof(SketAccessTokenRepository<>));
-            services.TryAddScoped(typeof(SketEmailRepository<>));
-            services.TryAddScoped(typeof(SketRoleRepository<>));
-            services.TryAddScoped(typeof(SketUserRepository<>));
-            var init = new Sket(settings);
-            services.Add(new ServiceDescriptor(typeof(Sket), init));
+            services.AddTransient(typeof(SketAccessTokenRepository<>));
+            services.AddTransient(typeof(SketEmailRepository<>));
+            services.AddTransient(typeof(SketRoleRepository<>));
+            services.AddTransient(typeof(SketUserRepository<>));
+            services.AddTransient<Sket>();
+            // new Sket();
+
 
             Console.WriteLine("Database " +
                               DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
-            #endregion
-
-            //Add data protection
-            services.AddDataProtection();
-
-            #region Lockout user on failed attempts
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequireUppercase = true;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-            });
-
-            #endregion
-
-
-            #region Identity Setup Section
-
-            services.AddIdentityCore<SketUserModel>(option =>
-            {
-
-            });
-
-            services.AddScoped<IUserStore<SketUserModel>, UserStore<SketUserModel>>();
-
-            #endregion
-
-            //  xss and crsf security
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-            });
-
-            #region CORS security section
-
-            if (settings.CorsDomains.Count > 0)
-            {
-                services.AddCors(options =>
-                {
-                    options.AddPolicy("Custom", builder =>
-                    {
-                        foreach (var domains in settings.CorsDomains)
-                        {
-                            builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
-                        }
-
-
-                    });
-                });
-            }
-
-            #endregion
-
-
             return services;
         }
 
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
 
             return app;
         }

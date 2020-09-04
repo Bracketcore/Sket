@@ -1,4 +1,4 @@
-﻿using Bracketcore.Sket.Entity;
+﻿using Bracketcore.Sket.Model;
 using Bracketcore.Sket.Repository;
 
 namespace Bracketcore.Sket.Controllers

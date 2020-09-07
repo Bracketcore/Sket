@@ -1,13 +1,14 @@
-using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Repository;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
 
 
 //Todo add a rate limiter
-namespace Bracketcore.KetAPI.Controllers
+namespace Bracketcore.Sket.Controllers
 {
     /// <summary>
     /// 
@@ -16,8 +17,8 @@ namespace Bracketcore.KetAPI.Controllers
     /// <typeparam name="TC">Controller model</typeparam>
     [ApiController]
     [Route("api/[Controller]")]
-    //[Authorize]
-    public abstract class SketBaseController<T, TC> : ControllerBase
+    [Authorize]
+    public abstract class SketBaseController<T, TC> : ControllerBase, IDisposable
         where T : SketPersistedModel
         where TC : SketBaseRepository<T>
     {
@@ -29,7 +30,7 @@ namespace Bracketcore.KetAPI.Controllers
             Repo = repo;
             // Hub = hub;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
@@ -48,17 +49,35 @@ namespace Bracketcore.KetAPI.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public virtual async Task<IActionResult> Create([FromBody] T doc)
         {
-            if (doc == null) return BadRequest();
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (doc == null) return BadRequest();
 
-            var cre = await Repo.Create(doc);
-            if (cre == null) return BadRequest();
-            return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
+                    var cre = await Repo.Create(doc);
+                    if (cre == null) return BadRequest();
+                    return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
         }
 
         [Authorize(Roles = "User,Admin,Support")]
         [HttpPut("{id}")]
+        [ValidateAntiForgeryToken]
         public virtual async Task<IActionResult> Update(string id, T replace)
         {
             //Check if user is owner
@@ -72,6 +91,7 @@ namespace Bracketcore.KetAPI.Controllers
 
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete("{id}")]
+        [ValidateAntiForgeryToken]
         public virtual async Task<IActionResult> Remove(string id)
         {
             var exist = await Repo.Exist(id).ConfigureAwait(false);
@@ -86,6 +106,20 @@ namespace Bracketcore.KetAPI.Controllers
         public virtual IActionResult Exist(string id)
         {
             return Ok(Repo.Exist(id));
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Repo?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,73 +1,132 @@
-﻿using Bracketcore.KetAPI.Interfaces;
-using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Repository;
-using Bracketcore.KetAPI.Stores;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Bracketcore.Sket.Manager;
+using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
 using System;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
     public static class Extension
     {
         public static IServiceCollection AddSket(
-            this IServiceCollection services, SketSettings settings)
+            this IServiceCollection services, IConfiguration config, SketSettings settings)
         {
-            services.AddIdentityCore<string>(opt => { });
-            services.AddScoped<IUserStore<SketUserModel>, SketUserStore>();
-            Auth(settings, services);
+
+            if (string.IsNullOrEmpty(settings.JwtKey))
+            {
+                throw new Exception("JwtKey is required");
+            }
+
+
+
+            #region Sket Dependency injection section
+
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            });
+
+            //    .AddJwtBearer(x =>
+            //{
+            //    x.SaveToken = true;
+            //    x.RequireHttpsMetadata = false;
+            //    x.TokenValidationParameters = new TokenValidationParameters()
+            //    {
+            //        ValidateIssuerSigningKey = true,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["Jwt:Key"])),
+            //        ValidateIssuer = false,
+            //        ValidateAudience = false
+            //    };
+            //});
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            services.AddSingleton<AccessTokenRepository>();
-            services.AddSingleton<IBaseRepository<SketPersistedModel>, SketBaseRepository<SketPersistedModel>>();
-            services.AddSingleton<EmailRepository>();
-            services.AddSingleton<RoleRepository>();
-            services.AddSingleton<SketUserRepository<SketUserModel>>();
-
-            new Sket();
-
+            services.TryAddScoped(typeof(SketAccessTokenRepository<>));
+            services.TryAddScoped(typeof(SketEmailRepository<>));
+            services.TryAddScoped(typeof(SketRoleRepository<>));
+            services.TryAddScoped(typeof(SketUserRepository<>));
+            services.TryAddScoped(typeof(JwtManager<>));
+            var init = new Sket(settings);
+            services.Add(new ServiceDescriptor(typeof(Sket), init));
 
             Console.WriteLine("Database " +
                               DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
+            #endregion
+
+            //Add data protection
+            services.AddDataProtection();
+
+            #region Lockout user on failed attempts
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireUppercase = true;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+            });
+
+            #endregion
+
+
+            #region Identity Setup Section
+
+            //services.AddIdentityCore<SketUserModel>(option =>
+            //{
+
+            //});
+
+            //services.AddScoped<IUserStore<SketUserModel>, UserStore<SketUserModel>>();
+
+            #endregion
+
+            #region xss and crsf security
+
+            //     services.AddMvc(options =>
+            //{
+            //    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            //});
+
+            #endregion
+
+
+            #region CORS security section
+
+            if (settings.CorsDomains != null)
+            {
+                services.AddCors(options =>
+                {
+                    options.AddPolicy("Custom", builder =>
+                    {
+                        foreach (var domains in settings.CorsDomains)
+                        {
+                            builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
+                        }
+
+
+                    });
+                });
+            }
+
+            #endregion
+
+
             return services;
         }
 
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
+
+            app.UseAuthentication();
+
             return app;
         }
 
-        static void Auth(SketSettings settings, IServiceCollection services)
-        {
-            if (settings.EnableJwt)
-            {
-                settings.EnableCookies = false;
-                // add services for jwt
-            }
-            else
-            {
-                //services.AddAuthentication(options =>
-                //{
-                //    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //});
 
-                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-                {
-                    options.LoginPath = new PathString("/auth/login");
-                    options.AccessDeniedPath = new PathString("/auth/denied");
-                });
-            }
-        }
-
-        static void JsonCamelCase(SketSettings settings, IServiceCollection services)
-        {
-
-            // work on json
-        }
     }
 }

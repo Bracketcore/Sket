@@ -1,21 +1,32 @@
-﻿using System;
+﻿using Bracketcore.Sket.Entity;
+using MongoDB.Driver.Linq;
+using MongoDB.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bracketcore.KetAPI.Model;
-using MongoDB.Entities;
+using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
-    public class Sket
+    /// <inheritdoc />
+    public class Sket : IDisposable
     {
-        public static IEnumerable<ContextModel<SketPersistedModel>> Context = new List<ContextModel<SketPersistedModel>>();
-        public static IEnumerable<RoleModel> Roles = new List<RoleModel>();
-        public static List<Type> _context;
+        public IEnumerable<SketRoleModel> Roles = new List<SketRoleModel>();
+        public List<Type> Context = new List<Type>();
 
-        public Sket()
+        public SketSettings SketSettings { get; set; }
+
+        public Sket(SketSettings setting)
         {
-            SetupRoles();
-            GetModelContext();
+            this.SketSettings = setting;
+
+            Task.Run(async () =>
+            {
+                await SetupRoles();
+                GetModelContext();
+            });
+
+
         }
 
         private void GetModelContext()
@@ -24,27 +35,54 @@ namespace Bracketcore.KetAPI
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p));
 
-            _context = types.ToList();
+            foreach (var t in types.ToList())
+            {
+                Context.Add(t);
+            }
+
+
         }
 
-        private void SetupRoles()
+        private async Task SetupRoles()
         {
             // Setup roles
-            var getRoles = DB.Queryable<RoleModel>().ToList();
-            var normalRole = Enum.GetValues(typeof(RoleEnum)).Cast<RoleEnum>();
-
-            if (getRoles.Count < normalRole.ToList().Count)
+            try
             {
-                foreach (var role in normalRole)
-                {
-                    DB.Save(new RoleModel()
-                    {
-                        Name = role.ToString()
-                    });
-                }
+                var getRoles = await DB.Queryable<SketRoleModel>().FirstOrDefaultAsync();
+                var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
 
+                if (getRoles == null)
+                {
+                    foreach (var role in normalRole)
+                    {
+                        DB.Save(new SketRoleModel()
+                        {
+                            Name = role.ToString()
+                        });
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
+
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

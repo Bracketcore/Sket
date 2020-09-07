@@ -1,4 +1,4 @@
-﻿namespace Bracketcore.KetAPI.Responses
+﻿namespace Bracketcore.Sket.Responses
 {
     public class DataResponse<T>
     {

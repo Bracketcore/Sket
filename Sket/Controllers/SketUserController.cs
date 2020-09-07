@@ -1,94 +1,55 @@
-﻿using Bracketcore.KetAPI.Model;
-using Bracketcore.KetAPI.Repository;
-using Microsoft.AspNetCore.Identity;
+﻿using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Entities;
+using System;
 using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI.Controllers
+namespace Bracketcore.Sket.Controllers
 {
-    public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>> where T : SketUserModel
+    public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>>, IDisposable where T : SketUserModel
     {
         private SketUserRepository<T> _repo;
-        private UserManager<T> userManager;
 
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public virtual async Task<IActionResult> Register(T model)
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] T User)
         {
-            if (ModelState.IsValid)
-            {
-                var user = await userManager.FindByNameAsync(model.Username);
 
-                if (user == null)
-                {
-                    user = model;
-                    var result = await userManager.CreateAsync(user, model.Password);
-                    await DB.SaveAsync(user);
-                    return Ok("Successful");
-                }
+            var verify = await _repo.Login(User);
+            await HttpContext.SignInAsync(verify.ClaimsPrincipal);
 
-            }
-
-            return NoContent();
-
+            return Ok(verify);
         }
 
 
-        //[AllowAnonymous]
-        //[HttpPost("login")]
-        //public virtual async Task<IActionResult> Login([FromBody]
-        //SketUserModel
-        //User)
-        //{
-        //    var verify = await _repo.Login(
-        //    User);
+        [HttpGet("currentuser")]
+        public async Task<ActionResult> GetCurrentUser()
+        {
+            return Ok();
+        }
 
-        //    var cred = new ClaimsPrincipal();
+        [HttpPost("logout")]
+        public virtual async Task Logout([FromBody]
+        SketUserModel user)
+        {
 
-        //    if (verify == null)
-        //    {
-        //        return Unauthorized();
-        //    }
-
-        //    var identity = new ClaimsIdentity(new[]
-        //    {
-        //        new Claim("Profile", JsonConvert.SerializeObject(verify.UserInfo)),
-        //        new Claim(ClaimTypes.Email, verify.UserInfo.Email),
-        //        new Claim(ClaimTypes.NameIdentifier, verify.UserInfo.ID),
-        //        new Claim("Token", verify.Tk),
-        //        new Claim(ClaimTypes.Role,  JsonSerializer.Serialize(verify.UserInfo.Role))
-        //    }, CookieAuthenticationDefaults.AuthenticationScheme);
-
-        //    var principal = new ClaimsPrincipal(identity);
-
-        //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-        //        new AuthenticationProperties() { IsPersistent = true });
-
-        //    // LocalRedirect();
-
-        //    return Ok(verify);
-        //}
-
-        //[HttpPost("logout")]
-        //public virtual async Task Logout([FromBody]
-        //SketUserModel user)
-        //{
-
-        //    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-        //        new AuthenticationProperties()
-        //        {
-        //            AllowRefresh = true,
-        //            RedirectUri = "/"
-        //        });
-        //}
+            await HttpContext.SignOutAsync("Bearer",
+                new AuthenticationProperties()
+                {
+                    AllowRefresh = true,
+                    RedirectUri = "/"
+                });
+        }
 
 
-        protected SketUserController(SketUserRepository<T> repo, UserManager<T> userManager) : base(repo)
+        protected SketUserController(SketUserRepository<T> repo) : base(repo)
         {
             _repo = repo;
-            this.userManager = userManager;
+
         }
+
+
     }
 }

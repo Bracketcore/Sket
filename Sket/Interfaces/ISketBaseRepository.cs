@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bracketcore.KetAPI.Model;
+using Bracketcore.Sket.Entity;
 
-namespace Bracketcore.KetAPI.Interfaces
+namespace Bracketcore.Sket.Interfaces
 {
-    public interface IBaseRepository<T>
+    public interface ISketBaseRepository<T>
     {
-        Task<ContextModel<T>> BeforeCreate(T doc);
+        Task<SketContextModel<T>> BeforeCreate(T doc);
         Task<T> Create(T doc);
         Task<T> AfterCreate(T doc);
         Task<string> CreateBulk(IEnumerable<T> fix);

@@ -1,30 +1,30 @@
-﻿using Bracketcore.KetAPI.Misc;
-using Bracketcore.KetAPI.Model;
-using Microsoft.AspNetCore.Identity;
+﻿using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Interfaces;
+using Bracketcore.Sket.Manager;
+using Bracketcore.Sket.Misc;
+using Bracketcore.Sket.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using System;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI.Repository
+namespace Bracketcore.Sket.Repository
 {
-    public class SketUserRepository<T> : SketBaseRepository<T>, IUserStore<T>, IUserPasswordStore<T> where T : SketUserModel
+    /// <inheritdoc />
+    public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
-        private AccessTokenRepository AccessTokenRepository { get; set; }
+        private JwtManager<T> _jwtManager;
 
-        public SketUserRepository(AccessTokenRepository access)
-        {
-            AccessTokenRepository = access;
-        }
+        private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
-        private static string HashPassword(T doc)
+
+        public static string HashPassword(string password)
         {
             byte[] salt;
             new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
 
-            var pbkdf2 = new Rfc2898DeriveBytes(doc.Password, salt, 100000);
+            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000);
             var hash = pbkdf2.GetBytes(20);
 
             var hashBytes = new byte[36];
@@ -35,20 +35,21 @@ namespace Bracketcore.KetAPI.Repository
             return savedPasswordHash;
         }
 
-
-
         public override async Task<T> Create(T doc)
         {
             //Todo create the shortner url for verification and then send email after registration
             try
             {
+
                 var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == doc.Username);
 
                 if (u == null)
                 {
-
                     var before = (await BeforeCreate(doc)).Model;
-                    before.Password = HashPassword(doc);
+                    before.Password = _jwtManager.HashPassword(doc.Password);
+                    var role = await DB.Queryable<SketRoleModel>()
+                        .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
+                    before.Role.Add(role);
                     before.VerificationToken = RandomValue.ToString(8, false);
                     before.PhoneVerification = RandomValue.ToNumber(100000, 999999);
                     // doc.Role = false;
@@ -81,47 +82,42 @@ namespace Bracketcore.KetAPI.Repository
             }
         }
 
+        string ISketUserRepository<T>.HashPassword(string password)
+        {
+            return HashPassword(password);
+        }
 
-        //private async Task<LoginResponse> Login(T user)
-        //{
-        //    try
-        //    {
-        //        var verified = await Verify(user);
-
-        //        if (verified == null)
-        //        {
-        //            return null!;
-        //        }
-        //        else
-        //        {
-        //            // return basic user info and authentication token
+        public async Task<LoginResponse> Login(T user)
+        {
+            try
+            {
+                var check = await _jwtManager.Authenticate(user.Username, user.Password);
 
 
-        //            var returnUser = JObject.Parse(JsonConvert.SerializeObject(verified));
-        //            returnUser.Remove("Password");
-        //            returnUser.Remove("PhoneOtp");
+                // return basic user info and authentication token
 
-        //            var tk = await AccessTokenRepository.CreateAccessToken(verified);
+                await SketAccessTokenRepository.Create(check.userId, check.jwt);
 
-        //            var endVerification = new LoginResponse()
-        //            {
-        //                Tk = tk,
-        //                UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
-        //                Message = "Ok"
-        //            };
+                var endVerification = new LoginResponse()
+                {
+                    Tk = check.jwt,
+                    Message = "Ok",
+                    CreatedOn = DateTime.UtcNow,
+                    ClaimsPrincipal = check.Claims
+                };
 
 
-        //            return endVerification;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e.Message);
-        //        throw;
-        //    }
-        //}
+                return endVerification;
 
-        private static async Task<T> Verify(T user)
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+        }
+
+        public async Task<T> Verify(T user)
         {
             try
             {
@@ -167,17 +163,17 @@ namespace Bracketcore.KetAPI.Repository
             }
         }
 
-        //private async Task<bool> LogOut(T user)
-        //{
-        //    var token = await AccessTokenRepository.DestroyByUserId(user.ID);
+        public async Task<bool> LogOut(T user)
+        {
+            var token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
 
-        //    if (token.Contains("Deleted"))
-        //        return true;
-        //    else
-        //        return true;
-        //}
+            if (token.Contains("Deleted"))
+                return true;
+            else
+                return true;
+        }
 
-        private async Task<string> Confirm(string email, string userId, string token)
+        public async Task<string> Confirm(string email, string userId, string token)
         {
             try
             {
@@ -224,90 +220,20 @@ namespace Bracketcore.KetAPI.Repository
             //verify the reset token and give user a form to change password
         }
 
-        public void Dispose()
+        public async Task<T> FindByUsername(string username)
         {
+            var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
+            return user;
         }
 
-        public async Task<string> GetUserIdAsync(T user, CancellationToken cancellationToken)
+
+        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess, JwtManager<T> jwtManager) : base()
         {
-            var u = await FindById(user.ID);
-
-            return u.Username;
-
+            SketAccessTokenRepository = sketAccess;
+            _jwtManager = jwtManager;
         }
 
-        public async Task<string> GetUserNameAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await FindById(user.ID);
 
-            return u.Username;
-        }
 
-        public Task SetUserNameAsync(T user, string userName, CancellationToken cancellationToken)
-        {
-            user.Username = userName;
-
-            return Task.CompletedTask;
-        }
-
-        public Task<string> GetNormalizedUserNameAsync(T user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(user.NormalizedUsername);
-        }
-
-        public Task SetNormalizedUserNameAsync(T user, string normalizedName, CancellationToken cancellationToken)
-        {
-            user.NormalizedUsername = normalizedName;
-
-            return Task.CompletedTask;
-        }
-
-        public async Task<IdentityResult> CreateAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = this.Create(user);
-            return IdentityResult.Success;
-        }
-
-        public async Task<IdentityResult> UpdateAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await this.Update(user.ID, user);
-            return IdentityResult.Success;
-        }
-
-        public async Task<IdentityResult> DeleteAsync(T user, CancellationToken cancellationToken)
-        {
-            var u = await this.DestroyById(user.ID);
-            return IdentityResult.Success;
-        }
-
-        public async Task<T> FindByIdAsync(string userId, CancellationToken cancellationToken)
-        {
-            var u = await this.FindById(userId);
-
-            return u;
-        }
-
-        public async Task<T> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
-        {
-            var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == normalizedUserName);
-
-            return u;
-        }
-
-        public Task SetPasswordHashAsync(T user, string passwordHash, CancellationToken cancellationToken)
-        {
-            user.PasswordHash = passwordHash;
-            return Task.FromResult(user.PasswordHash);
-        }
-
-        public Task<string> GetPasswordHashAsync(T user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(user.Password);
-        }
-
-        public Task<bool> HasPasswordAsync(T user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(user.PasswordHash != null);
-        }
     }
 }

@@ -1,5 +1,7 @@
-using Bracketcore.KetAPI.Interfaces;
-using Bracketcore.KetAPI.Model;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Interfaces;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
@@ -7,20 +9,24 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Bracketcore.KetAPI.Repository
+namespace Bracketcore.Sket.Repository
 {
     /// <summary>
     /// Based Repository 
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public class SketBaseRepository<T> : IBaseRepository<T> where T : SketPersistedModel
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("Custom")]
+    public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
     {
 
-        public ContextModel<T> ContextModel { get; set; }
+        public SketContextModel<T> SketContextModel { get; set; }
 
         public SketBaseRepository()
         {
-            ContextModel = new ContextModel<T>();
+            SketContextModel = new SketContextModel<T>();
+
         }
 
         /// <summary>
@@ -28,10 +34,10 @@ namespace Bracketcore.KetAPI.Repository
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
-        public virtual Task<ContextModel<T>> BeforeCreate(T doc)
+        public virtual Task<SketContextModel<T>> BeforeCreate(T doc)
         {
-            ContextModel.Model = doc;
-            return Task.FromResult(ContextModel);
+            SketContextModel.Model = doc;
+            return Task.FromResult(SketContextModel);
         }
 
         public virtual async Task<T> Create(T doc)
@@ -145,5 +151,17 @@ namespace Bracketcore.KetAPI.Repository
             return exist != null;
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

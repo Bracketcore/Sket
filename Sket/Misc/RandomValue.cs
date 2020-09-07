@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Bracketcore.KetAPI.Misc
+namespace Bracketcore.Sket.Misc
 {
     public static class RandomValue
     {

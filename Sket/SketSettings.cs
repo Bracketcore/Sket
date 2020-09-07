@@ -1,16 +1,23 @@
-﻿using MongoDB.Driver;
+﻿using System.Collections.Generic;
+using MongoDB.Driver;
 
-namespace Bracketcore.KetAPI
+namespace Bracketcore.Sket
 {
     public class SketSettings
     {
         public bool EnableCookies { get; set; } = true;
         public bool EnableJwt { get; set; } = false;
         public string DatabaseName { get; set; }
+        /// <summary>
+        /// Use the JwtKey to setup your token creator
+        /// </summary>
+        public string JwtKey { get; set; }
 
         public bool EnableCamelCase { get; set; } = false;
 
+        public List<string> CorsDomains { get; set; }
+
         public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings()
-            { Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority };
+        { Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority };
     }
 }

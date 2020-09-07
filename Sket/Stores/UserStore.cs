@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Stores
 {
-    public class UserStore<T> : IUserStore<T>, IUserPasswordStore<T> where T : SketUserModel
+    public class UserStore<T> : SketUserModel, IUserStore<T>, IUserPasswordStore<T> where T : SketUserModel
     {
         private SketUserRepository<T> _repo;
 
@@ -90,5 +90,6 @@ namespace Bracketcore.Sket.Stores
         {
             return await Task.FromResult(user.PasswordHash != null);
         }
+
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Bracketcore.Sket.Entity;
+using System;
+using System.Security.Claims;
 
 namespace Bracketcore.Sket.Responses
 {
@@ -6,6 +8,7 @@ namespace Bracketcore.Sket.Responses
     {
         public string Message { get; set; }
         public string Tk { get; set; }
-        public SketUserModel UserInfo { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public ClaimsPrincipal ClaimsPrincipal { get; set; }
     }
 }

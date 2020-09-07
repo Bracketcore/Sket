@@ -1,5 +1,4 @@
 using Bracketcore.Sket.Entity;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -21,7 +20,7 @@ namespace Bracketcore.Sket.Repository
     {
         private string _config;
 
-        public SketAccessTokenRepository(IDataProtectionProvider provider, Sket sket) : base(provider)
+        public SketAccessTokenRepository(Sket sket) : base()
         {
             this._config = sket.SketSettings.JwtKey;
         }
@@ -32,7 +31,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="userModelInfo"></param>
         /// <returns></returns>
-        public async Task<string> CreateAccessToken(SketUserModel userModelInfo)
+        public async Task<string> GenerateToken(SketUserModel userModelInfo)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_config);
@@ -61,6 +60,19 @@ namespace Bracketcore.Sket.Repository
                 });
             return tk;
 
+        }
+
+        public async Task Create(string userId, string token)
+        {
+            var ttl = DateTime.UtcNow.AddDays(7);
+            await DB.Collection<SketAccessTokenModel>()
+                 .InsertOneAsync(new SketAccessTokenModel()
+                 {
+                     Tk = token,
+                     Ttl = ttl,
+                     OwnerID = userId,
+                 });
+            await Task.CompletedTask;
         }
 
         /// <summary>

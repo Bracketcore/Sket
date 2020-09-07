@@ -1,9 +1,8 @@
-﻿using Bracketcore.Sket.Entity;
+﻿using Bracketcore.Sket.Manager;
 using Bracketcore.Sket.Repository;
-using Bracketcore.Sket.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
@@ -14,7 +13,7 @@ namespace Bracketcore.Sket
     public static class Extension
     {
         public static IServiceCollection AddSket(
-            this IServiceCollection services, SketSettings settings)
+            this IServiceCollection services, IConfiguration config, SketSettings settings)
         {
 
             if (string.IsNullOrEmpty(settings.JwtKey))
@@ -23,18 +22,34 @@ namespace Bracketcore.Sket
             }
 
 
-            //services.AddAuthentication();
-            //services.AddAuthorizationCore();
-
-            Auth(settings, services);
 
             #region Sket Dependency injection section
+
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            });
+
+            //    .AddJwtBearer(x =>
+            //{
+            //    x.SaveToken = true;
+            //    x.RequireHttpsMetadata = false;
+            //    x.TokenValidationParameters = new TokenValidationParameters()
+            //    {
+            //        ValidateIssuerSigningKey = true,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["Jwt:Key"])),
+            //        ValidateIssuer = false,
+            //        ValidateAudience = false
+            //    };
+            //});
 
             services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
             services.TryAddScoped(typeof(SketAccessTokenRepository<>));
             services.TryAddScoped(typeof(SketEmailRepository<>));
             services.TryAddScoped(typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(SketUserRepository<>));
+            services.TryAddScoped(typeof(JwtManager<>));
             var init = new Sket(settings);
             services.Add(new ServiceDescriptor(typeof(Sket), init));
 
@@ -61,24 +76,28 @@ namespace Bracketcore.Sket
 
             #region Identity Setup Section
 
-            services.AddIdentityCore<SketUserModel>(option =>
-            {
+            //services.AddIdentityCore<SketUserModel>(option =>
+            //{
 
-            });
+            //});
 
-            services.AddScoped<IUserStore<SketUserModel>, UserStore<SketUserModel>>();
+            //services.AddScoped<IUserStore<SketUserModel>, UserStore<SketUserModel>>();
 
             #endregion
 
-            //  xss and crsf security
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-            });
+            #region xss and crsf security
+
+            //     services.AddMvc(options =>
+            //{
+            //    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            //});
+
+            #endregion
+
 
             #region CORS security section
 
-            if (settings.CorsDomains.Count > 0)
+            if (settings.CorsDomains != null)
             {
                 services.AddCors(options =>
                 {
@@ -108,33 +127,6 @@ namespace Bracketcore.Sket
             return app;
         }
 
-        static void Auth(SketSettings settings, IServiceCollection services)
-        {
-            if (settings.EnableJwt)
-            {
-                settings.EnableCookies = false;
-                // add services for jwt
-            }
-            else
-            {
-                //services.AddAuthentication(options =>
-                //{
-                //    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //});
 
-                //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
-                //{
-                //    options.LoginPath = new PathString("/auth/login");
-                //    options.AccessDeniedPath = new PathString("/auth/denied");
-                //});
-            }
-        }
-
-        static void JsonCamelCase(SketSettings settings, IServiceCollection services)
-        {
-
-            // work on json
-        }
     }
 }

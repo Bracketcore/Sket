@@ -1,12 +1,10 @@
 ﻿using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Interfaces;
+using Bracketcore.Sket.Manager;
 using Bracketcore.Sket.Misc;
 using Bracketcore.Sket.Responses;
-using Microsoft.AspNetCore.DataProtection;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -14,8 +12,9 @@ using System.Threading.Tasks;
 namespace Bracketcore.Sket.Repository
 {
     /// <inheritdoc />
-    public sealed class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
+    public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
+        private JwtManager<T> _jwtManager;
 
         private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
@@ -41,12 +40,13 @@ namespace Bracketcore.Sket.Repository
             //Todo create the shortner url for verification and then send email after registration
             try
             {
+
                 var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == doc.Username);
 
                 if (u == null)
                 {
                     var before = (await BeforeCreate(doc)).Model;
-                    before.Password = HashPassword(doc.Password);
+                    before.Password = _jwtManager.HashPassword(doc.Password);
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
                     before.Role.Add(role);
@@ -91,33 +91,24 @@ namespace Bracketcore.Sket.Repository
         {
             try
             {
-                var verified = await Verify(user);
+                var check = await _jwtManager.Authenticate(user.Username, user.Password);
 
-                if (verified == null)
+
+                // return basic user info and authentication token
+
+                await SketAccessTokenRepository.Create(check.userId, check.jwt);
+
+                var endVerification = new LoginResponse()
                 {
-                    return null!;
-                }
-                else
-                {
-                    // return basic user info and authentication token
+                    Tk = check.jwt,
+                    Message = "Ok",
+                    CreatedOn = DateTime.UtcNow,
+                    ClaimsPrincipal = check.Claims
+                };
 
 
-                    var returnUser = JObject.Parse(JsonConvert.SerializeObject(verified));
-                    returnUser.Remove("Password");
-                    returnUser.Remove("PhoneOtp");
+                return endVerification;
 
-                    var tk = await SketAccessTokenRepository.CreateAccessToken(verified);
-
-                    var endVerification = new LoginResponse()
-                    {
-                        Tk = tk,
-                        UserInfo = JsonConvert.DeserializeObject<T>(returnUser.ToString()),
-                        Message = "Ok"
-                    };
-
-
-                    return endVerification;
-                }
             }
             catch (Exception e)
             {
@@ -235,10 +226,14 @@ namespace Bracketcore.Sket.Repository
             return user;
         }
 
-        //todo work on data protection
-        public SketUserRepository(IDataProtectionProvider provider, SketAccessTokenRepository<SketAccessTokenModel> sketAccess) : base(provider)
+
+        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess, JwtManager<T> jwtManager) : base()
         {
             SketAccessTokenRepository = sketAccess;
+            _jwtManager = jwtManager;
         }
+
+
+
     }
 }

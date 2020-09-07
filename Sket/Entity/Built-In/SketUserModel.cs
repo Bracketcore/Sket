@@ -6,9 +6,7 @@ namespace Bracketcore.Sket.Entity
     public abstract class SketUserModel : SketPersistedModel
     {
         public string Username { get; set; }
-        public string NormalizedUsername { get; set; }
         public string Password { get; set; }
-        public string PasswordHash { get; set; }
         public string Email { get; set; }
         public bool EmailVerified { get; set; }
         public Many<SketRoleModel> Role { get; set; }

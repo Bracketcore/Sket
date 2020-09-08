@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
 using System;
+using Bracketcore.Sket.Misc;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Bracketcore.Sket
 {
@@ -50,6 +52,8 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(JwtManager<>));
+
+            services.AddScoped<AuthenticationStateProvider, SketAuthenticationStateProvider>();
             var init = new Sket(settings);
             services.Add(new ServiceDescriptor(typeof(Sket), init));
 
@@ -64,11 +68,34 @@ namespace Bracketcore.Sket
 
             services.Configure<IdentityOptions>(options =>
             {
+                // Password settings.
                 options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequireUppercase = true;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Login";
+                options.AccessDeniedPath = "/AccessDenied";
+                options.SlidingExpiration = true;
             });
 
             #endregion

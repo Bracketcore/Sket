@@ -2,8 +2,8 @@
 
 namespace Bracketcore.Sket.Manager
 {
-    public interface IJwtManager
+    public interface IJwtManager<T>
     {
-        Task<TokenResponse> Authenticate(string userId, string password);
+        Task<TokenResponse> Authenticate(T Cred);
     }
 }

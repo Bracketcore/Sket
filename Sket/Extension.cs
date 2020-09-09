@@ -53,7 +53,6 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(JwtManager<>));
 
-            services.AddScoped<AuthenticationStateProvider, SketAuthenticationStateProvider>();
             var init = new Sket(settings);
             services.Add(new ServiceDescriptor(typeof(Sket), init));
 

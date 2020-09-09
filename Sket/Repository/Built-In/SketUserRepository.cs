@@ -6,34 +6,17 @@ using Bracketcore.Sket.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Repository
 {
-    /// <inheritdoc />
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
         private JwtManager<T> _jwtManager;
 
         private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
-
-
-        public static string HashPassword(string password)
-        {
-            byte[] salt;
-            new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000);
-            var hash = pbkdf2.GetBytes(20);
-
-            var hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
-            Array.Copy(hash, 0, hashBytes, 16, 20);
-
-            var savedPasswordHash = Convert.ToBase64String(hashBytes);
-            return savedPasswordHash;
-        }
 
         public override async Task<T> Create(T doc)
         {
@@ -43,22 +26,29 @@ namespace Bracketcore.Sket.Repository
 
                 var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == doc.Username);
 
-                if (u == null)
+                if (u is null)
                 {
                     var before = (await BeforeCreate(doc)).Model;
                     before.Password = _jwtManager.HashPassword(doc.Password);
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
-                    before.Role.Add(role);
+                    before.Role = new List<string>()
+                    {
+                        role.Name
+                    };
+
                     before.VerificationToken = RandomValue.ToString(8, false);
                     before.PhoneVerification = RandomValue.ToNumber(100000, 999999);
                     // doc.Role = false;
 
                     await DB.SaveAsync(before);
 
+                    before.OwnerID = before;
+                    await before.SaveAsync();
+
                     await AfterCreate(before);
 
-                    return await base.Create(doc);
+                    return before;
                 }
 
                 return null;
@@ -82,16 +72,13 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-        string ISketUserRepository<T>.HashPassword(string password)
-        {
-            return HashPassword(password);
-        }
+
 
         public async Task<LoginResponse> Login(T user)
         {
             try
             {
-                var check = await _jwtManager.Authenticate(user.Username, user.Password);
+                var check = await _jwtManager.Authenticate(user);
 
 
                 // return basic user info and authentication token
@@ -226,14 +213,11 @@ namespace Bracketcore.Sket.Repository
             return user;
         }
 
-
         public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess, JwtManager<T> jwtManager) : base()
         {
             SketAccessTokenRepository = sketAccess;
             _jwtManager = jwtManager;
         }
-
-
 
     }
 }

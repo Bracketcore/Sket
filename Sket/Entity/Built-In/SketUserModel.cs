@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Bracketcore.Sket.Entity
 {
+    /// <summary>
+    /// Abstract model for the User model
+    /// </summary>
     [Name("Users")]
     public abstract class SketUserModel : SketPersistedModel
     {
@@ -21,7 +24,7 @@ namespace Bracketcore.Sket.Entity
                 .Key(o => o.Email, KeyType.Text)
                 .Key(o => o.Username, KeyType.Text)
                 .Option(o => o.Unique = true)
-                .Create();
+                .CreateAsync();
         }
     }
 }

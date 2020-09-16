@@ -12,18 +12,26 @@ using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Repository
 {
+    /// <summary>
+    /// Base user repository
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
         private JwtManager<T> _jwtManager;
 
         private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
+        /// <summary>
+        /// Create user
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public override async Task<T> Create(T doc)
         {
             //Todo create the shortner url for verification and then send email after registration
             try
             {
-
                 var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == doc.Username);
 
                 if (u is null)
@@ -52,8 +60,6 @@ namespace Bracketcore.Sket.Repository
                 }
 
                 return null;
-
-
             }
             catch (Exception e)
             {
@@ -72,8 +78,11 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-
-
+        /// <summary>
+        /// Login user via model
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<LoginResponse> Login(T user)
         {
             try
@@ -95,7 +104,6 @@ namespace Bracketcore.Sket.Repository
 
 
                 return endVerification;
-
             }
             catch (Exception e)
             {
@@ -104,6 +112,11 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
+        /// <summary>
+        /// Verify users
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<T> Verify(T user)
         {
             try
@@ -150,6 +163,11 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
+        /// <summary>
+        /// Logout user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<bool> LogOut(T user)
         {
             var token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
@@ -160,6 +178,13 @@ namespace Bracketcore.Sket.Repository
                 return true;
         }
 
+        /// <summary>
+        /// Confirm user
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<string> Confirm(string email, string userId, string token)
         {
             try
@@ -207,17 +232,22 @@ namespace Bracketcore.Sket.Repository
             //verify the reset token and give user a form to change password
         }
 
+        /// <summary>
+        /// Find user 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public async Task<T> FindByUsername(string username)
         {
             var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
             return user;
         }
 
-        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess, JwtManager<T> jwtManager) : base()
+        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess,
+            JwtManager<T> jwtManager) : base()
         {
             SketAccessTokenRepository = sketAccess;
             _jwtManager = jwtManager;
         }
-
     }
 }

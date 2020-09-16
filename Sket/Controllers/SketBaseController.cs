@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 namespace Bracketcore.Sket.Controllers
 {
     /// <summary>
+    /// Abstract Base Controller
     /// </summary>
     /// <typeparam name="T">Controller model</typeparam>
     /// <typeparam name="TC">Controller model</typeparam>

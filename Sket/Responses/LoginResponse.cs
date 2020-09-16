@@ -4,6 +4,9 @@ using System.Security.Claims;
 
 namespace Bracketcore.Sket.Responses
 {
+    /// <summary>
+    /// Get Login data response.
+    /// </summary>
     public class LoginResponse : SketPersistedModel
     {
         public string Message { get; set; }

@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Controllers
 {
+    /// <summary>
+    /// Abstract user Controller
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>>, IDisposable where T : SketUserModel
     {
         private SketUserRepository<T> _repo;

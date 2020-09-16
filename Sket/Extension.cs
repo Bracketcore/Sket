@@ -9,21 +9,30 @@ using MongoDB.Entities;
 using System;
 using Bracketcore.Sket.Misc;
 using Microsoft.AspNetCore.Components.Authorization;
+using MongoDB.Driver;
 
 namespace Bracketcore.Sket
 {
+    /// <summary>
+    /// This extension class is used for Dependency injections
+    /// </summary>
     public static class Extension
     {
+        /// <summary>
+        /// Initial setup for Sket for dependency injection.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="config"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static IServiceCollection AddSket(
             this IServiceCollection services, IConfiguration config, SketSettings settings)
         {
-
             if (string.IsNullOrEmpty(settings.JwtKey))
             {
                 throw new Exception("JwtKey is required");
             }
-
-
 
             #region Sket Dependency injection section
 
@@ -46,7 +55,8 @@ namespace Bracketcore.Sket
             //    };
             //});
 
-            services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
+            // services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
+            DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
             services.TryAddScoped(typeof(SketAccessTokenRepository<>));
             services.TryAddScoped(typeof(SketEmailRepository<>));
             services.TryAddScoped(typeof(SketRoleRepository<>));
@@ -57,7 +67,8 @@ namespace Bracketcore.Sket
             services.Add(new ServiceDescriptor(typeof(Sket), init));
 
             Console.WriteLine("Database " +
-                              DB.GetInstance(settings.DatabaseName).GetDatabase().Client.Cluster.Description.State);
+                              DB.Database(settings.DatabaseName).Client.Cluster.Description.State);
+
             #endregion
 
             //Add data protection
@@ -86,16 +97,16 @@ namespace Bracketcore.Sket
                 options.User.RequireUniqueEmail = false;
             });
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
-                options.LoginPath = "/Login";
-                options.AccessDeniedPath = "/AccessDenied";
-                options.SlidingExpiration = true;
-            });
+            // services.ConfigureApplicationCookie(options =>
+            // {
+            //     // Cookie settings
+            //     options.Cookie.HttpOnly = true;
+            //     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+            //
+            //     options.LoginPath = "/Login";
+            //     options.AccessDeniedPath = "/AccessDenied";
+            //     options.SlidingExpiration = true;
+            // });
 
             #endregion
 
@@ -133,26 +144,24 @@ namespace Bracketcore.Sket
                         {
                             builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
                         }
-
-
                     });
                 });
             }
 
             #endregion
 
-
             return services;
         }
 
+        /// <summary>
+        /// Initial setup for Sket middleware
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-
             app.UseAuthentication();
-
             return app;
         }
-
-
     }
 }

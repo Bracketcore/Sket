@@ -47,13 +47,10 @@ namespace Bracketcore.Sket.Controllers
                 });
         }
 
-
         protected SketUserController(SketUserRepository<T> repo) : base(repo)
         {
             _repo = repo;
 
         }
-
-
     }
 }

@@ -8,14 +8,15 @@ namespace TestProject1.Entity
     {
         
         [Theory, AutoData]
-        public void PropertiesIsSet(string str)
+        public void PropertiesIsSet(string role, string name)
         {
             var roles = new SketRoleModel();
 
-            roles.Description = str;
-            roles.Name = str;
-            roles.Name = str;
-            
+            roles.Description = role;
+            roles.Name = name;
+
+            Assert.AreEqual(role, roles.Description);
+            Assert.AreEqual(name, roles.Name);
         }
     }
 }

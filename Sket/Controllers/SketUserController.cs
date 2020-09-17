@@ -31,7 +31,7 @@ namespace Bracketcore.Sket.Controllers
         [HttpGet("currentuser")]
         public async Task<ActionResult> GetCurrentUser()
         {
-            return Ok();
+            return  Ok();
         }
 
         [HttpPost("logout")]

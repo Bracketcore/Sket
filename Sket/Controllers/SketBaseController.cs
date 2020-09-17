@@ -1,17 +1,17 @@
+using System;
+using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Threading.Tasks;
 
 
 //Todo add a rate limiter
 namespace Bracketcore.Sket.Controllers
 {
     /// <summary>
-    /// 
+    /// Abstract Base Controller
     /// </summary>
     /// <typeparam name="T">Controller model</typeparam>
     /// <typeparam name="TC">Controller model</typeparam>
@@ -22,7 +22,6 @@ namespace Bracketcore.Sket.Controllers
         where T : SketPersistedModel
         where TC : SketBaseRepository<T>
     {
-        protected TC Repo { get; set; }
         // public virtual H Hub { get; set; }
 
         public SketBaseController(TC repo)
@@ -30,7 +29,15 @@ namespace Bracketcore.Sket.Controllers
             Repo = repo;
             // Hub = hub;
         }
-        [AllowAnonymous]
+
+        protected TC Repo { get; set; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
@@ -62,17 +69,14 @@ namespace Bracketcore.Sket.Controllers
                     if (cre == null) return BadRequest();
                     return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 throw;
             }
-
         }
 
         [Authorize(Roles = "User,Admin,Support")]
@@ -86,7 +90,6 @@ namespace Bracketcore.Sket.Controllers
             if (!exist) return NotFound();
             _ = await Repo.Update(id, replace).ConfigureAwait(false);
             return NoContent();
-
         }
 
         [Authorize(Roles = "SuperAdmin,Admin")]
@@ -110,16 +113,7 @@ namespace Bracketcore.Sket.Controllers
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                Repo?.Dispose();
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposing) Repo?.Dispose();
         }
     }
 }

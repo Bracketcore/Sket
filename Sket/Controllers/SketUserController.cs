@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Controllers
 {
+    /// <summary>
+    /// Abstract user Controller
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>>, IDisposable where T : SketUserModel
     {
         private SketUserRepository<T> _repo;
@@ -27,7 +31,7 @@ namespace Bracketcore.Sket.Controllers
         [HttpGet("currentuser")]
         public async Task<ActionResult> GetCurrentUser()
         {
-            return Ok();
+            return  Ok();
         }
 
         [HttpPost("logout")]
@@ -43,13 +47,10 @@ namespace Bracketcore.Sket.Controllers
                 });
         }
 
-
         protected SketUserController(SketUserRepository<T> repo) : base(repo)
         {
             _repo = repo;
 
         }
-
-
     }
 }

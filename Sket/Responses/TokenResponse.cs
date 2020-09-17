@@ -2,6 +2,9 @@
 
 namespace Bracketcore.Sket.Manager
 {
+    /// <summary>
+    /// Get token response data.
+    /// </summary>
     public class TokenResponse
     {
         public string userId { get; set; }

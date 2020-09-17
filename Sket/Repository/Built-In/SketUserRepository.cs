@@ -6,64 +6,60 @@ using Bracketcore.Sket.Responses;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Repository
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// Base user repository
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
         private JwtManager<T> _jwtManager;
 
         private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
-
-        public static string HashPassword(string password)
-        {
-            byte[] salt;
-            new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000);
-            var hash = pbkdf2.GetBytes(20);
-
-            var hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
-            Array.Copy(hash, 0, hashBytes, 16, 20);
-
-            var savedPasswordHash = Convert.ToBase64String(hashBytes);
-            return savedPasswordHash;
-        }
-
+        /// <summary>
+        /// Create user
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public override async Task<T> Create(T doc)
         {
             //Todo create the shortner url for verification and then send email after registration
             try
             {
-
                 var u = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == doc.Username);
 
-                if (u == null)
+                if (u is null)
                 {
                     var before = (await BeforeCreate(doc)).Model;
                     before.Password = _jwtManager.HashPassword(doc.Password);
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
-                    before.Role.Add(role);
+                    before.Role = new List<string>()
+                    {
+                        role.Name
+                    };
+
                     before.VerificationToken = RandomValue.ToString(8, false);
                     before.PhoneVerification = RandomValue.ToNumber(100000, 999999);
                     // doc.Role = false;
 
                     await DB.SaveAsync(before);
 
+                    before.OwnerID = before;
+                    await before.SaveAsync();
+
                     await AfterCreate(before);
 
-                    return await base.Create(doc);
+                    return before;
                 }
 
                 return null;
-
-
             }
             catch (Exception e)
             {
@@ -82,16 +78,16 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-        string ISketUserRepository<T>.HashPassword(string password)
-        {
-            return HashPassword(password);
-        }
-
+        /// <summary>
+        /// Login user via model
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<LoginResponse> Login(T user)
         {
             try
             {
-                var check = await _jwtManager.Authenticate(user.Username, user.Password);
+                var check = await _jwtManager.Authenticate(user);
 
 
                 // return basic user info and authentication token
@@ -108,7 +104,6 @@ namespace Bracketcore.Sket.Repository
 
 
                 return endVerification;
-
             }
             catch (Exception e)
             {
@@ -117,6 +112,11 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
+        /// <summary>
+        /// Verify users
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<T> Verify(T user)
         {
             try
@@ -163,6 +163,11 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
+        /// <summary>
+        /// Logout user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<bool> LogOut(T user)
         {
             var token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
@@ -173,6 +178,13 @@ namespace Bracketcore.Sket.Repository
                 return true;
         }
 
+        /// <summary>
+        /// Confirm user
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<string> Confirm(string email, string userId, string token)
         {
             try
@@ -220,20 +232,22 @@ namespace Bracketcore.Sket.Repository
             //verify the reset token and give user a form to change password
         }
 
+        /// <summary>
+        /// Find user 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         public async Task<T> FindByUsername(string username)
         {
             var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
             return user;
         }
 
-
-        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess, JwtManager<T> jwtManager) : base()
+        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess,
+            JwtManager<T> jwtManager) : base()
         {
             SketAccessTokenRepository = sketAccess;
             _jwtManager = jwtManager;
         }
-
-
-
     }
 }

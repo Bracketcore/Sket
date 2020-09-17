@@ -20,17 +20,15 @@ namespace Bracketcore.Sket.Repository
     [EnableCors("Custom")]
     public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
     {
-
         public SketContextModel<T> SketContextModel { get; set; }
 
         public SketBaseRepository()
         {
             SketContextModel = new SketContextModel<T>();
-
         }
 
         /// <summary>
-        /// Send every document modification to _context model
+        /// Set model modification before its been created.
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -40,6 +38,11 @@ namespace Bracketcore.Sket.Repository
             return Task.FromResult(SketContextModel);
         }
 
+        /// <summary>
+        /// Create model
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public virtual async Task<T> Create(T doc)
         {
             try
@@ -57,11 +60,21 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
+        /// <summary>
+        /// Set model modification after its been created.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public virtual Task<T> AfterCreate(T doc)
         {
             return Task.FromResult(doc);
         }
 
+        /// <summary>
+        /// Create multiple 
+        /// </summary>
+        /// <param name="fix"></param>
+        /// <returns></returns>
         public virtual async Task<string> CreateBulk(IEnumerable<T> fix)
         {
             var ls = new List<string>();
@@ -75,12 +88,20 @@ namespace Bracketcore.Sket.Repository
             return $"{string.Join(",", ls.ToArray())} created";
         }
 
+        /// <summary>
+        /// Get count on the model
+        /// </summary>
+        /// <returns></returns>
         public virtual async Task<int> Count()
         {
             var c = await DB.Queryable<T>().ToListAsync();
             return c.Count;
         }
 
+        /// <summary>
+        /// Get all model data
+        /// </summary>
+        /// <returns></returns>
         public virtual async Task<List<T>> FindAll()
         {
             var filter = Builders<T>.Filter.Empty;
@@ -88,21 +109,37 @@ namespace Bracketcore.Sket.Repository
             return await DB.Queryable<T>().ToListAsync();
         }
 
+        /// <summary>
+        /// Get model data by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual async Task<T> FindById(string id)
         {
             return await DB.Find<T>().OneAsync(id);
         }
 
+        /// <summary>
+        /// Update models by the id and the model structure
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public virtual async Task<string> Update(string id, T doc)
         {
             doc.ID = id;
             var filter = Builders<T>.Filter.Eq(i => i.ID, id);
 
-            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() { IsUpsert = true });
+            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() {IsUpsert = true});
 
             return $"{id} updated";
         }
 
+        /// <summary>
+        /// Set a list bulk model to be updated
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public virtual async Task<string> BulkUpdate(IEnumerable<T> doc)
         {
             var ls = new List<string>();
@@ -115,6 +152,11 @@ namespace Bracketcore.Sket.Repository
             return $"Updated {string.Join(",", ls.ToArray())}";
         }
 
+        /// <summary>
+        /// Destroy bulk moel list
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
         public virtual async Task<string> DestroyAll(IEnumerable<T> doc)
         {
             var ls = new List<string>();
@@ -128,22 +170,42 @@ namespace Bracketcore.Sket.Repository
             return $"{string.Join(",", ls.ToArray())} Deleted";
         }
 
+        /// <summary>
+        /// modify model to destroy by id before been destroyed
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual Task<string> BeforeDestroyById(string id)
         {
             return Task.FromResult(id);
         }
 
+        /// <summary>
+        /// destroy model by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual async Task<string> DestroyById(string id)
         {
             var d = await DB.Collection<T>().DeleteOneAsync(i => i.ID == id);
             return $"{d}";
         }
 
+        /// <summary>
+        /// modify model to destroy by id after been destroyed
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual Task<string> AfterDestroyById(string id)
         {
             return Task.FromResult(id);
         }
 
+        /// <summary>
+        /// Check if model exist by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual async Task<bool> Exist(string id)
         {
             var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.ID == id);
@@ -158,6 +220,9 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
+        /// <summary>
+        /// Dispose method
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

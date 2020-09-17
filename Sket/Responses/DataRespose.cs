@@ -1,5 +1,9 @@
 ﻿namespace Bracketcore.Sket.Responses
 {
+    /// <summary>
+    /// Get Status data response
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class DataResponse<T>
     {
         public string Message { get; set; }

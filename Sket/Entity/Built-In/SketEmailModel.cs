@@ -1,5 +1,8 @@
 namespace Bracketcore.Sket.Entity
 {
+    /// <summary>
+    /// Abstract model for the Email model
+    /// </summary>
     public abstract class SketEmailModel: SketPersistedModel
     {
         public string To { get; set; }

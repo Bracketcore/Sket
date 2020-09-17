@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Manager
 {
-    public class JwtManager<T> : IJwtManager where T : SketUserModel
+    public class JwtManager<T> : IJwtManager<T> where T : SketUserModel
     {
         private IDataProtector _protector;
         private string _key;
@@ -21,21 +21,29 @@ namespace Bracketcore.Sket.Manager
         {
             _protector = provider.CreateProtector(this.GetType().Name.Replace("`1", null));
 
-            _key = config["JwtKey"];
+            _key = config["Jwt:Key"];
         }
         /// <summary>
         /// Return created token
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="Cred"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> Authenticate(string username, string password)
+        public async Task<TokenResponse> Authenticate(T Cred)
         {
-            var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == username);
+            var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == Cred.Username);
 
-            if (user == null) return null;
+            if (user is null)
+            {
+                user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
+            }
+            else
+            {
+                return null;
+            }
 
-            var verify = isPasswordOk(password, user.Password);
+
+            var verify = isPasswordOk(Cred.Password, user.Password);
 
             if (!verify) return null;
 
@@ -45,6 +53,7 @@ namespace Bracketcore.Sket.Manager
             var userClaim = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.Name, user.Username),
+                new Claim("ses", user.Username),
             }, "serverAuth");
 
 

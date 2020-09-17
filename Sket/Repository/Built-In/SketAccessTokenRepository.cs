@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Bracketcore.Sket.Repository
 {
     /// <summary>
-    /// 
+    /// Base Access token Repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SketAccessTokenRepository<T> : SketBaseRepository<T> where T : SketAccessTokenModel
@@ -22,7 +22,7 @@ namespace Bracketcore.Sket.Repository
 
         public SketAccessTokenRepository(Sket sket) : base()
         {
-            this._config = sket.SketSettings.JwtKey;
+            this._config = sket.Cfg.Settings.JwtKey;
         }
 
 
@@ -91,10 +91,14 @@ namespace Bracketcore.Sket.Repository
             return when < DateTime.UtcNow.AddDays(-14);
         }
 
+        /// <summary>
+        /// Get token by id. 
+        /// </summary>
+        /// <param name="tokenId"></param>
+        /// <returns></returns>
         public override async Task<T> FindById(string tokenId)
         {
             var search = await DB.Find<T>().OneAsync(tokenId);
-
             return search;
         }
 
@@ -109,6 +113,11 @@ namespace Bracketcore.Sket.Repository
             return search;
         }
 
+        /// <summary>
+        /// Get user by id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public async Task<T> FindByUserId(string userId)
         {
             var search = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.OwnerID.ID == userId);
@@ -153,8 +162,7 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
-
-
+        
     }
 
 

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30330.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{37537338-95E5-4CCE-BD1B-128EA3990850}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sket", "Sket\Sket.csproj", "{D61CC089-8FAA-44B5-8B48-D107A05AFE1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SketTest", "SketTest\SketTest.csproj", "{2762ED5A-DF2B-463E-99D7-559E73CE4B64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{37537338-95E5-4CCE-BD1B-128EA3990850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37537338-95E5-4CCE-BD1B-128EA3990850}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37537338-95E5-4CCE-BD1B-128EA3990850}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37537338-95E5-4CCE-BD1B-128EA3990850}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D61CC089-8FAA-44B5-8B48-D107A05AFE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D61CC089-8FAA-44B5-8B48-D107A05AFE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D61CC089-8FAA-44B5-8B48-D107A05AFE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D61CC089-8FAA-44B5-8B48-D107A05AFE1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2762ED5A-DF2B-463E-99D7-559E73CE4B64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2762ED5A-DF2B-463E-99D7-559E73CE4B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2762ED5A-DF2B-463E-99D7-559E73CE4B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2762ED5A-DF2B-463E-99D7-559E73CE4B64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

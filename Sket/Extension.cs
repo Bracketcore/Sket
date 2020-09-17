@@ -22,12 +22,11 @@ namespace Bracketcore.Sket
         /// Initial setup for Sket for dependency injection.
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="config"></param>
         /// <param name="settings"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static IServiceCollection AddSket(
-            this IServiceCollection services, IConfiguration config, SketSettings settings)
+            this IServiceCollection services, SketSettings settings)
         {
             if (string.IsNullOrEmpty(settings.JwtKey))
             {
@@ -62,9 +61,9 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(JwtManager<>));
-
-            var init = new Sket(settings);
-            services.Add(new ServiceDescriptor(typeof(Sket), init));
+            
+            var SketInit = new Sket(settings);
+            services.Add(new ServiceDescriptor(typeof(Sket), SketInit));
 
             Console.WriteLine("Database " +
                               DB.Database(settings.DatabaseName).Client.Cluster.Description.State);

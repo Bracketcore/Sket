@@ -22,7 +22,7 @@ namespace Bracketcore.Sket.Repository
 
         public SketAccessTokenRepository(Sket sket) : base()
         {
-            this._config = sket.SketSettings.JwtKey;
+            this._config = sket.Cfg.Settings.JwtKey;
         }
 
 

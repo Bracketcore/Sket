@@ -18,7 +18,7 @@ namespace Bracketcore.Sket.Controllers
     [ApiController]
     [Route("api/[Controller]")]
     [Authorize]
-    public abstract class SketBaseController<T, TC> : ControllerBase, IDisposable
+    public abstract class SketBaseController<T, TC> : ControllerBase
         where T : SketPersistedModel
         where TC : SketBaseRepository<T>
     {
@@ -49,9 +49,9 @@ namespace Bracketcore.Sket.Controllers
             return Ok(check);
         }
 
-        [AllowAnonymous]
+    
         [HttpPost] 
-        public virtual async Task<IActionResult> Create([FromBody] T doc)
+        public virtual async Task<IActionResult> Create( T doc)
         {
             try
             {

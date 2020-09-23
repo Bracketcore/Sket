@@ -13,7 +13,7 @@ namespace Bracketcore.Sket.Controllers
     /// Abstract user Controller
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>>, IDisposable where T : SketUserModel
+    public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>> where T : SketUserModel
     {
         private SketUserRepository<T> _repo;
 
@@ -22,7 +22,7 @@ namespace Bracketcore.Sket.Controllers
         public async Task<IActionResult> Login([FromBody] T User)
         {
             var verify = await _repo.Login(User);
-            
+
             if (verify != null)
             {
                 // todo auth schema check
@@ -39,22 +39,27 @@ namespace Bracketcore.Sket.Controllers
                 return BadRequest(new
                 {
                     Message = "Invalid Credentials",
-                    Status="Error"
+                    Status = "Error"
                 });
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        public override Task<IActionResult> Create(T doc)
+        {
+            return base.Create(doc);
+        }
 
         [HttpGet("currentuser")]
         public async Task<ActionResult> GetCurrentUser()
         {
             await Task.Run(() => { });
-            return  Ok();
+            return Ok();
         }
 
         [HttpPost("logout")]
-        public virtual async Task Logout([FromBody]
-        SketUserModel user)
+        public virtual async Task Logout([FromBody] SketUserModel user)
         {
             await HttpContext.SignOutAsync("Bearer",
                 new AuthenticationProperties()

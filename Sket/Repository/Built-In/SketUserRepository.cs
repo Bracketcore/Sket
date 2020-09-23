@@ -53,7 +53,7 @@ namespace Bracketcore.Sket.Repository
 
                     await DB.SaveAsync(before);
 
-                    before.OwnerID = before;
+                    before.OwnerID = before.ID;
                     await before.SaveAsync();
 
                     await AfterCreate(before);
@@ -221,7 +221,7 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public void Reset()
         {
-            //create a reset token and send to user
+            //todo: create a reset token and send to user
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
         {
-            //verify the reset token and give user a form to change password
+            //Todo: verify the reset token and give user a form to change password
         }
 
         /// <summary>

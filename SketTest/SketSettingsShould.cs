@@ -21,14 +21,11 @@ namespace TestProject1
             sut.CorsDomains = new List<string>();
             sut.CorsDomains = new List<string>();
             sut.DatabaseName = str;
-            sut.EnableCookies = boo;
-            sut.EnableJwt = boo;
+       
             sut.EnableCamelCase = boo;
             sut.MongoSettings = new MongoClientSettings();
             
             Assert.AreEqual(str, sut.DatabaseName);
-            Assert.AreEqual(boo, sut.EnableJwt);
-            Assert.AreEqual(boo, sut.EnableCookies);
             Assert.AreEqual(boo, sut.EnableCamelCase);
             Assert.IsNotNull(sut.MongoSettings);
         }

@@ -32,12 +32,6 @@ namespace Bracketcore.Sket.Controllers
 
         protected TC Repo { get; set; }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
@@ -111,9 +105,6 @@ namespace Bracketcore.Sket.Controllers
             return Ok(Repo.Exist(id));
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing) Repo?.Dispose();
-        }
+    
     }
 }

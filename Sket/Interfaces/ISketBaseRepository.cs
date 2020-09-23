@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 
 namespace Bracketcore.Sket.Interfaces
 {
-    public interface ISketBaseRepository<T>
+    public interface ISketBaseRepository<T> : IDisposable
     {
         Task<SketContextModel<T>> BeforeCreate(T doc);
         Task<T> Create(T doc);

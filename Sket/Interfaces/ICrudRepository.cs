@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Interfaces
 {
-    public interface ICrudRepository<T>
+    public interface ICrudRepository<T>:IDisposable
     {
         Task<object> Create(T doc);
         Task<IEnumerable<T>> GetAll();

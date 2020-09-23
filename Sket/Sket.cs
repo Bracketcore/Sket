@@ -12,10 +12,9 @@ namespace Bracketcore.Sket
     /// <summary>
     /// This class setup the roles and context models.
     /// </summary>
-    public class Sket
+    public class Sket : IDisposable
     {
         public static SketConfig Cfg { get; set; }
-
 
         /// <summary>
         /// Initiate a normal setup for your app
@@ -76,12 +75,38 @@ namespace Bracketcore.Sket
                 Settings = settings
             };
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 
-    public class SketConfig
+    public class SketConfig : IDisposable
     {
         public SketSettings Settings { get; set; }
         public List<Type> Context { get; set; }
         public IEnumerable<SketRoleModel> Roles { get; set; }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

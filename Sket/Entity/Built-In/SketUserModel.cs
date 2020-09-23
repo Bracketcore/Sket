@@ -20,7 +20,6 @@ namespace Bracketcore.Sket.Entity
 
         public SketUserModel()
         {
-
             DB.Index<SketUserModel>()
                 .Key(o => o.Email, KeyType.Text)
                 .Key(o => o.Username, KeyType.Text)

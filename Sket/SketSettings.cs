@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MongoDB.Driver;
 
 namespace Bracketcore.Sket
@@ -6,9 +7,10 @@ namespace Bracketcore.Sket
     /// <summary>
     /// Core setup class for Sket to work.
     /// </summary>
-    public class SketSettings
+    public class SketSettings : IDisposable
     {
         public AuthType AuthType { get; set; } = AuthType.Cookie;
+
         /// <summary>
         /// Set Database name
         /// </summary>
@@ -34,6 +36,19 @@ namespace Bracketcore.Sket
         /// </summary>
         public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings()
             {Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority};
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 
     public enum AuthType

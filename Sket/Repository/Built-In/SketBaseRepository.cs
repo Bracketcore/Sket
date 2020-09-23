@@ -153,7 +153,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Destroy bulk moel list
+        /// Destroy bulk model list
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>

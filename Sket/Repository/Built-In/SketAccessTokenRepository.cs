@@ -20,9 +20,10 @@ namespace Bracketcore.Sket.Repository
     {
         private string _config;
 
-        public SketAccessTokenRepository(Sket sket) : base()
+        public SketAccessTokenRepository() : base()
         {
-            this._config = sket.Cfg.Settings.JwtKey;
+            
+            this._config = Sket.Cfg.Settings.JwtKey;
         }
 
 

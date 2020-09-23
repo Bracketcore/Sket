@@ -24,7 +24,7 @@ namespace Bracketcore.Sket.Controllers
     {
         // public virtual H Hub { get; set; }
 
-        public SketBaseController(TC repo)
+        protected SketBaseController(TC repo)
         {
             Repo = repo;
             // Hub = hub;
@@ -37,7 +37,7 @@ namespace Bracketcore.Sket.Controllers
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
+        
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
@@ -55,12 +55,14 @@ namespace Bracketcore.Sket.Controllers
             return Ok(check);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        [HttpPost] 
         public virtual async Task<IActionResult> Create([FromBody] T doc)
         {
             try
             {
+                // var change = JsonConvert.DeserializeObject<T>(doc);
+                
                 if (ModelState.IsValid)
                 {
                     if (doc == null) return BadRequest();
@@ -81,7 +83,6 @@ namespace Bracketcore.Sket.Controllers
 
         [Authorize(Roles = "User,Admin,Support")]
         [HttpPut("{id}")]
-        [ValidateAntiForgeryToken]
         public virtual async Task<IActionResult> Update(string id, T replace)
         {
             //Check if user is owner
@@ -94,7 +95,6 @@ namespace Bracketcore.Sket.Controllers
 
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete("{id}")]
-        [ValidateAntiForgeryToken]
         public virtual async Task<IActionResult> Remove(string id)
         {
             var exist = await Repo.Exist(id).ConfigureAwait(false);

@@ -9,19 +9,24 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Bracketcore.Sket.Manager
 {
-    public class JwtManager<T> : IJwtManager<T> where T : SketUserModel
+    /// <summary>
+    /// use this to create claims 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class AuthenticationManager<T> : IJwtManager<T> where T : SketUserModel
     {
         private IDataProtector _protector;
         private string _key;
 
-        public JwtManager(IDataProtectionProvider provider, IConfiguration config)
+        public AuthenticationManager(IDataProtectionProvider provider)
         {
             _protector = provider.CreateProtector(this.GetType().Name.Replace("`1", null));
 
-            _key = config["Jwt:Key"];
+            _key = Sket.Cfg.Settings.JwtKey;
         }
         /// <summary>
         /// Return created token
@@ -36,6 +41,7 @@ namespace Bracketcore.Sket.Manager
             if (user is null)
             {
                 user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
+                if(user is null) return null;
             }
             else
             {
@@ -50,11 +56,13 @@ namespace Bracketcore.Sket.Manager
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenKey = Encoding.ASCII.GetBytes(_key);
 
+            //todo auth schema
             var userClaim = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim("ses", user.Username),
-            }, "serverAuth");
+                new Claim(ClaimTypes.Email, user.Email),
+            }, Sket.Cfg.Settings.AuthType == AuthType.Cookie ? CookieAuthenticationDefaults.AuthenticationScheme: "" );
+            
 
 
             var tokenDescriptor = new SecurityTokenDescriptor()
@@ -80,6 +88,11 @@ namespace Bracketcore.Sket.Manager
             return password == _protector.Unprotect(userPassword);
         }
 
+        /// <summary>
+        /// Hash password from a given string
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public string HashPassword(string password)
         {
             return _protector.Protect(password);

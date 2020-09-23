@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Bracketcore.Sket.Controllers
 {
@@ -20,17 +21,34 @@ namespace Bracketcore.Sket.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] T User)
         {
-
             var verify = await _repo.Login(User);
-            await HttpContext.SignInAsync(verify.ClaimsPrincipal);
+            
+            if (verify != null)
+            {
+                // todo auth schema check
+                await HttpContext.SignInAsync(
+                    Sket.Cfg.Settings.AuthType == AuthType.Cookie
+                        ? CookieAuthenticationDefaults.AuthenticationScheme
+                        : "", verify.ClaimsPrincipal);
+                // Redirect(Url.Content( "~/live"));
 
-            return Ok(verify);
+                return Ok(verify);
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    Message = "Invalid Credentials",
+                    Status="Error"
+                });
+            }
         }
 
 
         [HttpGet("currentuser")]
         public async Task<ActionResult> GetCurrentUser()
         {
+            await Task.Run(() => { });
             return  Ok();
         }
 
@@ -38,7 +56,6 @@ namespace Bracketcore.Sket.Controllers
         public virtual async Task Logout([FromBody]
         SketUserModel user)
         {
-
             await HttpContext.SignOutAsync("Bearer",
                 new AuthenticationProperties()
                 {
@@ -50,7 +67,6 @@ namespace Bracketcore.Sket.Controllers
         protected SketUserController(SketUserRepository<T> repo) : base(repo)
         {
             _repo = repo;
-
         }
     }
 }

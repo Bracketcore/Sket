@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bracketcore.Sket
@@ -15,7 +14,7 @@ namespace Bracketcore.Sket
     /// </summary>
     public class Sket
     {
-        public SketConfig Cfg { get; set; }
+        public static SketConfig Cfg { get; set; }
 
 
         /// <summary>
@@ -31,6 +30,7 @@ namespace Bracketcore.Sket
                 Settings = settings,
                 Context = new List<Type>()
             };
+
             Cfg = d;
 
             GetModels();
@@ -56,7 +56,7 @@ namespace Bracketcore.Sket
                 }
         }
 
-         public void GetModels()
+        public void GetModels()
         {
             var type = typeof(SketPersistedModel);
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
@@ -68,20 +68,20 @@ namespace Bracketcore.Sket
             }
         }
 
-        public static Sket Init(IServiceCollection services, SketSettings settings)
+        public static SketConfig Init(IServiceCollection services, SketSettings settings)
         {
-            var d = new Sket(settings);
-
             Extension.AddSket(services, settings);
-
-            return d;
+            return new SketConfig()
+            {
+                Settings = settings
+            };
         }
     }
 
     public class SketConfig
     {
         public SketSettings Settings { get; set; }
-        public List<Type> Context{get;set;}
-        public IEnumerable<SketRoleModel> Roles{get;set;}
+        public List<Type> Context { get; set; }
+        public IEnumerable<SketRoleModel> Roles { get; set; }
     }
 }

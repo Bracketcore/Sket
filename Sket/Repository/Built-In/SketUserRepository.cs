@@ -18,7 +18,7 @@ namespace Bracketcore.Sket.Repository
     /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
-        private JwtManager<T> _jwtManager;
+        private readonly AuthenticationManager<T> _authenticationManager;
 
         private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
@@ -37,9 +37,11 @@ namespace Bracketcore.Sket.Repository
                 if (u is null)
                 {
                     var before = (await BeforeCreate(doc)).Model;
-                    before.Password = _jwtManager.HashPassword(doc.Password);
+                    before.Password = _authenticationManager.HashPassword(doc.Password);
+                    
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
+                    
                     before.Role = new List<string>()
                     {
                         role.Name
@@ -87,10 +89,10 @@ namespace Bracketcore.Sket.Repository
         {
             try
             {
-                var check = await _jwtManager.Authenticate(user);
+                var check = await _authenticationManager.Authenticate(user);
 
-
-                // return basic user info and authentication token
+                if (check is null) return null;
+                    // return basic user info and authentication token
 
                 await SketAccessTokenRepository.Create(check.userId, check.jwt);
 
@@ -225,7 +227,10 @@ namespace Bracketcore.Sket.Repository
         /// <summary>
         /// Reset user password with the sent token.
         /// </summary>
+        /// <param name="newPassword">Users new password</param>
         /// <param name="resetToken"></param>
+        /// <param name="userId">User ID</param>
+        /// <param name="oldPassword">Users old password</param>
         /// <returns></returns>
         public void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
         {
@@ -244,10 +249,10 @@ namespace Bracketcore.Sket.Repository
         }
 
         public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess,
-            JwtManager<T> jwtManager) : base()
+            AuthenticationManager<T> authenticationManager) : base()
         {
             SketAccessTokenRepository = sketAccess;
-            _jwtManager = jwtManager;
+            _authenticationManager = authenticationManager;
         }
     }
 }

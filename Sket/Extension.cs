@@ -2,13 +2,13 @@
 using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
 using System;
 using Bracketcore.Sket.Misc;
-using Microsoft.AspNetCore.Components.Authorization;
+using Bracketcore.Sket.StateManager;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using MongoDB.Driver;
 
 namespace Bracketcore.Sket
@@ -33,83 +33,9 @@ namespace Bracketcore.Sket
                 throw new Exception("JwtKey is required");
             }
 
-            #region Sket Dependency injection section
-
-            services.AddAuthentication(option =>
-            {
-                option.DefaultAuthenticateScheme = "Bearer";
-                option.DefaultChallengeScheme = "Bearer";
-            });
-
-            //    .AddJwtBearer(x =>
-            //{
-            //    x.SaveToken = true;
-            //    x.RequireHttpsMetadata = false;
-            //    x.TokenValidationParameters = new TokenValidationParameters()
-            //    {
-            //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["Jwt:Key"])),
-            //        ValidateIssuer = false,
-            //        ValidateAudience = false
-            //    };
-            //});
-
-            // services.AddMongoDBEntities(settings.MongoSettings, settings.DatabaseName);
-            DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
-            services.TryAddScoped(typeof(SketAccessTokenRepository<>));
-            services.TryAddScoped(typeof(SketEmailRepository<>));
-            services.TryAddScoped(typeof(SketRoleRepository<>));
-            services.TryAddScoped(typeof(SketUserRepository<>));
-            services.TryAddScoped(typeof(JwtManager<>));
+            SecuritySetup(services, settings);
+            SetupServices(services, settings); /// DI Services
             
-            var SketInit = new Sket(settings);
-            services.Add(new ServiceDescriptor(typeof(Sket), SketInit));
-
-            Console.WriteLine("Database " +
-                              DB.Database(settings.DatabaseName).Client.Cluster.Description.State);
-
-            #endregion
-
-            //Add data protection
-            services.AddDataProtection();
-
-            #region Lockout user on failed attempts
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Password settings.
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 6;
-                options.Password.RequiredUniqueChars = 1;
-
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-
-                // User settings.
-                options.User.AllowedUserNameCharacters =
-                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = false;
-            });
-
-            // services.ConfigureApplicationCookie(options =>
-            // {
-            //     // Cookie settings
-            //     options.Cookie.HttpOnly = true;
-            //     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-            //
-            //     options.LoginPath = "/Login";
-            //     options.AccessDeniedPath = "/AccessDenied";
-            //     options.SlidingExpiration = true;
-            // });
-
-            #endregion
-
-
             #region Identity Setup Section
 
             //services.AddIdentityCore<SketUserModel>(option =>
@@ -129,8 +55,43 @@ namespace Bracketcore.Sket
             //});
 
             #endregion
+            
+            return services;
+        }
 
+        /// <summary>
+        /// Initial setup for Sket middleware
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
+        public static IApplicationBuilder UseSket(this IApplicationBuilder app)
+        {
+            app.UseAuthentication();
+            
+            return app;
+        }
 
+        private static void SecuritySetup(IServiceCollection services, SketSettings settings)
+        {
+            //Add data protection
+            services.AddDataProtection();
+
+            switch (settings.AuthType)
+            {
+              case AuthType.Jwt :
+                    break;
+              
+              default:
+                  services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                      .AddCookie();
+                  break;
+            }
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            });
+            
             #region CORS security section
 
             if (settings.CorsDomains != null)
@@ -148,19 +109,30 @@ namespace Bracketcore.Sket
             }
 
             #endregion
-
-            return services;
         }
 
-        /// <summary>
-        /// Initial setup for Sket middleware
-        /// </summary>
-        /// <param name="app"></param>
-        /// <returns></returns>
-        public static IApplicationBuilder UseSket(this IApplicationBuilder app)
+        private static void SetupServices(IServiceCollection services, SketSettings settings)
         {
-            app.UseAuthentication();
-            return app;
+            DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
+            services.TryAddScoped(typeof(SketAccessTokenRepository<>));
+            services.TryAddScoped(typeof(SketEmailRepository<>));
+            services.TryAddScoped(typeof(SketRoleRepository<>));
+            services.TryAddScoped(typeof(SketUserRepository<>));
+            services.TryAddScoped(typeof(AuthenticationManager<>));
+            // services.TryAddScoped(typeof(SketAppState));
+
+            var SketInit = new Sket(settings);
+
+            services.Add(new ServiceDescriptor(typeof(Sket), SketInit));
+
+            Console.WriteLine("Database " +
+                              DB.Database(settings.DatabaseName)
+                                  .Client
+                                  .Cluster
+                                  .Description
+                                  .State);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Bracketcore.Sket.Repository
     /// Base role repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SketRoleRepository<T> : SketBaseRepository<T> where T : SketRoleModel
+    public class SketRoleRepository<T> : SketBaseRepository<T>, ISketBaseRepository<T> where T : SketRoleModel
     {
 
     }

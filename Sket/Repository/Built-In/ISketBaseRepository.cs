@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 
-namespace Bracketcore.Sket.Interfaces
+namespace Bracketcore.Sket.Repository
 {
     public interface ISketBaseRepository<T> : IDisposable
     {

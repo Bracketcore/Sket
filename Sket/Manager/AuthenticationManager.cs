@@ -17,7 +17,7 @@ namespace Bracketcore.Sket.Manager
     /// use this to create claims 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class AuthenticationManager<T> : IJwtManager<T> where T : SketUserModel
+    public class AuthenticationManager<T> : IAuthenticationManager<T> where T : SketUserModel
     {
         private IDataProtector _protector;
         private string _key;

@@ -19,9 +19,9 @@ namespace Bracketcore.Sket.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] T User)
+        public async Task<IActionResult> Login(T User)
         {
-            var verify = await _repo.Login(User);
+            using var verify = await _repo.Login(User);
 
             if (verify != null)
             {
@@ -59,7 +59,7 @@ namespace Bracketcore.Sket.Controllers
         }
 
         [HttpPost("logout")]
-        public virtual async Task Logout([FromBody] SketUserModel user)
+        public virtual async Task Logout(SketUserModel user)
         {
             await HttpContext.SignOutAsync("Bearer",
                 new AuthenticationProperties()

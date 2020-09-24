@@ -16,7 +16,7 @@ namespace Bracketcore.Sket.Repository
     /// Base Access token Repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SketAccessTokenRepository<T> : SketBaseRepository<T> where T : SketAccessTokenModel
+    public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T> where T : SketAccessTokenModel
     {
         private string _config;
 

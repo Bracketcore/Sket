@@ -6,9 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
 using System;
+using Blazored.LocalStorage;
 using Bracketcore.Sket.Misc;
 using Bracketcore.Sket.StateManager;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Driver;
 
 namespace Bracketcore.Sket
@@ -82,7 +84,11 @@ namespace Bracketcore.Sket
                     break;
               
               default:
-                  services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                  services.AddAuthentication(opt =>
+                      {
+                          opt.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                              opt.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                      })
                       .AddCookie();
                   break;
             }
@@ -116,12 +122,15 @@ namespace Bracketcore.Sket
             DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
             services.AddHttpClient();
             services.AddHttpContextAccessor();
-            services.TryAddScoped(typeof(SketAccessTokenRepository<>));
+            services.TryAddScoped(typeof(ISketAccessTokenRepository<>),typeof(SketAccessTokenRepository<>));
             services.TryAddScoped(typeof(SketEmailRepository<>));
-            services.TryAddScoped(typeof(SketRoleRepository<>));
-            services.TryAddScoped(typeof(SketUserRepository<>));
-            services.TryAddScoped(typeof(AuthenticationManager<>));
+            services.TryAddScoped(typeof(ISketBaseRepository<>),typeof(SketRoleRepository<>));
+            services.TryAddScoped(typeof(ISketUserRepository<>),typeof(SketUserRepository<>));
+            services.TryAddScoped(typeof(IAuthenticationManager<>),typeof(AuthenticationManager<>));
+            services.TryAddScoped(typeof(AuthenticationStateProvider), typeof(SketAuthenticationProvider));
             // services.TryAddScoped(typeof(SketAppState));
+            services.AddBlazoredLocalStorage(config =>
+                config.JsonSerializerOptions.WriteIndented = true);
 
             var SketInit = new Sket(settings);
 

@@ -9,7 +9,7 @@ namespace Bracketcore.Sket
     /// </summary>
     public class SketSettings : IDisposable
     {
-        public AuthType AuthType { get; set; } = AuthType.Cookie;
+        public AuthType AuthType { get; set; } = AuthType.Jwt;
 
         /// <summary>
         /// Set Database name

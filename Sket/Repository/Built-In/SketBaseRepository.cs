@@ -17,7 +17,7 @@ namespace Bracketcore.Sket.Repository
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("Custom")]
-    public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
+    public class SketBaseRepository<T> : ISketBaseRepository<T> where T : SketPersistedModel
     {
         public SketContextModel<T> SketContextModel { get; set; }
 
@@ -211,21 +211,21 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Dispose method
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        //
+        // protected virtual void Dispose(bool disposing)
+        // {
+        //     if (disposing)
+        //     {
+        //     }
+        // }
+        //
+        // /// <summary>
+        // /// Dispose method
+        // /// </summary>
+        // public void Dispose()
+        // {
+        //     Dispose(true);
+        //     GC.SuppressFinalize(this);
+        // }
     }
 }

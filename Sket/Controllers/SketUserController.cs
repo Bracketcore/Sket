@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Newtonsoft.Json;
 
 namespace Bracketcore.Sket.Controllers
 {
     /// <summary>
     /// Abstract user Controller
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Model class</typeparam>
     public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>> where T : SketUserModel
     {
         private SketUserRepository<T> _repo;
@@ -21,15 +22,15 @@ namespace Bracketcore.Sket.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(T User)
         {
-            using var verify = await _repo.Login(User);
+             var verify = await _repo.Login(User);
 
             if (verify != null)
             {
                 // todo auth schema check
-                await HttpContext.SignInAsync(
-                    Sket.Cfg.Settings.AuthType == AuthType.Cookie
-                        ? CookieAuthenticationDefaults.AuthenticationScheme
-                        : "", verify.ClaimsPrincipal);
+                // await HttpContext.SignInAsync(
+                //     Sket.Cfg.Settings.AuthType == AuthType.Cookie
+                //         ? CookieAuthenticationDefaults.AuthenticationScheme
+                //         : "", verify.ClaimsPrincipal);
                 // Redirect(Url.Content( "~/live"));
 
                 return Ok(verify);
@@ -51,7 +52,7 @@ namespace Bracketcore.Sket.Controllers
             return base.Create(doc);
         }
 
-        [HttpGet("currentuser")]
+        [HttpGet("currentUser")]
         public async Task<ActionResult> GetCurrentUser()
         {
             await Task.Run(() => { });

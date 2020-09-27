@@ -17,9 +17,9 @@ namespace Bracketcore.Sket.Repository
     /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
-        private readonly AuthenticationManager<T> _authenticationManager;
+        public ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
+        private readonly ISketAuthenticationManager<T> _sketAuthenticationManager;
 
-        private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
 
         /// <summary>
         /// Create user
@@ -36,7 +36,7 @@ namespace Bracketcore.Sket.Repository
                 if (u is null)
                 {
                     var before = (await BeforeCreate(doc)).Model;
-                    before.Password = _authenticationManager.HashPassword(doc.Password);
+                    before.Password = _sketAuthenticationManager.HashPassword(doc.Password);
                     
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
@@ -88,12 +88,12 @@ namespace Bracketcore.Sket.Repository
         {
             try
             {
-                var check = await _authenticationManager.Authenticate(user);
+                var check = await _sketAuthenticationManager.Authenticate(user);
 
                 if (check is null) return null;
                     // return basic user info and authentication token
 
-                await SketAccessTokenRepository.Create(check.userId, check.jwt);
+                await _accessToken.Create(check.userId, check.jwt);
 
                 var endVerification = new LoginResponse()
                 {
@@ -171,7 +171,7 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public async Task<bool> LogOut(T user)
         {
-            var token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
+            var token = await _accessToken.DestroyByUserId(user.ID);
 
             if (token.Contains("Deleted"))
                 return true;
@@ -247,11 +247,11 @@ namespace Bracketcore.Sket.Repository
             return user;
         }
 
-        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess,
-            AuthenticationManager<T> authenticationManager) : base()
+        public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> AccessToken,
+            ISketAuthenticationManager<T> sketAuthenticationManager) : base()
         {
-            SketAccessTokenRepository = sketAccess;
-            _authenticationManager = authenticationManager;
+            _accessToken = AccessToken;
+            _sketAuthenticationManager = sketAuthenticationManager;
         }
     }
 }

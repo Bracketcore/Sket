@@ -7,8 +7,7 @@ namespace Bracketcore.Sket.StateManager
     {
         public event Action<ComponentBase, string> StateChanged;
 
-        void ISketAppState.NotifyStateChanged(ComponentBase source, string property) =>
-            StateChanged?.Invoke(source, property);
+        public void NotifyStateChanged(ComponentBase source, string property) => StateChanged?.Invoke(source, property);
 
         protected virtual void Dispose(bool disposing)
         {

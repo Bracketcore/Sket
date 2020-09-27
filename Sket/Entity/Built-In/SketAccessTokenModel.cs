@@ -16,12 +16,12 @@ namespace Bracketcore.Sket.Entity
 
         public SketAccessTokenModel()
         {
-            DB.Index<SketAccessTokenModel>()
-                .Key(o => o.Tk, KeyType.Text)
-                .Option(o => o.Unique = true)
-
-                .Key(o => o.OwnerID, KeyType.Descending)
-                .CreateAsync();
+            // DB.Index<SketAccessTokenModel>()
+            //     .Key(o => o.Tk, KeyType.Text)
+            //     .Option(o => o.Unique = true)
+            //
+            //     .Key(o => o.OwnerID, KeyType.Descending)
+            //     .CreateAsync();
         }
 
      

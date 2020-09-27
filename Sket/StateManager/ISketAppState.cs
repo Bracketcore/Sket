@@ -7,6 +7,6 @@ namespace Bracketcore.Sket.StateManager
     {
         public event Action<ComponentBase, string> StateChanged;
 
-        protected void NotifyStateChanged(ComponentBase source, string property);
+        public void NotifyStateChanged(ComponentBase source, string property);
     }
 }

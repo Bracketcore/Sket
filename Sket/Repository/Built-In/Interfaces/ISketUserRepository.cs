@@ -5,8 +5,9 @@ using Bracketcore.Sket.Responses;
 
 namespace Bracketcore.Sket.Repository
 {
-    public interface ISketUserRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketUserModel
+    public interface ISketUserRepository<T>: ISketBaseRepository<T> where T : SketUserModel
     {
+        ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
         Task<LoginResponse> Login(T user);
         Task<T> Verify(T user);
         Task<bool> LogOut(T user);

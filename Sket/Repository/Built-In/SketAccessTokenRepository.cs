@@ -16,17 +16,14 @@ namespace Bracketcore.Sket.Repository
     /// Base Access token Repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T> where T : SketAccessTokenModel
+     public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T>   where T: SketAccessTokenModel
     {
-        private string _config;
-
+        public string Config { get; set; }
         public SketAccessTokenRepository() : base()
         {
-            
-            this._config = Sket.Cfg.Settings.JwtKey;
+            this.Config = Sket.Cfg.Settings.JwtKey;
         }
-
-
+        
         /// <summary>
         /// Creates Token on user login successfully
         /// </summary>
@@ -35,7 +32,7 @@ namespace Bracketcore.Sket.Repository
         public async Task<string> GenerateToken(SketUserModel userModelInfo)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config);
+            var key = Encoding.ASCII.GetBytes(Config);
             var ttl = DateTime.UtcNow.AddDays(7);
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -63,17 +60,18 @@ namespace Bracketcore.Sket.Repository
 
         }
 
-        public async Task Create(string userId, string token)
+        public async Task<SketAccessTokenModel> Create(string userId, string token)
         {
             var ttl = DateTime.UtcNow.AddDays(7);
-            await DB.Collection<SketAccessTokenModel>()
-                 .InsertOneAsync(new SketAccessTokenModel()
-                 {
-                     Tk = token,
-                     Ttl = ttl,
-                     OwnerID = userId,
-                 });
-            await Task.CompletedTask;
+            var access = new SketAccessTokenModel()
+            {
+                Tk = token,
+                Ttl = ttl,
+                OwnerID = userId,
+            };
+
+            await DB.SaveAsync(access);
+            return access;
         }
 
         /// <summary>

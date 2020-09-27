@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -14,7 +15,8 @@ namespace Bracketcore.Sket.Controllers
     /// Abstract Base Controller
     /// </summary>
     /// <typeparam name="T">Controller model</typeparam>
-    /// <typeparam name="TC">Controller model</typeparam>
+    /// <typeparam name="TC">Repository class to use</typeparam>
+    [Produces("application/json")]
     [ApiController]
     [Route("api/[Controller]")]
     [Authorize]
@@ -33,12 +35,16 @@ namespace Bracketcore.Sket.Controllers
         protected TC Repo { get; set; }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> GetAll()
         {
             return Ok(await Repo.FindAll().ConfigureAwait(false));
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> GetById(string id)
         {
             var exist = await Repo.Exist(id).ConfigureAwait(false);
@@ -49,14 +55,15 @@ namespace Bracketcore.Sket.Controllers
             return Ok(check);
         }
 
-    
-        [HttpPost] 
-        public virtual async Task<IActionResult> Create( T doc)
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public virtual async Task<IActionResult> Create(T doc)
         {
             try
             {
                 // var change = JsonConvert.DeserializeObject<T>(doc);
-                
+
                 if (ModelState.IsValid)
                 {
                     if (doc == null) return BadRequest();
@@ -77,6 +84,8 @@ namespace Bracketcore.Sket.Controllers
 
         [Authorize(Roles = "User,Admin,Support")]
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> Update(string id, T replace)
         {
             //Check if user is owner
@@ -89,6 +98,8 @@ namespace Bracketcore.Sket.Controllers
 
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> Remove(string id)
         {
             var exist = await Repo.Exist(id).ConfigureAwait(false);
@@ -100,11 +111,11 @@ namespace Bracketcore.Sket.Controllers
 
         [Authorize(Roles = "App")]
         [HttpGet("exist/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual IActionResult Exist(string id)
         {
             return Ok(Repo.Exist(id));
         }
-
-    
     }
 }

@@ -12,7 +12,8 @@ namespace Bracketcore.Sket.StateManager
         where T : SketAppState
     {
         [Inject] public T AppState { get; set; }
-         async Task AppState_StateChanged(ComponentBase source, string property)
+
+        public async Task AppStateStateChanged(ComponentBase source, string property)
         {
             if (source != this)
             {
@@ -22,15 +23,14 @@ namespace Bracketcore.Sket.StateManager
 
         protected override void OnInitialized()
         {
-            AppState.StateChanged += async (source, property) => await AppState_StateChanged(source, property);
+            AppState.StateChanged += async (source, property) => await AppStateStateChanged(source, property);
         }
 
         public void Dispose()
         {
-            AppState.StateChanged -= async (source, property) => await AppState_StateChanged(source, property);
+            AppState.StateChanged -= async (source, property) => await AppStateStateChanged(source, property);
             GC.SuppressFinalize(this);
         }
-
-     
+        
     }
 }

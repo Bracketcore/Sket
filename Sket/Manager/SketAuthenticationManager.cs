@@ -17,17 +17,17 @@ namespace Bracketcore.Sket.Manager
     /// use this to create claims 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class AuthenticationManager<T> : IAuthenticationManager<T> where T : SketUserModel
+    public class SketAuthenticationManager<T> : ISketAuthenticationManager<T> where T : SketUserModel
     {
-        private IDataProtector _protector;
-        private string _key;
+        public IDataProtector _protector { get; set; }
+        public string _key { get; set; }
 
-        public AuthenticationManager(IDataProtectionProvider provider)
+        public SketAuthenticationManager(IDataProtectionProvider provider)
         {
             _protector = provider.CreateProtector(this.GetType().Name.Replace("`1", null));
-
             _key = Sket.Cfg.Settings.JwtKey;
         }
+
         /// <summary>
         /// Return created token
         /// </summary>
@@ -41,13 +41,12 @@ namespace Bracketcore.Sket.Manager
             if (user is null)
             {
                 user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
-                if(user is null) return null;
+                if (user is null) return null;
             }
             else
             {
                 return null;
             }
-
 
             var verify = isPasswordOk(Cred.Password, user.Password);
 
@@ -61,15 +60,15 @@ namespace Bracketcore.Sket.Manager
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-            }, Sket.Cfg.Settings.AuthType == AuthType.Cookie ? CookieAuthenticationDefaults.AuthenticationScheme: "" );
-            
+            }, Sket.Cfg.Settings.AuthType == AuthType.Cookie ? CookieAuthenticationDefaults.AuthenticationScheme : "");
 
 
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = userClaim,
                 Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -80,10 +79,9 @@ namespace Bracketcore.Sket.Manager
                 userId = user.ID,
                 Claims = new ClaimsPrincipal(userClaim)
             };
-
         }
 
-        private bool isPasswordOk(string password, string userPassword)
+        public bool isPasswordOk(string password, string userPassword)
         {
             return password == _protector.Unprotect(userPassword);
         }

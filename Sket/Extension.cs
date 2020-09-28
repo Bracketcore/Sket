@@ -6,7 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Entities;
 using System;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using Blazored.LocalStorage;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Misc;
@@ -41,6 +43,8 @@ namespace Bracketcore.Sket
             SecuritySetup(services, settings);
             SetupServices(services, settings); // DI Services
 
+            ApiStructure(services, settings);
+
             #region Identity Setup Section
 
             //services.AddIdentityCore<SketUserModel>(option =>
@@ -64,6 +68,25 @@ namespace Bracketcore.Sket
             return services;
         }
 
+        private static void ApiStructure(IServiceCollection services, SketSettings settings)
+        {
+            if (!settings.ApiSetup.Any()) return;
+            
+            foreach (var apiConfig in settings.ApiSetup)
+            {
+                foreach (var control in apiConfig.Endpoints)
+                {
+                    services.AddHttpClient(control,
+                        client =>
+                        {
+                            client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl , control));
+                            client.DefaultRequestHeaders.Add("Accept", "application/json");
+                        });
+                }
+            }
+        }
+
+
         /// <summary>
         /// Initial setup for Sket middleware
         /// </summary>
@@ -71,15 +94,12 @@ namespace Bracketcore.Sket
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-            app.UseSwagger(i =>
-            {
-                i.SerializeAsV2 = true;
-            });
-            
+            app.UseSwagger(i => { i.SerializeAsV2 = true; });
+
             app.UseSwaggerUI(i =>
             {
-                i.SwaggerEndpoint("/swagger/v1/swagger.json","Api Explorer");
-                i.RoutePrefix="swagger";
+                i.SwaggerEndpoint("/swagger/v1/swagger.json", "Api Explorer");
+                i.RoutePrefix = "swagger";
             });
 
             app.UseAuthentication();
@@ -147,7 +167,7 @@ namespace Bracketcore.Sket
 
             services.AddBlazoredLocalStorage(config =>
                 config.JsonSerializerOptions.WriteIndented = true);
-            
+
             services.AddSwaggerGen(i =>
             {
                 i.SwaggerDoc("V1", new OpenApiInfo()

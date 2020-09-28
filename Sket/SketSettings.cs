@@ -7,7 +7,7 @@ namespace Bracketcore.Sket
     /// <summary>
     /// Core setup class for Sket to work.
     /// </summary>
-    public class SketSettings : IDisposable
+    public class SketSettings :ISketSetting
     {
         public AuthType AuthType { get; set; } = AuthType.Jwt;
 
@@ -32,11 +32,17 @@ namespace Bracketcore.Sket
         public List<string> CorsDomains { get; set; }
 
         /// <summary>
+        /// Set a list of external api routes
+        /// </summary>
+        public List<ApiConfig> ApiSetup { get; set; }
+
+        /// <summary>
         /// Set your MongoClientSettings
         /// </summary>
         public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings()
             {Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority};
 
+     
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -49,11 +55,5 @@ namespace Bracketcore.Sket
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-    }
-
-    public enum AuthType
-    {
-        Cookie,
-        Jwt
     }
 }

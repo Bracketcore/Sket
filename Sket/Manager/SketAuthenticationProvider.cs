@@ -11,15 +11,15 @@ using Newtonsoft.Json;
 
 namespace Bracketcore.Sket.Manager
 {
-    public abstract class SketAuthenticationProvider : AuthenticationStateProvider
+    public abstract class SketAuthenticationProvider : AuthenticationStateProvider, ISketAuthenticationProvider
     {
         private readonly ILocalStorageService _localstorage;
-        private readonly SketAccessTokenRepository<SketAccessTokenModel> _accessToken;
+        private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessToken;
         public CancellationToken CancellationToken { get; set; }
 
 
         public SketAuthenticationProvider(ILocalStorageService localstorage,
-            SketAccessTokenRepository<SketAccessTokenModel> accessToken)
+            ISketAccessTokenRepository<SketAccessTokenModel> accessToken)
         {
             _localstorage = localstorage;
             _accessToken = accessToken;
@@ -80,7 +80,6 @@ namespace Bracketcore.Sket.Manager
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
         }
 
-        
         public void LogOutUser()
         {
             _localstorage.RemoveItemAsync("Token");
@@ -88,6 +87,7 @@ namespace Bracketcore.Sket.Manager
             var user = new ClaimsPrincipal();
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
         }
+
         // protected virtual void Dispose(bool disposing)
         // {
         //     if (disposing)
@@ -101,5 +101,17 @@ namespace Bracketcore.Sket.Manager
         //     Dispose(true);
         //     GC.SuppressFinalize(this);
         // }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

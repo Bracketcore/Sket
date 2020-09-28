@@ -24,13 +24,13 @@ namespace Bracketcore.Sket
         /// <param name="settings"></param>
         public Sket(SketSettings settings)
         {
-            var d = new SketConfig()
+            Cfg = new SketConfig()
             {
                 Settings = settings,
                 Context = new List<Type>()
             };
 
-            Cfg = d;
+            
 
             GetModels();
             GetRoles();
@@ -75,26 +75,6 @@ namespace Bracketcore.Sket
                 Settings = settings
             };
         }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-    }
-
-    public class SketConfig : IDisposable
-    {
-        public SketSettings Settings { get; set; }
-        public List<Type> Context { get; set; }
-        public IEnumerable<SketRoleModel> Roles { get; set; }
 
         protected virtual void Dispose(bool disposing)
         {

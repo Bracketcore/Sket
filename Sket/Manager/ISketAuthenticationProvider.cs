@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Bracketcore.Sket.Manager
 {
-    public interface ISketAuthenticationStateProvider<T>  : IDisposable where T:SketUserModel
+    public interface ISketAuthenticationStateProvider<T> : IDisposable where T:SketUserModel
     {
-        public  Task LogOutUser(HttpContext httpContext);
+        public Task LogOutUser(HttpContext httpContext);
         Task LoginUser(T loginData, string Token, HttpContext httpContext);
     }
 }

@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 namespace Bracketcore.Sket.Manager
 {
     /// <summary>
-    /// use this to create claims 
+    /// use this to create claims
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SketAuthenticationManager<T> : ISketAuthenticationManager<T> where T : SketUserModel
@@ -24,7 +24,7 @@ namespace Bracketcore.Sket.Manager
 
         public SketAuthenticationManager(IDataProtectionProvider provider)
         {
-            _protector = provider.CreateProtector(this.GetType().Name.Replace("`1", null));
+            _protector = provider.CreateProtector(this.GetType().Namespace);
             _key = Sket.Cfg.Settings.JwtKey;
         }
 

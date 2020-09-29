@@ -1,28 +1,39 @@
-﻿using System;
+﻿using Blazored.LocalStorage;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Blazored.LocalStorage;
-using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Repository;
-using Bracketcore.Sket.Responses;
-using Microsoft.AspNetCore.Components.Authorization;
-using Newtonsoft.Json;
 
 namespace Bracketcore.Sket.Manager
 {
-    public abstract class SketAuthenticationProvider : AuthenticationStateProvider, ISketAuthenticationProvider
+    /// <summary>
+    /// This is an abstract of the Authentication state provider.
+    /// used for blazor based application 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SketAuthenticationProvider<T> : AuthenticationStateProvider, ISketAuthenticationStateProvider<T>
+        where T : SketUserModel
     {
         private readonly ILocalStorageService _localstorage;
         private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessToken;
+        private readonly ISketAuthenticationManager<T> _authMan;
+        private readonly ISketUserRepository<T> _userRepository;
         public CancellationToken CancellationToken { get; set; }
 
 
         public SketAuthenticationProvider(ILocalStorageService localstorage,
-            ISketAccessTokenRepository<SketAccessTokenModel> accessToken)
+            ISketAccessTokenRepository<SketAccessTokenModel> accessToken, ISketAuthenticationManager<T> AuthMan, ISketUserRepository<T> userRepository)
         {
             _localstorage = localstorage;
             _accessToken = accessToken;
+            _authMan = AuthMan;
+            _userRepository = userRepository;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -51,39 +62,70 @@ namespace Bracketcore.Sket.Manager
                 new Claim(ClaimTypes.NameIdentifier, getUser.ID),
                 new Claim("Token", getToken),
                 new Claim(ClaimTypes.Role, RoleValue)
-            }, "apiAuth");
+            }, "SketAuth");
 
             user = new ClaimsPrincipal(identity);
 
             return await Task.FromResult(new AuthenticationState(user));
         }
 
-        public async Task LoginUser<T>(T loginData, string Token) where T : SketUserModel
+        public async Task LoginUser(T loginData, string Token, HttpContext httpContext)
         {
-            loginData.Password = String.Empty;
-            ;
-            var verifyUser = JsonConvert.SerializeObject(loginData);
-
-            string RoleValue = string.Join(",", values: loginData.Role);
-
-            var identity = new ClaimsIdentity(new[]
+            try
             {
-                new Claim(ClaimTypes.Email, loginData.Email),
-                new Claim(ClaimTypes.NameIdentifier, loginData.ID),
-                new Claim("Profile", verifyUser),
-                new Claim("Token", Token),
-                new Claim(ClaimTypes.Role, RoleValue)
-            }, "apiauth_type");
+                var u = new ClaimsPrincipal();
 
-            await _localstorage.SetItemAsync("Token", Token);
-            var user = new ClaimsPrincipal(identity);
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+                // var login = await _authMan.Authenticate(loginData);
+                //
+                // if(login is null)
+                // {
+                //     await Task.FromResult(new AuthenticationState(u));
+                //     return;
+                // }
+                var GetToken = await _accessToken.FindByToken(Token);
+
+                var LoggedUser = await _userRepository.FindById(GetToken.OwnerID.ID);
+
+                LoggedUser.Password = String.Empty;
+
+                var verifyUser = JsonConvert.SerializeObject(LoggedUser);
+
+                string RoleValue = string.Join(",", values: LoggedUser.Role);
+
+                var identity = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Email, LoggedUser.Email),
+                    new Claim(ClaimTypes.NameIdentifier, LoggedUser.ID),
+                    new Claim("Profile", verifyUser),
+                    new Claim("Token", Token),
+                    new Claim(ClaimTypes.Role, RoleValue)
+                }, "SketAuth");
+
+                // await _localstorage.SetItemAsync("Token", Token);
+                var user = new ClaimsPrincipal(identity);
+
+                await httpContext.SignInAsync(user);
+
+                NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
-        public void LogOutUser()
+        public async Task LogOutUser(HttpContext httpContext)
         {
-            _localstorage.RemoveItemAsync("Token");
-        
+            await _localstorage.RemoveItemAsync("Token");
+
+            await httpContext.SignOutAsync("Bearer",
+                new AuthenticationProperties()
+                {
+                    AllowRefresh = true,
+                    RedirectUri = "/login"
+                });
+
             var user = new ClaimsPrincipal();
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
         }

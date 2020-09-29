@@ -22,7 +22,7 @@ namespace Bracketcore.Sket.Controllers
     [Authorize]
     public abstract class SketBaseController<T, TC> : ControllerBase, ISketBaseController<T>
         where T : SketPersistedModel
-        where TC : SketBaseRepository<T>
+        where TC : ISketBaseRepository<T>
     {
         // public virtual H Hub { get; set; }
 

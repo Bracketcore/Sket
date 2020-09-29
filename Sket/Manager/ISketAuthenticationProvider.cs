@@ -2,13 +2,13 @@
 using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace Bracketcore.Sket.Manager
 {
-    public interface ISketAuthenticationProvider  :IDisposable
+    public interface ISketAuthenticationStateProvider<T>  : IDisposable where T:SketUserModel
     {
-        public void LogOutUser();
-        public Task<AuthenticationState> GetAuthenticationStateAsync();
-        Task LoginUser<T>(T loginData, string Token) where T : SketUserModel;
+        public  Task LogOutUser(HttpContext httpContext);
+        Task LoginUser(T loginData, string Token, HttpContext httpContext);
     }
 }

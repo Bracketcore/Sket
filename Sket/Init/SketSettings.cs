@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Bracketcore.Sket.Entity;
 using MongoDB.Driver;
 
 namespace Bracketcore.Sket
@@ -9,12 +10,14 @@ namespace Bracketcore.Sket
     /// </summary>
     public class SketSettings :ISketSetting
     {
-        public AuthType AuthType { get; set; } = AuthType.Jwt;
+        public AuthType AuthType { get; set; } = AuthType.Cookie;
 
         /// <summary>
         /// Set Database name
         /// </summary>
         public string DatabaseName { get; set; }
+
+        public Type AppUserModel { get; set; }
 
         /// <summary>
         /// Set JwtKey to setup your token creator

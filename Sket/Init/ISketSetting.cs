@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Bracketcore.Sket.Entity;
 using MongoDB.Driver;
 
 namespace Bracketcore.Sket
@@ -8,6 +9,7 @@ namespace Bracketcore.Sket
     {
         public AuthType AuthType { get; set; }
         public List<string> CorsDomains { get; set; }
+        // public Type AppUserModel { get; set; }
         public string DatabaseName { get; set; }
         public bool EnableCamelCase { get; set; }
         public string JwtKey { get; set; }

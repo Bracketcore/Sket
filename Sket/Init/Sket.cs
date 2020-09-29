@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Repository;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bracketcore.Sket
@@ -12,9 +13,9 @@ namespace Bracketcore.Sket
     /// <summary>
     /// This class setup the roles and context models.
     /// </summary>
-    public class Sket : IDisposable
+    public static class Sket
     {
-        public static SketConfig Cfg { get; set; }
+        public static SketConfig Cfg { get; set; }  = new SketConfig();
 
         /// <summary>
         /// Initiate a normal setup for your app
@@ -22,21 +23,19 @@ namespace Bracketcore.Sket
         /// <param name="services"></param>
         /// <param name="Config"></param>
         /// <param name="settings"></param>
-        public Sket(SketSettings settings)
+        public static SketConfig Init(SketSettings settings)
         {
-            Cfg = new SketConfig()
-            {
-                Settings = settings,
-                Context = new List<Type>()
-            };
-
-            
+            Cfg.Settings = settings;
 
             GetModels();
             GetRoles();
+
+            return Cfg ;
+
+            
         }
 
-        public void GetRoles()
+        private static void GetRoles()
         {
             var getRoles = DB.Queryable<SketRoleModel>().Any();
             var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
@@ -55,38 +54,27 @@ namespace Bracketcore.Sket
                 }
         }
 
-        public void GetModels()
+        private static void GetModels()
         {
-            var type = typeof(SketPersistedModel);
+            //Todo: work on the context data which will allow the user to access every repo with ease
+            var type = typeof(SketBaseRepository<>);
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p));
 
             foreach (var t in types.ToList())
             {
-                Cfg.Context.Add(t);
+                Sket.Cfg.Context.Add(t);
             }
+
         }
 
         public static SketConfig Init(IServiceCollection services, SketSettings settings)
         {
-            Extension.AddSket(services, settings);
-            return new SketConfig()
-            {
-                Settings = settings
-            };
+            services.AddSket(settings);
+            Cfg.Settings = settings;
+            return Cfg;
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+     
     }
 }

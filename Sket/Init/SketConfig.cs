@@ -7,8 +7,8 @@ namespace Bracketcore.Sket
     public class SketConfig : IDisposable
     {
         public SketSettings Settings { get; set; }
-        public List<Type> Context { get; set; }
-        public IEnumerable<SketRoleModel> Roles { get; set; }
+        public List<Type> Context { get; set; }   = new List<Type>();
+        public IEnumerable<SketRoleModel> Roles { get; set; } = new List<SketRoleModel>();
 
         protected virtual void Dispose(bool disposing)
         {

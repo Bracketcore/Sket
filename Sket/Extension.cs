@@ -1,22 +1,16 @@
-﻿using Bracketcore.Sket.Manager;
+﻿using Blazored.LocalStorage;
+using Bracketcore.Sket.Manager;
 using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MongoDB.Driver;
 using MongoDB.Entities;
 using System;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using Blazored.LocalStorage;
-using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Misc;
-using Bracketcore.Sket.StateManager;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.OpenApi.Models;
-using MongoDB.Driver;
+using System.Net.Http.Headers;
 
 namespace Bracketcore.Sket
 {
@@ -40,19 +34,12 @@ namespace Bracketcore.Sket
                 throw new Exception("JwtKey is required");
             }
 
-            SecuritySetup(services, settings);
             SetupServices(services, settings); // DI Services
+            SecuritySetup(services, settings);
 
             ApiStructure(services, settings);
 
             #region Identity Setup Section
-
-            //services.AddIdentityCore<SketUserModel>(option =>
-            //{
-
-            //});
-
-            //services.AddScoped<IUserStore<SketUserModel>, UserStore<SketUserModel>>();
 
             #endregion
 
@@ -71,7 +58,7 @@ namespace Bracketcore.Sket
         private static void ApiStructure(IServiceCollection services, SketSettings settings)
         {
             if (!settings.ApiSetup.Any()) return;
-            
+
             foreach (var apiConfig in settings.ApiSetup)
             {
                 foreach (var control in apiConfig.Endpoints)
@@ -79,8 +66,10 @@ namespace Bracketcore.Sket
                     services.AddHttpClient(control,
                         client =>
                         {
-                            client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl , control));
-                            client.DefaultRequestHeaders.Add("Accept", "application/json");
+                            client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl, control));
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
                         });
                 }
             }
@@ -94,13 +83,13 @@ namespace Bracketcore.Sket
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-            app.UseSwagger(i => { i.SerializeAsV2 = true; });
-
-            app.UseSwaggerUI(i =>
-            {
-                i.SwaggerEndpoint("/swagger/v1/swagger.json", "Api Explorer");
-                i.RoutePrefix = "swagger";
-            });
+            // app.UseSwagger(i => { i.SerializeAsV2 = true; });
+            //
+            // app.UseSwaggerUI(i =>
+            // {
+            //     i.SwaggerEndpoint("/swagger/v1/swagger.json", "Api Explorer");
+            //     i.RoutePrefix = "swagger";
+            // });
 
             app.UseAuthentication();
 
@@ -112,26 +101,45 @@ namespace Bracketcore.Sket
             //Add data protection
             services.AddDataProtection();
 
+            void addCokies()
+            {
+                services.AddAuthentication("CookieAuth")
+                    .AddCookie("CookieAuth", c =>
+                    {
+                        c.Cookie.Name = "SketCookies";
+                        c.LoginPath = "/login";
+                        c.LogoutPath = "/login";
+                    });
+            }
+
+            void addJwt()
+            {
+                services.AddAuthentication(option =>
+                {
+                    option.DefaultAuthenticateScheme = "Bearer";
+                    option.DefaultChallengeScheme = "Bearer";
+                });
+            }
+
+            void addBoth()
+            {
+                addJwt();
+                addCokies();
+            }
+
             switch (settings.AuthType)
             {
                 case AuthType.Jwt:
+                    addJwt();
                     break;
-
+                case AuthType.Both:
+                    addBoth();
+                    break;
                 default:
-                    services.AddAuthentication(opt =>
-                        {
-                            opt.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                            opt.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        })
-                        .AddCookie();
+                    addCokies();
                     break;
             }
 
-            services.AddAuthentication(option =>
-            {
-                option.DefaultAuthenticateScheme = "Bearer";
-                option.DefaultChallengeScheme = "Bearer";
-            });
 
             #region CORS security section
 
@@ -163,19 +171,20 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
+            services.TryAddScoped(typeof(ISketAuthenticationStateProvider<>), typeof(SketAuthenticationProvider<>));
             // services.TryAddSingleton(typeof(ISketAppState), typeof(SketAppState));
 
             services.AddBlazoredLocalStorage(config =>
                 config.JsonSerializerOptions.WriteIndented = true);
 
-            services.AddSwaggerGen(i =>
-            {
-                i.SwaggerDoc("V1", new OpenApiInfo()
-                {
-                    Title = "Api Explorer",
-                    Version = "V1"
-                });
-            });
+            // services.AddSwaggerGen(i =>
+            // {
+            //     i.SwaggerDoc("V1", new OpenApiInfo()
+            //     {
+            //         Title = "Api Explorer",
+            //         Version = "V1"
+            //     });
+            // });
 
 
             var SketInit = new Sket(settings);

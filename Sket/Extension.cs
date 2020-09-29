@@ -11,6 +11,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Middleware;
 
 namespace Bracketcore.Sket
 {
@@ -67,10 +69,12 @@ namespace Bracketcore.Sket
                         client =>
                         {
                             client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl, control));
-                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+                            client.DefaultRequestHeaders.Accept.Add(
+                                new MediaTypeWithQualityHeaderValue("application/json"));
+                            client.DefaultRequestHeaders.Accept.Add(
+                                new MediaTypeWithQualityHeaderValue("application/xml"));
                             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                        });
+                        }).AddHttpMessageHandler<SketTokenHeaderHandler>();
                 }
             }
         }
@@ -127,6 +131,7 @@ namespace Bracketcore.Sket
                 addCokies();
             }
 
+
             switch (settings.AuthType)
             {
                 case AuthType.Jwt:
@@ -171,7 +176,19 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
-            services.TryAddScoped(typeof(ISketAuthenticationStateProvider<>), typeof(SketAuthenticationProvider<>));
+            //
+            // if (settings.AppUserModel.BaseType == typeof(SketUserModel))
+            // {
+            //     var mytype = settings.AppUserModel;
+            //     var m = typeof(SketAuthenticationStateProvider<>).MakeGenericType(mytype);
+            //     var finaltype = Activator.CreateInstance(m);
+            //     
+            //     services.AddScoped<AuthenticationStateProvider, m>();
+            // }
+
+            //middleware section
+            services.TryAddTransient<SketTokenHeaderHandler>();
+
             // services.TryAddSingleton(typeof(ISketAppState), typeof(SketAppState));
 
             services.AddBlazoredLocalStorage(config =>
@@ -187,9 +204,9 @@ namespace Bracketcore.Sket
             // });
 
 
-            var SketInit = new Sket(settings);
+            var SketInit =  Sket.Init(settings);
 
-            services.Add(new ServiceDescriptor(typeof(Sket), SketInit));
+            services.Add(new ServiceDescriptor(typeof(SketConfig), SketInit));
 
             Console.WriteLine("Database " +
                               DB.Database(settings.DatabaseName)

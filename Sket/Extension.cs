@@ -13,6 +13,8 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Middleware;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace Bracketcore.Sket
 {
@@ -207,6 +209,28 @@ namespace Bracketcore.Sket
             var SketInit =  Sket.Init(settings);
 
             services.Add(new ServiceDescriptor(typeof(SketConfig), SketInit));
+
+
+            services.AddMvcCore(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            services.AddAuthorizationCore(option =>
+            {
+                var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
+
+                foreach (var sketRoleEnum in normalRole)
+                {
+                    option.AddPolicy($"{sketRoleEnum.ToString()}Only", policy => policy.RequireRole(sketRoleEnum.ToString()));
+                }
+
+                ;
+            });
+
 
             Console.WriteLine("Database " +
                               DB.Database(settings.DatabaseName)

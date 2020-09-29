@@ -1,10 +1,11 @@
 ﻿namespace Bracketcore.Sket.Entity
 {
-    public enum SketRoleEnum
+    public enum SketRoleEnum 
     {
         Admin,
         App,
         User,
         Support
     }
+   
 }

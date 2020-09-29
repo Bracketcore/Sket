@@ -5,7 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Manager;
+using Bracketcore.Sket.Responses;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace Bracketcore.Sket.Controllers
@@ -14,25 +18,24 @@ namespace Bracketcore.Sket.Controllers
     /// Abstract user Controller
     /// </summary>
     /// <typeparam name="T">Model class</typeparam>
-    public abstract class SketUserController<T> : SketBaseController<T, SketUserRepository<T>> where T : SketUserModel
+    public abstract class SketUserController<T> : SketBaseController<T, ISketUserRepository<T>> where T : SketUserModel
     {
-        private SketUserRepository<T> _repo;
+        private ISketUserRepository<T> _repo;
+        public ISketAuthenticationStateProvider<T> _authenticationStateProvider { get; set; }
 
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(T User)
+        public async Task<ActionResult<LoginResponse>> Login(T User)
         {
-             var verify = await _repo.Login(User);
+            var verify = await _repo.Login(User);
 
             if (verify != null)
             {
                 // todo auth schema check
-                // await HttpContext.SignInAsync(
-                //     Sket.Cfg.Settings.AuthType == AuthType.Cookie
-                //         ? CookieAuthenticationDefaults.AuthenticationScheme
-                //         : "", verify.ClaimsPrincipal);
-                // Redirect(Url.Content( "~/live"));
-
+                // await HttpContext.SignInAsync(verify.ClaimsPrincipal);
+                await ((SketAuthenticationProvider<T>)_authenticationStateProvider).LoginUser(User, verify.Tk, HttpContext);
                 return Ok(verify);
             }
             else
@@ -53,6 +56,8 @@ namespace Bracketcore.Sket.Controllers
         }
 
         [HttpGet("currentUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetCurrentUser()
         {
             await Task.Run(() => { });
@@ -60,19 +65,16 @@ namespace Bracketcore.Sket.Controllers
         }
 
         [HttpPost("logout")]
-        public virtual async Task Logout(SketUserModel user)
+        public virtual async void Logout(SketUserModel user)
         {
-            await HttpContext.SignOutAsync("Bearer",
-                new AuthenticationProperties()
-                {
-                    AllowRefresh = true,
-                    RedirectUri = "/"
-                });
+          await  ((SketAuthenticationProvider<T>)_authenticationStateProvider).LogOutUser(HttpContext);
         }
 
-        protected SketUserController(SketUserRepository<T> repo) : base(repo)
+        protected SketUserController(ISketUserRepository<T> repo,
+            ISketAuthenticationStateProvider<T> AuthenticationStateProvider) : base(repo)
         {
             _repo = repo;
+            _authenticationStateProvider = AuthenticationStateProvider;
         }
     }
 }

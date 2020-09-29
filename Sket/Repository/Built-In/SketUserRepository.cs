@@ -18,7 +18,7 @@ namespace Bracketcore.Sket.Repository
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
         public ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
-        private readonly ISketAuthenticationManager<T> _sketAuthenticationManager;
+        private  ISketAuthenticationManager<T> _sketAuthenticationManager;
 
 
         /// <summary>
@@ -100,9 +100,8 @@ namespace Bracketcore.Sket.Repository
                     Tk = check.jwt,
                     Message = "Ok",
                     CreatedOn = DateTime.UtcNow,
-                    ClaimsPrincipal = check.Claims
+                    // ClaimsPrincipal = check.Claims
                 };
-
 
                 return endVerification;
             }

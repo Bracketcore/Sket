@@ -6,7 +6,7 @@ namespace Bracketcore.Sket.Responses
     /// Get Status data response
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class DataResponse<T> :IDisposable
+    public class DataResponse<T> : IDisposable
     {
         public string Message { get; set; }
         public string Status { get; set; }

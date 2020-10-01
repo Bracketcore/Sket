@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Bracketcore.Sket.Entity;
+using System;
 using System.Collections.Generic;
-using Bracketcore.Sket.Entity;
 
 namespace Bracketcore.Sket
 {
     public class SketConfig : IDisposable
     {
         public SketSettings Settings { get; set; }
-        public List<Type> Context { get; set; }   = new List<Type>();
+        public List<Type> Context { get; set; } = new List<Type>();
         public IEnumerable<SketRoleModel> Roles { get; set; } = new List<SketRoleModel>();
 
         protected virtual void Dispose(bool disposing)

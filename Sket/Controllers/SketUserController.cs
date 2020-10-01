@@ -1,16 +1,12 @@
 ﻿using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Manager;
 using Bracketcore.Sket.Repository;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using Bracketcore.Sket.Manager;
-using Bracketcore.Sket.Responses;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace Bracketcore.Sket.Controllers
 {
@@ -20,7 +16,7 @@ namespace Bracketcore.Sket.Controllers
     /// <typeparam name="T">Model class</typeparam>
     public abstract class SketUserController<T> : SketBaseController<T, ISketUserRepository<T>> where T : SketUserModel
     {
-        private ISketUserRepository<T> _repo;
+        private readonly ISketUserRepository<T> _repo;
         private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessTokenRepository;
         public AuthenticationStateProvider _authenticationStateProvider { get; set; }
 
@@ -36,7 +32,7 @@ namespace Bracketcore.Sket.Controllers
             {
                 // todo auth schema check
                 // await HttpContext.SignInAsync(verify.ClaimsPrincipal);
-                await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LoginUser(User, verify.Tk,
+                await ((SketAuthenticationStateProvider<T>)_authenticationStateProvider).LoginUser(User, verify.Tk,
                     HttpContext);
                 return Ok(verify);
             }
@@ -59,15 +55,24 @@ namespace Bracketcore.Sket.Controllers
             try
             {
                 var token = HttpContext.Request.Headers["Authorization"].ToString();
-                if (string.IsNullOrEmpty(token)) return BadRequest();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return BadRequest();
+                }
 
                 var access = await _accessTokenRepository.FindByToken(token.Replace("Bearer ", null));
 
-                if (access is null) return NotFound();
+                if (access is null)
+                {
+                    return NotFound();
+                }
 
                 var user = await _repo.FindById(access.OwnerID.ID);
 
-                if (user is null) return NotFound();
+                if (user is null)
+                {
+                    return NotFound();
+                }
 
                 user.Password = String.Empty;
                 return Ok(user);
@@ -86,14 +91,21 @@ namespace Bracketcore.Sket.Controllers
         public virtual async Task<IActionResult> Logout(SketUserModel user)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            if (!string.IsNullOrEmpty(token)) return BadRequest();
+            if (!string.IsNullOrEmpty(token))
+            {
+                return BadRequest();
+            }
 
             var access = await _accessTokenRepository.FindByToken(token);
 
-            if (access is null) return NotFound();
+            if (access is null)
+            {
+                return NotFound();
+            }
+
             await _accessTokenRepository.DestroyByUserId(access.OwnerID.ID);
 
-            await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LogOutUser(HttpContext);
+            await ((SketAuthenticationStateProvider<T>)_authenticationStateProvider).LogOutUser(HttpContext);
 
             return Ok();
         }

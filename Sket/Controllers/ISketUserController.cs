@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using Bracketcore.Sket.Entity;
+﻿using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Repository;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Controllers
 {

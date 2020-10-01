@@ -6,7 +6,7 @@ namespace Bracketcore.Sket.Misc
     /// <summary>
     /// Auto generate JWT secret key
     /// </summary>
-    public class JwtSecretKeyGenerator:IDisposable
+    public class JwtSecretKeyGenerator : IDisposable
     {
         /// <summary>
         /// Create auto jwt secret keys

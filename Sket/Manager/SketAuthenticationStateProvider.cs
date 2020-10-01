@@ -41,11 +41,17 @@ namespace Bracketcore.Sket.Manager
 
             var getToken = await _localstorage.GetItemAsync<string>("Token");
 
-            if (getToken == null) return await Task.FromResult(new AuthenticationState(user));
+            if (getToken == null)
+            {
+                return await Task.FromResult(new AuthenticationState(user));
+            }
 
             var tokenExist = await _accessToken.FindByToken(getToken);
 
-            if (tokenExist is null) return await Task.FromResult(new AuthenticationState(user));
+            if (tokenExist is null)
+            {
+                return await Task.FromResult(new AuthenticationState(user));
+            }
 
             var getUser = await _userRepository.FindById(tokenExist.OwnerID.ID);
 
@@ -101,7 +107,7 @@ namespace Bracketcore.Sket.Manager
 
                 if (httpContext != null)
                 {
-                    await httpContext.SignInAsync(Sket.Cfg.Settings.AuthType.ToString(), user );
+                    await httpContext.SignInAsync(Sket.Cfg.Settings.AuthType.ToString(), user);
                 }
 
 

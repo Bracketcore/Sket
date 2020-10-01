@@ -3,7 +3,7 @@ using System;
 
 namespace Bracketcore.Sket.StateManager
 {
-    public abstract class SketAppState :IDisposable , ISketAppState
+    public abstract class SketAppState : IDisposable, ISketAppState
     {
         public event Action<ComponentBase, string> StateChanged;
 

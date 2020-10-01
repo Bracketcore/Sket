@@ -1,5 +1,4 @@
-﻿using System;
-using MongoDB.Entities;
+﻿using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Entity
 {
@@ -8,7 +7,7 @@ namespace Bracketcore.Sket.Entity
     /// </summary>
     [Name("Roles")]
     public class SketRoleModel :
-        SketPersistedModel 
+        SketPersistedModel
     {
         public string Name { get; set; }
         public string Description { get; set; }

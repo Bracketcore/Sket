@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-using Bracketcore.Sket.Entity;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
+using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Manager
 {

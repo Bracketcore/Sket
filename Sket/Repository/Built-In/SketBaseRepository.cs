@@ -129,7 +129,7 @@ namespace Bracketcore.Sket.Repository
             doc.ID = id;
             var filter = Builders<T>.Filter.Eq(i => i.ID, id);
 
-            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() {IsUpsert = true});
+            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() { IsUpsert = true });
 
             return $"{id} updated";
         }

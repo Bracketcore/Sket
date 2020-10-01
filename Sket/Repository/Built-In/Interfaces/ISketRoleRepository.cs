@@ -1,9 +1,7 @@
-﻿using Bracketcore.Sket.Entity;
-
-namespace Bracketcore.Sket.Repository
+﻿namespace Bracketcore.Sket.Repository
 {
-    public interface ISketRoleRepository<T>: ISketBaseRepository<T>
+    public interface ISketRoleRepository<T> : ISketBaseRepository<T>
     {
-        
+
     }
 }

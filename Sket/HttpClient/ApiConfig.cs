@@ -2,7 +2,7 @@
 
 namespace Bracketcore.Sket
 {
-    public class ApiConfig:IApiConfig
+    public class ApiConfig : IApiConfig
 
     {
         public string BaseUrl { get; set; }

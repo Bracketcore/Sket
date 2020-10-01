@@ -16,14 +16,14 @@ namespace Bracketcore.Sket.Repository
     /// Base Access token Repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
-     public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T>   where T: SketAccessTokenModel
+    public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T> where T : SketAccessTokenModel
     {
         public string Config { get; set; }
         public SketAccessTokenRepository() : base()
         {
-            this.Config = Sket.Cfg.Settings.JwtKey;
+            Config = Sket.Cfg.Settings.JwtKey;
         }
-        
+
         /// <summary>
         /// Creates Token on user login successfully
         /// </summary>
@@ -83,7 +83,10 @@ namespace Bracketcore.Sket.Repository
         {
             var find = (await ExistToken(token));
 
-            if (find) return false;
+            if (find)
+            {
+                return false;
+            }
 
             var data = Convert.FromBase64String(token);
             var when = DateTime.FromBinary(BitConverter.ToInt64(data, 0));
@@ -161,7 +164,7 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
-        
+
     }
 
 

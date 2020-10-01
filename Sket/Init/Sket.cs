@@ -1,12 +1,10 @@
 ﻿using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Bracketcore.Sket.Repository;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Bracketcore.Sket
 {
@@ -15,7 +13,7 @@ namespace Bracketcore.Sket
     /// </summary>
     public static class Sket
     {
-        public static SketConfig Cfg { get; set; }  = new SketConfig();
+        public static SketConfig Cfg { get; set; } = new SketConfig();
 
         /// <summary>
         /// Initiate a normal setup for your app
@@ -30,9 +28,9 @@ namespace Bracketcore.Sket
             GetModels();
             GetRoles();
 
-            return Cfg ;
+            return Cfg;
 
-            
+
         }
 
         private static void GetRoles()
@@ -45,6 +43,7 @@ namespace Bracketcore.Sket
                 Console.WriteLine("Roles Set");
             }
             else
+            {
                 foreach (var role in normalRole)
                 {
                     DB.SaveAsync(new SketRoleModel()
@@ -52,6 +51,7 @@ namespace Bracketcore.Sket
                         Name = role.ToString()
                     });
                 }
+            }
         }
 
         private static void GetModels()
@@ -75,6 +75,6 @@ namespace Bracketcore.Sket
             return Cfg;
         }
 
-     
+
     }
 }

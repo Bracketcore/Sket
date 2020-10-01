@@ -1,6 +1,6 @@
+using MongoDB.Entities;
 using System;
 using System.Collections.Generic;
-using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Entity
 {
@@ -24,6 +24,6 @@ namespace Bracketcore.Sket.Entity
             //     .CreateAsync();
         }
 
-     
+
     }
 }

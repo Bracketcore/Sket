@@ -1,4 +1,5 @@
 ﻿using Bracketcore.Sket.Entity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Linq;
@@ -8,8 +9,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Bracketcore.Sket.Manager
 {
@@ -27,7 +26,7 @@ namespace Bracketcore.Sket.Manager
         {
             _key = Sket.Cfg.Settings.JwtKey;
             _Issuer = Sket.Cfg.Settings.DomainUrl;
-            _protector = provider.CreateProtector(new StringBuilder(this.GetType().Namespace).Append(_key).ToString());
+            _protector = provider.CreateProtector(new StringBuilder(GetType().Namespace).Append(_key).ToString());
         }
 
         /// <summary>
@@ -43,7 +42,10 @@ namespace Bracketcore.Sket.Manager
             if (user is null)
             {
                 user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
-                if (user is null) return null;
+                if (user is null)
+                {
+                    return null;
+                }
             }
             else
             {
@@ -52,15 +54,18 @@ namespace Bracketcore.Sket.Manager
 
             var verify = isPasswordOk(Cred.Password, user.Password);
 
-            if (!verify) return null;
+            if (!verify)
+            {
+                return null;
+            }
 
             switch (Sket.Cfg.Settings.AuthType.ToString())
             {
                 case CookieAuthenticationDefaults.AuthenticationScheme:
-                    return GenerateCookieToken(user);
-               
+                    return await GenerateCookieToken(user);
+
                 default:
-                    return GenerateJSONWebToken(user);
+                    return await GenerateJSONWebToken(user);
             }
         }
 
@@ -85,7 +90,7 @@ namespace Bracketcore.Sket.Manager
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = GenerateClaims(userInfo);
             var userClaim = new ClaimsIdentity(claims, Sket.Cfg.Settings.AuthType.ToString());
-             
+
             var token = new JwtSecurityToken(_Issuer,
                 _Issuer,
                 claims,
@@ -122,12 +127,12 @@ namespace Bracketcore.Sket.Manager
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var key = tokenHandler.WriteToken(token);
 
-            return new TokenResponse()
+            return Task.FromResult(new TokenResponse()
             {
-                jwt = key ,
+                jwt = key,
                 userId = user.ID,
                 Claims = new ClaimsPrincipal(userClaim)
-            };
+            });
         }
 
         private Claim[] GenerateClaims(T user)

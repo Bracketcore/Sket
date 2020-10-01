@@ -95,13 +95,13 @@ namespace Bracketcore.Sket.Manager
                     new Claim("Profile", verifyUser),
                     new Claim("Token", Token),
                     new Claim(ClaimTypes.Role, RoleValue)
-                }, "SketAuth");
+                }, Sket.Cfg.Settings.AuthType.ToString());
 
                 var user = new ClaimsPrincipal(identity);
 
                 if (httpContext != null)
                 {
-                    await httpContext.SignInAsync(user);
+                    await httpContext.SignInAsync(Sket.Cfg.Settings.AuthType.ToString(), user );
                 }
 
 
@@ -116,7 +116,7 @@ namespace Bracketcore.Sket.Manager
 
         public async Task LogOutUser(HttpContext httpContext)
         {
-            await httpContext.SignOutAsync("Bearer",
+            await httpContext.SignOutAsync(Sket.Cfg.Settings.AuthType.ToString(),
                 new AuthenticationProperties()
                 {
                     AllowRefresh = true,

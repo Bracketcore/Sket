@@ -42,7 +42,7 @@ namespace Bracketcore.Sket
 
             if (string.IsNullOrEmpty(settings.JwtKey)) throw new Exception("JwtKey is required");
             if (string.IsNullOrEmpty(settings.DomainUrl)) throw new Exception("DomainUrl is required");
-            
+
             #endregion
 
             #region Core Section
@@ -108,44 +108,55 @@ namespace Bracketcore.Sket
             #region Security Section
 
             services.AddDataProtection();
-          
 
-            void addCokies()
+            void addCookies()
             {
-                services.AddAuthentication("CookieAuth")
-                    .AddCookie("CookieAuth", c =>
+                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, c =>
                     {
-                        c.Cookie.Name = "SketCookies";
+                        c.Cookie.Name = Sket.Cfg.Settings.AuthType.ToString();
                         c.LoginPath = "/login";
                         c.LogoutPath = "/login";
-                        
                     });
             }
-            
+
             void addJwt()
             {
-                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+                services.AddAuthentication(option =>
                 {
-                    opt.TokenValidationParameters = new TokenValidationParameters()
-                    {   ValidateIssuer = true,    
-                        ValidateAudience = true,    
-                        ValidateLifetime = true,    
-                        ValidateIssuerSigningKey = true,    
-                        ValidIssuer = settings.DomainUrl,    
-                        ValidAudience = settings.DomainUrl,    
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))    
-                
-                    };
-                });
+                    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                  
+                })
+                //     .AddJwtBearer(options =>
+                // {
+                //     options.TokenValidationParameters = new TokenValidationParameters
+                //     {
+                //         ValidateIssuer = true,
+                //         ValidateAudience = true,
+                //         ValidateLifetime = false,
+                //         ValidateIssuerSigningKey = true,
+                //         ValidIssuer = settings.DomainUrl,
+                //         ValidAudience = settings.DomainUrl,
+                //         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))
+                //     };
+                //     options.SaveToken = true;
+                // })
+                    .AddCookie( Sket.Cfg.Settings.AuthType.ToString(), c =>
+                    {
+                        c.Cookie.Name = Sket.Cfg.Settings.AuthType.ToString();
+                        c.LoginPath = "/login";
+                        c.LogoutPath = "/login";
+                    });
             }
-            
+
             void addBoth()
             {
                 addJwt();
-                addCokies();
+                addCookies();
             }
-            
-            
+
+
             switch (settings.AuthType)
             {
                 case AuthType.Jwt:
@@ -155,7 +166,7 @@ namespace Bracketcore.Sket
                     addBoth();
                     break;
                 default:
-                    addCokies();
+                    addCookies();
                     break;
             }
 
@@ -198,7 +209,7 @@ namespace Bracketcore.Sket
                                 client.DefaultRequestHeaders.Accept.Add(
                                     new MediaTypeWithQualityHeaderValue("text/plain"));
                             });
-                            // .AddHttpMessageHandler<SketTokenHeaderHandler>();
+                        // .AddHttpMessageHandler<SketTokenHeaderHandler>();
                     }
                 }
             }

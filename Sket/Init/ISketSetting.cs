@@ -9,6 +9,7 @@ namespace Bracketcore.Sket
     {
         public AuthType AuthType { get; set; }
         public List<string> CorsDomains { get; set; }
+        public string DomainUrl { get; set; }
         // public Type AppUserModel { get; set; }
         public string DatabaseName { get; set; }
         public bool EnableCamelCase { get; set; }

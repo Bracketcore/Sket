@@ -11,12 +11,15 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Text;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Middleware;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bracketcore.Sket
 {
@@ -37,11 +40,9 @@ namespace Bracketcore.Sket
         {
             #region Check Setup Section
 
-            if (string.IsNullOrEmpty(settings.JwtKey))
-            {
-                throw new Exception("JwtKey is required");
-            }
-
+            // if (string.IsNullOrEmpty(settings.JwtKey)) throw new Exception("JwtKey is required");
+            // if (string.IsNullOrEmpty(settings.DomainUrl)) throw new Exception("DomainUrl is required");
+            
             #endregion
 
             #region Core Section
@@ -117,16 +118,25 @@ namespace Bracketcore.Sket
                         c.Cookie.Name = "SketCookies";
                         c.LoginPath = "/login";
                         c.LogoutPath = "/login";
+                        
                     });
             }
             
             void addJwt()
             {
-                services.AddAuthentication(option =>
-                {
-                    option.DefaultAuthenticateScheme = "Bearer";
-                    option.DefaultChallengeScheme = "Bearer";
-                });
+                // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+                // {
+                //     opt.TokenValidationParameters = new TokenValidationParameters()
+                //     {   ValidateIssuer = true,    
+                //         ValidateAudience = true,    
+                //         ValidateLifetime = true,    
+                //         ValidateIssuerSigningKey = true,    
+                //         ValidIssuer = settings.DomainUrl,    
+                //         ValidAudience = settings.DomainUrl,    
+                //         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))    
+                //
+                //     };
+                // });
             }
             
             void addBoth()

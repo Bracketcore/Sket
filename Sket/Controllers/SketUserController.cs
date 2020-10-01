@@ -28,7 +28,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponse>> Login(T User)
+        public async Task<IActionResult> Login(T User)
         {
             var verify = await _repo.Login(User);
 
@@ -50,40 +50,40 @@ namespace Bracketcore.Sket.Controllers
             }
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        public override Task<IActionResult> Create(T doc)
-        {
-            return base.Create(doc);
-        }
-
-        
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost("currentUser")]
-        public async Task<ActionResult> GetCurrentUser()
+        [HttpGet("currentUser")]
+        public async Task<IActionResult> GetCurrentUser()
         {
-            var token = HttpContext.Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(token)) return BadRequest();
+            try
+            {
+                var token = HttpContext.Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(token)) return BadRequest();
 
-            var access = await _accessTokenRepository.FindByToken(token.Replace("Bearer ", null));
+                var access = await _accessTokenRepository.FindByToken(token.Replace("Bearer ", null));
 
-            if (access is null) return NotFound();
+                if (access is null) return NotFound();
 
-            var user = await _repo.FindById(access.OwnerID.ID);
+                var user = await _repo.FindById(access.OwnerID.ID);
 
-            if (user is null) return NotFound();
+                if (user is null) return NotFound();
 
-            user.Password = String.Empty;
-            return Ok(user);
+                user.Password = String.Empty;
+                return Ok(user);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         [HttpPost("logout")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<ActionResult> Logout(SketUserModel user)
+        public virtual async Task<IActionResult> Logout(SketUserModel user)
         {
             var token = HttpContext.Request.Headers["Authorization"];
             if (!string.IsNullOrEmpty(token)) return BadRequest();

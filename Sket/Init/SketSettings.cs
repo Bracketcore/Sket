@@ -16,13 +16,16 @@ namespace Bracketcore.Sket
         /// Set Database name
         /// </summary>
         public string DatabaseName { get; set; }
-
-        public Type AppUserModel { get; set; }
-
+        
         /// <summary>
         /// Set JwtKey to setup your token creator
         /// </summary>
         public string JwtKey { get; set; }
+
+        /// <summary>
+        /// Set the application domain which will be used for the JWT issuer and audience
+        /// </summary>
+        public string DomainUrl { get; set; }
 
         /// <summary>
         /// Default = false

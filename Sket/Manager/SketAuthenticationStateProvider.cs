@@ -17,14 +17,14 @@ namespace Bracketcore.Sket.Manager
     /// used for blazor based application 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SketAuthenticationStateProvider<T> : AuthenticationStateProvider, ISketAuthenticationStateProvider<T>
-     where T:SketUserModel
+    public abstract class SketAuthenticationStateProvider<T> : AuthenticationStateProvider,
+        ISketAuthenticationStateProvider<T>
+        where T : SketUserModel
     {
         private readonly ILocalStorageService _localstorage;
         private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessToken;
         private readonly ISketUserRepository<T> _userRepository;
         public CancellationToken CancellationToken { get; set; }
-
 
         public SketAuthenticationStateProvider(ILocalStorageService localstorage,
             ISketAccessTokenRepository<SketAccessTokenModel> accessToken, ISketUserRepository<T> userRepository)
@@ -67,19 +67,17 @@ namespace Bracketcore.Sket.Manager
             return await Task.FromResult(new AuthenticationState(user));
         }
 
+        public async Task LoginUser(T loginData, string Token)
+        {
+            await LoginUser(loginData, Token, null);
+        }
+
         public async Task LoginUser(T loginData, string Token, HttpContext httpContext)
         {
             try
             {
                 var u = new ClaimsPrincipal();
 
-                // var login = await _authMan.Authenticate(loginData);
-                //
-                // if(login is null)
-                // {
-                //     await Task.FromResult(new AuthenticationState(u));
-                //     return;
-                // }
                 var GetToken = await _accessToken.FindByToken(Token);
 
                 var LoggedUser = await _userRepository.FindById(GetToken.OwnerID.ID);
@@ -99,10 +97,13 @@ namespace Bracketcore.Sket.Manager
                     new Claim(ClaimTypes.Role, RoleValue)
                 }, "SketAuth");
 
-                // await _localstorage.SetItemAsync("Token", Token);
                 var user = new ClaimsPrincipal(identity);
 
-                await httpContext.SignInAsync(user);
+                if (httpContext != null)
+                {
+                    await httpContext.SignInAsync(user);
+                }
+
 
                 NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
             }
@@ -115,8 +116,6 @@ namespace Bracketcore.Sket.Manager
 
         public async Task LogOutUser(HttpContext httpContext)
         {
-        
-
             await httpContext.SignOutAsync("Bearer",
                 new AuthenticationProperties()
                 {

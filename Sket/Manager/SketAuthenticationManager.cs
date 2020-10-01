@@ -1,6 +1,5 @@
 ﻿using Bracketcore.Sket.Entity;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;

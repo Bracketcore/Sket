@@ -13,6 +13,8 @@ using System.Linq;
 using System.Net.Http.Headers;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Middleware;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
@@ -33,21 +35,67 @@ namespace Bracketcore.Sket
         public static IServiceCollection AddSket(
             this IServiceCollection services, SketSettings settings)
         {
+            #region Check Setup Section
+
             if (string.IsNullOrEmpty(settings.JwtKey))
             {
                 throw new Exception("JwtKey is required");
             }
 
-            SetupServices(services, settings); // DI Services
-            SecuritySetup(services, settings);
+            #endregion
 
-            ApiStructure(services, settings);
+            #region Core Section
+
+            DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
+            var SketInit = Sket.Init(settings);
+
+            services.Add(new ServiceDescriptor(typeof(SketConfig), SketInit));
+
+            #endregion
+
+            #region Dependency Injection Section
+
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
+            services.TryAddScoped(typeof(ISketAccessTokenRepository<>), typeof(SketAccessTokenRepository<>));
+            services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
+            services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
+            services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
+
+            services.AddBlazoredLocalStorage(config =>
+                config.JsonSerializerOptions.WriteIndented = true);
+
+            services.AddAuthorizationCore(option =>
+            {
+                var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
+
+                foreach (var sketRoleEnum in normalRole)
+                {
+                    option.AddPolicy(sketRoleEnum.ToString(), policy => policy.RequireRole(sketRoleEnum.ToString()));
+                }
+            });
+
+
+            Console.WriteLine("Database " +
+                              DB.Database(settings.DatabaseName)
+                                  .Client
+                                  .Cluster
+                                  .Description
+                                  .State);
+
+            #endregion
+
+            #region Middlewares Section
+
+            services.TryAddTransient<SketTokenHeaderHandler>();
+
+            #endregion
 
             #region Identity Setup Section
 
             #endregion
 
-            #region xss and crsf security
+            #region XSS and CRSF security Section
 
             //     services.AddMvc(options =>
             //{
@@ -56,56 +104,10 @@ namespace Bracketcore.Sket
 
             #endregion
 
-            return services;
-        }
+            #region Security Section
 
-        private static void ApiStructure(IServiceCollection services, SketSettings settings)
-        {
-            if (!settings.ApiSetup.Any()) return;
-
-            foreach (var apiConfig in settings.ApiSetup)
-            {
-                foreach (var control in apiConfig.Endpoints)
-                {
-                    services.AddHttpClient(control,
-                        client =>
-                        {
-                            client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl, control));
-                            client.DefaultRequestHeaders.Accept.Add(
-                                new MediaTypeWithQualityHeaderValue("application/json"));
-                            client.DefaultRequestHeaders.Accept.Add(
-                                new MediaTypeWithQualityHeaderValue("application/xml"));
-                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                        }).AddHttpMessageHandler<SketTokenHeaderHandler>();
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// Initial setup for Sket middleware
-        /// </summary>
-        /// <param name="app"></param>
-        /// <returns></returns>
-        public static IApplicationBuilder UseSket(this IApplicationBuilder app)
-        {
-            // app.UseSwagger(i => { i.SerializeAsV2 = true; });
-            //
-            // app.UseSwaggerUI(i =>
-            // {
-            //     i.SwaggerEndpoint("/swagger/v1/swagger.json", "Api Explorer");
-            //     i.RoutePrefix = "swagger";
-            // });
-
-            app.UseAuthentication();
-
-            return app;
-        }
-
-        private static void SecuritySetup(IServiceCollection services, SketSettings settings)
-        {
-            //Add data protection
             services.AddDataProtection();
+          
 
             void addCokies()
             {
@@ -117,7 +119,7 @@ namespace Bracketcore.Sket
                         c.LogoutPath = "/login";
                     });
             }
-
+            
             void addJwt()
             {
                 services.AddAuthentication(option =>
@@ -126,14 +128,14 @@ namespace Bracketcore.Sket
                     option.DefaultChallengeScheme = "Bearer";
                 });
             }
-
+            
             void addBoth()
             {
                 addJwt();
                 addCokies();
             }
-
-
+            
+            
             switch (settings.AuthType)
             {
                 case AuthType.Jwt:
@@ -147,8 +149,9 @@ namespace Bracketcore.Sket
                     break;
             }
 
+            #endregion
 
-            #region CORS security section
+            #region CORS security Section
 
             if (settings.CorsDomains != null)
             {
@@ -165,79 +168,47 @@ namespace Bracketcore.Sket
             }
 
             #endregion
+
+            #region Api HttpClient Configuration Section
+
+            if (settings.ApiSetup.Any())
+            {
+                foreach (var apiConfig in settings.ApiSetup)
+                {
+                    foreach (var control in apiConfig.Endpoints)
+                    {
+                        services.AddHttpClient(control,
+                            client =>
+                            {
+                                client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl, control));
+                                client.DefaultRequestHeaders.Accept.Add(
+                                    new MediaTypeWithQualityHeaderValue("application/json"));
+                                client.DefaultRequestHeaders.Accept.Add(
+                                    new MediaTypeWithQualityHeaderValue("application/xml"));
+                                client.DefaultRequestHeaders.Accept.Add(
+                                    new MediaTypeWithQualityHeaderValue("text/plain"));
+                            });
+                            // .AddHttpMessageHandler<SketTokenHeaderHandler>();
+                    }
+                }
+            }
+
+            #endregion
+
+            return services;
         }
 
-        private static void SetupServices(IServiceCollection services, SketSettings settings)
+
+        /// <summary>
+        /// Initial setup for Sket middleware
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
+        public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-            DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
+            app.UseAuthentication();
 
-            services.AddHttpClient();
-            services.AddHttpContextAccessor();
-            services.TryAddScoped(typeof(ISketAccessTokenRepository<>), typeof(SketAccessTokenRepository<>));
-            // services.TryAddScoped(typeof(SketEmailRepository<>));
-            services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
-            services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
-            services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
-            //
-            // if (settings.AppUserModel.BaseType == typeof(SketUserModel))
-            // {
-            //     var mytype = settings.AppUserModel;
-            //     var m = typeof(SketAuthenticationStateProvider<>).MakeGenericType(mytype);
-            //     var finaltype = Activator.CreateInstance(m);
-            //     
-            //     services.AddScoped<AuthenticationStateProvider, m>();
-            // }
-
-            //middleware section
-            services.TryAddTransient<SketTokenHeaderHandler>();
-
-            // services.TryAddSingleton(typeof(ISketAppState), typeof(SketAppState));
-
-            services.AddBlazoredLocalStorage(config =>
-                config.JsonSerializerOptions.WriteIndented = true);
-
-            // services.AddSwaggerGen(i =>
-            // {
-            //     i.SwaggerDoc("V1", new OpenApiInfo()
-            //     {
-            //         Title = "Api Explorer",
-            //         Version = "V1"
-            //     });
-            // });
-
-
-            var SketInit =  Sket.Init(settings);
-
-            services.Add(new ServiceDescriptor(typeof(SketConfig), SketInit));
-
-
-            services.AddMvcCore(config =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                config.Filters.Add(new AuthorizeFilter(policy));
-            });
-
-            services.AddAuthorizationCore(option =>
-            {
-                var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
-
-                foreach (var sketRoleEnum in normalRole)
-                {
-                    option.AddPolicy($"{sketRoleEnum.ToString()}Only", policy => policy.RequireRole(sketRoleEnum.ToString()));
-                }
-
-                ;
-            });
-
-
-            Console.WriteLine("Database " +
-                              DB.Database(settings.DatabaseName)
-                                  .Client
-                                  .Cluster
-                                  .Description
-                                  .State);
+            return app;
         }
     }
 }

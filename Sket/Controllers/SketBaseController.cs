@@ -58,6 +58,7 @@ namespace Bracketcore.Sket.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "App,Admin,Support")]
         public virtual async Task<IActionResult> Create(T doc)
         {
             try
@@ -82,34 +83,59 @@ namespace Bracketcore.Sket.Controllers
             }
         }
 
-        [Authorize(Roles = "User,Admin,Support")]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> Update(string id, T replace)
         {
-            //Check if user is owner
-            var exist = await Repo.Exist(id).ConfigureAwait(false);
+            async Task<IActionResult> command()
+            {
+                //Check if user is owner
+                var exist = await Repo.Exist(id).ConfigureAwait(false);
 
-            if (!exist) return NotFound();
-            _ = await Repo.Update(id, replace).ConfigureAwait(false);
-            return NoContent();
+                if (!exist) return NotFound();
+                _ = await Repo.Update(id, replace).ConfigureAwait(false);
+                return NoContent();
+            }
+
+            if (HttpContext.User.IsInRole("User"))
+            {
+                var token = HttpContext.Request.Headers["Authorization"].ToString();
+
+                var user = HttpContext.User.Claims.GetEnumerator();
+                return await command();
+            }
+            else
+            {
+                return await command();
+            }
         }
 
-        [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> Remove(string id)
         {
-            var exist = await Repo.Exist(id).ConfigureAwait(false);
+            async Task<IActionResult> command()
+            {
+                var exist = await Repo.Exist(id).ConfigureAwait(false);
 
-            if (!exist) return NotFound();
-            _ = await Repo.DestroyById(id).ConfigureAwait(false);
-            return NoContent();
+                if (!exist) return NotFound();
+                _ = await Repo.DestroyById(id).ConfigureAwait(false);
+                return NoContent();
+            }
+
+            if (HttpContext.User.IsInRole("User"))
+            {
+                return await command();
+            }
+            else
+            {
+                return await command();
+            }
+
         }
 
-        [Authorize(Roles = "App")]
         [HttpGet("exist/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

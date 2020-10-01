@@ -1,8 +1,8 @@
-﻿using Bracketcore.Sket.Entity;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Bracketcore.Sket.Entity;
 
-namespace Bracketcore.Sket
+namespace Bracketcore.Sket.Init
 {
     public class SketConfig : IDisposable
     {
@@ -10,17 +10,17 @@ namespace Bracketcore.Sket
         public List<Type> Context { get; set; } = new List<Type>();
         public IEnumerable<SketRoleModel> Roles { get; set; } = new List<SketRoleModel>();
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

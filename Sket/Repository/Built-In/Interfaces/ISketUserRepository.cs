@@ -1,8 +1,8 @@
-﻿using Bracketcore.Sket.Entity;
+﻿using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Responses;
-using System.Threading.Tasks;
 
-namespace Bracketcore.Sket.Repository
+namespace Bracketcore.Sket.Repository.Interfaces
 {
     public interface ISketUserRepository<T> : ISketBaseRepository<T>
     {

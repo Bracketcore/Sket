@@ -1,36 +1,37 @@
-﻿using Bracketcore.Sket.Entity;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Responses;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Manager
 {
     /// <summary>
-    /// use this to create claims
+    ///     use this to create claims
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SketAuthenticationManager<T> : ISketAuthenticationManager<T> where T : SketUserModel
     {
+        public SketAuthenticationManager(IDataProtectionProvider provider)
+        {
+            _key = Init.Sket.Cfg.Settings.JwtKey;
+            _Issuer = Init.Sket.Cfg.Settings.DomainUrl;
+            _protector = provider.CreateProtector(new StringBuilder(GetType().Namespace).Append(_key).ToString());
+        }
+
         public IDataProtector _protector { get; set; }
         public string _key { get; set; }
         public string _Issuer { get; set; }
 
-        public SketAuthenticationManager(IDataProtectionProvider provider)
-        {
-            _key = Sket.Cfg.Settings.JwtKey;
-            _Issuer = Sket.Cfg.Settings.DomainUrl;
-            _protector = provider.CreateProtector(new StringBuilder(GetType().Namespace).Append(_key).ToString());
-        }
-
         /// <summary>
-        /// Return created token
+        ///     Return created token
         /// </summary>
         /// <param name="Cred"></param>
         /// <param name="password"></param>
@@ -42,10 +43,7 @@ namespace Bracketcore.Sket.Manager
             if (user is null)
             {
                 user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
-                if (user is null)
-                {
-                    return null;
-                }
+                if (user is null) return null;
             }
             else
             {
@@ -54,12 +52,9 @@ namespace Bracketcore.Sket.Manager
 
             var verify = isPasswordOk(Cred.Password, user.Password);
 
-            if (!verify)
-            {
-                return null;
-            }
+            if (!verify) return null;
 
-            switch (Sket.Cfg.Settings.AuthType.ToString())
+            switch (Init.Sket.Cfg.Settings.AuthType.ToString())
             {
                 case CookieAuthenticationDefaults.AuthenticationScheme:
                     return await GenerateCookieToken(user);
@@ -75,7 +70,7 @@ namespace Bracketcore.Sket.Manager
         }
 
         /// <summary>
-        /// Hash password from a given string
+        ///     Hash password from a given string
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
@@ -89,7 +84,7 @@ namespace Bracketcore.Sket.Manager
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = GenerateClaims(userInfo);
-            var userClaim = new ClaimsIdentity(claims, Sket.Cfg.Settings.AuthType.ToString());
+            var userClaim = new ClaimsIdentity(claims, Init.Sket.Cfg.Settings.AuthType.ToString());
 
             var token = new JwtSecurityToken(_Issuer,
                 _Issuer,
@@ -99,7 +94,7 @@ namespace Bracketcore.Sket.Manager
 
             var key = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Task.FromResult(new TokenResponse()
+            return Task.FromResult(new TokenResponse
             {
                 jwt = key,
                 userId = userInfo.ID,
@@ -114,9 +109,9 @@ namespace Bracketcore.Sket.Manager
 
             //todo auth schema
             var claims = GenerateClaims(user);
-            var userClaim = new ClaimsIdentity(claims, Sket.Cfg.Settings.AuthType.ToString());
+            var userClaim = new ClaimsIdentity(claims, Init.Sket.Cfg.Settings.AuthType.ToString());
 
-            var tokenDescriptor = new SecurityTokenDescriptor()
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = userClaim,
                 Expires = DateTime.UtcNow.AddHours(2),
@@ -127,7 +122,7 @@ namespace Bracketcore.Sket.Manager
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var key = tokenHandler.WriteToken(token);
 
-            return Task.FromResult(new TokenResponse()
+            return Task.FromResult(new TokenResponse
             {
                 jwt = key,
                 userId = user.ID,
@@ -137,10 +132,10 @@ namespace Bracketcore.Sket.Manager
 
         private Claim[] GenerateClaims(T user)
         {
-            return new Claim[]
+            return new[]
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Email, user.Email)
             };
         }
     }

@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Bracketcore.Sket.Repository
+namespace Bracketcore.Sket.Controllers
 {
     public interface ISketBaseController<T>
     {

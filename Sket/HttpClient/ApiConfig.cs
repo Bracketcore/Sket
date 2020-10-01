@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Bracketcore.Sket
+namespace Bracketcore.Sket.HttpClient
 {
     public class ApiConfig : IApiConfig
 

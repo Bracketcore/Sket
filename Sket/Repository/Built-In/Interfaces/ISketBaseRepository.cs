@@ -1,8 +1,8 @@
-﻿using Bracketcore.Sket.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
 
-namespace Bracketcore.Sket.Repository
+namespace Bracketcore.Sket.Repository.Interfaces
 {
     public interface ISketBaseRepository<T>
     {

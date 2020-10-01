@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Bracketcore.Sket.Manager
 {
@@ -20,11 +21,13 @@ namespace Bracketcore.Sket.Manager
     {
         public IDataProtector _protector { get; set; }
         public string _key { get; set; }
+        public string _Issuer { get; set; }
 
         public SketAuthenticationManager(IDataProtectionProvider provider)
         {
-            _protector = provider.CreateProtector(this.GetType().Namespace);
             _key = Sket.Cfg.Settings.JwtKey;
+            _Issuer = Sket.Cfg.Settings.DomainUrl;
+            _protector = provider.CreateProtector(new StringBuilder(this.GetType().Namespace).Append(_key).ToString());
         }
 
         /// <summary>
@@ -51,33 +54,14 @@ namespace Bracketcore.Sket.Manager
 
             if (!verify) return null;
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenKey = Encoding.ASCII.GetBytes(_key);
-
-            //todo auth schema
-            var userClaim = new ClaimsIdentity(new Claim[]
+            switch (Sket.Cfg.Settings.AuthType.ToString())
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-            }, Sket.Cfg.Settings.AuthType == AuthType.Cookie ? CookieAuthenticationDefaults.AuthenticationScheme : "");
-
-
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Subject = userClaim,
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return new TokenResponse()
-            {
-                jwt = tokenHandler.WriteToken(token),
-                userId = user.ID,
-                Claims = new ClaimsPrincipal(userClaim)
-            };
+                case CookieAuthenticationDefaults.AuthenticationScheme:
+                    return GenerateCookieToken(user);
+               
+                default:
+                    return GenerateJSONWebToken(user);
+            }
         }
 
         public bool isPasswordOk(string password, string userPassword)
@@ -93,6 +77,66 @@ namespace Bracketcore.Sket.Manager
         public string HashPassword(string password)
         {
             return _protector.Protect(password);
+        }
+
+        public Task<TokenResponse> GenerateJSONWebToken(T userInfo)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = GenerateClaims(userInfo);
+            var userClaim = new ClaimsIdentity(claims, Sket.Cfg.Settings.AuthType.ToString());
+             
+            var token = new JwtSecurityToken(_Issuer,
+                _Issuer,
+                claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: credentials);
+
+            var key = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Task.FromResult(new TokenResponse()
+            {
+                jwt = key,
+                userId = userInfo.ID,
+                Claims = new ClaimsPrincipal(userClaim)
+            });
+        }
+
+        public Task<TokenResponse> GenerateCookieToken(T user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenKey = Encoding.ASCII.GetBytes(_key);
+
+            //todo auth schema
+            var claims = GenerateClaims(user);
+            var userClaim = new ClaimsIdentity(claims, Sket.Cfg.Settings.AuthType.ToString());
+
+            var tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = userClaim,
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var key = tokenHandler.WriteToken(token);
+
+            return new TokenResponse()
+            {
+                jwt = key ,
+                userId = user.ID,
+                Claims = new ClaimsPrincipal(userClaim)
+            };
+        }
+
+        private Claim[] GenerateClaims(T user)
+        {
+            return new Claim[]
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
         }
     }
 }

@@ -5,7 +5,7 @@ using Bracketcore.Sket.Entity;
 
 namespace Bracketcore.Sket.Repository
 {
-    public interface ISketBaseRepository<T>
+    public interface ISketBaseRepository<T> 
     {
         public SketContextModel<T> SketContextModel { get; set; }
         Task<SketContextModel<T>> BeforeCreate(T doc);

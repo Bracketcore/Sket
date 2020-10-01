@@ -90,20 +90,20 @@ namespace Bracketcore.Sket.Repository
             {
                 var check = await _sketAuthenticationManager.Authenticate(user);
 
-                if (check is null) return null;
-                    // return basic user info and authentication token
+                if (check is null) return new LoginResponse();
+                
+                // return basic user info and authentication token
 
                 await _accessToken.Create(check.userId, check.jwt);
 
-                var endVerification = new LoginResponse()
+               return new LoginResponse()
                 {
                     Tk = check.jwt,
                     Message = "Ok",
                     CreatedOn = DateTime.UtcNow,
-                    // ClaimsPrincipal = check.Claims
+                    IsStatueOk = true
                 };
 
-                return endVerification;
             }
             catch (Exception e)
             {

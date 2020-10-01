@@ -2,7 +2,7 @@
 
 namespace Bracketcore.Sket.Repository
 {
-    public interface ISketRoleRepository<T>: ISketBaseRepository<T> where T : SketPersistedModel
+    public interface ISketRoleRepository<T>: ISketBaseRepository<T>
     {
         
     }

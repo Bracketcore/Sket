@@ -5,7 +5,7 @@ using Bracketcore.Sket.Responses;
 
 namespace Bracketcore.Sket.Repository
 {
-    public interface ISketUserRepository<T>: ISketBaseRepository<T> where T : SketUserModel
+    public interface ISketUserRepository<T>: ISketBaseRepository<T> 
     {
         ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
         Task<LoginResponse> Login(T user);

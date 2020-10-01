@@ -40,8 +40,8 @@ namespace Bracketcore.Sket
         {
             #region Check Setup Section
 
-            // if (string.IsNullOrEmpty(settings.JwtKey)) throw new Exception("JwtKey is required");
-            // if (string.IsNullOrEmpty(settings.DomainUrl)) throw new Exception("DomainUrl is required");
+            if (string.IsNullOrEmpty(settings.JwtKey)) throw new Exception("JwtKey is required");
+            if (string.IsNullOrEmpty(settings.DomainUrl)) throw new Exception("DomainUrl is required");
             
             #endregion
 
@@ -124,19 +124,19 @@ namespace Bracketcore.Sket
             
             void addJwt()
             {
-                // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
-                // {
-                //     opt.TokenValidationParameters = new TokenValidationParameters()
-                //     {   ValidateIssuer = true,    
-                //         ValidateAudience = true,    
-                //         ValidateLifetime = true,    
-                //         ValidateIssuerSigningKey = true,    
-                //         ValidIssuer = settings.DomainUrl,    
-                //         ValidAudience = settings.DomainUrl,    
-                //         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))    
-                //
-                //     };
-                // });
+                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+                {
+                    opt.TokenValidationParameters = new TokenValidationParameters()
+                    {   ValidateIssuer = true,    
+                        ValidateAudience = true,    
+                        ValidateLifetime = true,    
+                        ValidateIssuerSigningKey = true,    
+                        ValidIssuer = settings.DomainUrl,    
+                        ValidAudience = settings.DomainUrl,    
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))    
+                
+                    };
+                });
             }
             
             void addBoth()

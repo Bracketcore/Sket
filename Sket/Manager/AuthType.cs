@@ -1,4 +1,4 @@
-﻿namespace Bracketcore.Sket
+﻿namespace Bracketcore.Sket.Manager
 {
     public enum AuthType
     {

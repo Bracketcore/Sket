@@ -1,24 +1,21 @@
-﻿using Bracketcore.Sket.Entity;
-using MongoDB.Driver.Linq;
-using MongoDB.Entities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Repository;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Entities;
 
-namespace Bracketcore.Sket
+namespace Bracketcore.Sket.Init
 {
     /// <summary>
-    /// This class setup the roles and context models.
+    ///     This class setup the roles and context models.
     /// </summary>
     public static class Sket
     {
-        public static SketConfig Cfg { get; set; }  = new SketConfig();
+        public static SketConfig Cfg { get; set; } = new SketConfig();
 
         /// <summary>
-        /// Initiate a normal setup for your app
+        ///     Initiate a normal setup for your app
         /// </summary>
         /// <param name="services"></param>
         /// <param name="Config"></param>
@@ -30,9 +27,7 @@ namespace Bracketcore.Sket
             GetModels();
             GetRoles();
 
-            return Cfg ;
-
-            
+            return Cfg;
         }
 
         private static void GetRoles()
@@ -41,17 +36,13 @@ namespace Bracketcore.Sket
             var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
 
             if (getRoles)
-            {
                 Console.WriteLine("Roles Set");
-            }
             else
                 foreach (var role in normalRole)
-                {
-                    DB.SaveAsync(new SketRoleModel()
+                    DB.SaveAsync(new SketRoleModel
                     {
                         Name = role.ToString()
                     });
-                }
         }
 
         private static void GetModels()
@@ -61,11 +52,7 @@ namespace Bracketcore.Sket
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p));
 
-            foreach (var t in types.ToList())
-            {
-                Sket.Cfg.Context.Add(t);
-            }
-
+            foreach (var t in types.ToList()) Cfg.Context.Add(t);
         }
 
         public static SketConfig Init(IServiceCollection services, SketSettings settings)
@@ -74,7 +61,5 @@ namespace Bracketcore.Sket
             Cfg.Settings = settings;
             return Cfg;
         }
-
-     
     }
 }

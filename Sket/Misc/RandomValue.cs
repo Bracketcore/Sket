@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Bracketcore.Sket.Misc
 {
-    public static class RandomValue 
+    public static class RandomValue
     {
         // Generate a random number between two numbers    
         public static int ToNumber(int min, int max)

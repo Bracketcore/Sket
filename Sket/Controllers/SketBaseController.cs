@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Repository;
+using Bracketcore.Sket.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 namespace Bracketcore.Sket.Controllers
 {
     /// <summary>
-    /// Abstract Base Controller
+    ///     Abstract Base Controller
     /// </summary>
     /// <typeparam name="T">Controller model</typeparam>
     /// <typeparam name="TC">Repository class to use</typeparam>
@@ -71,6 +71,7 @@ namespace Bracketcore.Sket.Controllers
 
                     var cre = await Repo.Create(doc);
                     if (cre == null) return BadRequest();
+
                     return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
                 }
 
@@ -94,6 +95,7 @@ namespace Bracketcore.Sket.Controllers
                 var exist = await Repo.Exist(id).ConfigureAwait(false);
 
                 if (!exist) return NotFound();
+
                 _ = await Repo.Update(id, replace).ConfigureAwait(false);
                 return NoContent();
             }
@@ -105,10 +107,8 @@ namespace Bracketcore.Sket.Controllers
                 var user = HttpContext.User.Claims.GetEnumerator();
                 return await command();
             }
-            else
-            {
-                return await command();
-            }
+
+            return await command();
         }
 
         [HttpDelete("{id}")]
@@ -121,19 +121,14 @@ namespace Bracketcore.Sket.Controllers
                 var exist = await Repo.Exist(id).ConfigureAwait(false);
 
                 if (!exist) return NotFound();
+
                 _ = await Repo.DestroyById(id).ConfigureAwait(false);
                 return NoContent();
             }
 
             if (HttpContext.User.IsInRole("User"))
-            {
                 return await command();
-            }
-            else
-            {
-                return await command();
-            }
-
+            return await command();
         }
 
         [HttpGet("exist/{id}")]

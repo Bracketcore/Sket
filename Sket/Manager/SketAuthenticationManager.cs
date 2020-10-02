@@ -1,34 +1,37 @@
-﻿using Bracketcore.Sket.Entity;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver.Linq;
-using MongoDB.Entities;
-using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Responses;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver.Linq;
+using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Manager
 {
     /// <summary>
-    /// use this to create claims
+    ///     use this to create claims
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SketAuthenticationManager<T> : ISketAuthenticationManager<T> where T : SketUserModel
     {
-        public IDataProtector _protector { get; set; }
-        public string _key { get; set; }
-
         public SketAuthenticationManager(IDataProtectionProvider provider)
         {
-            _protector = provider.CreateProtector(this.GetType().Namespace);
-            _key = Sket.Cfg.Settings.JwtKey;
+            _key = Init.Sket.Cfg.Settings.JwtKey;
+            _Issuer = Init.Sket.Cfg.Settings.DomainUrl;
+            _protector = provider.CreateProtector(new StringBuilder(GetType().Namespace).Append(_key).ToString());
         }
 
+        public IDataProtector _protector { get; set; }
+        public string _key { get; set; }
+        public string _Issuer { get; set; }
+
         /// <summary>
-        /// Return created token
+        ///     Return created token
         /// </summary>
         /// <param name="Cred"></param>
         /// <param name="password"></param>
@@ -51,33 +54,14 @@ namespace Bracketcore.Sket.Manager
 
             if (!verify) return null;
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenKey = Encoding.ASCII.GetBytes(_key);
-
-            //todo auth schema
-            var userClaim = new ClaimsIdentity(new Claim[]
+            switch (Init.Sket.Cfg.Settings.AuthType.ToString())
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-            }, Sket.Cfg.Settings.AuthType == AuthType.Cookie ? CookieAuthenticationDefaults.AuthenticationScheme : "");
+                case CookieAuthenticationDefaults.AuthenticationScheme:
+                    return await GenerateCookieToken(user);
 
-
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Subject = userClaim,
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return new TokenResponse()
-            {
-                jwt = tokenHandler.WriteToken(token),
-                userId = user.ID,
-                Claims = new ClaimsPrincipal(userClaim)
-            };
+                default:
+                    return await GenerateJSONWebToken(user);
+            }
         }
 
         public bool isPasswordOk(string password, string userPassword)
@@ -86,13 +70,73 @@ namespace Bracketcore.Sket.Manager
         }
 
         /// <summary>
-        /// Hash password from a given string
+        ///     Hash password from a given string
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
         public string HashPassword(string password)
         {
             return _protector.Protect(password);
+        }
+
+        public Task<TokenResponse> GenerateJSONWebToken(T userInfo)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = GenerateClaims(userInfo);
+            var userClaim = new ClaimsIdentity(claims, Init.Sket.Cfg.Settings.AuthType.ToString());
+
+            var token = new JwtSecurityToken(_Issuer,
+                _Issuer,
+                claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: credentials);
+
+            var key = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Task.FromResult(new TokenResponse
+            {
+                jwt = key,
+                userId = userInfo.ID,
+                Claims = new ClaimsPrincipal(userClaim)
+            });
+        }
+
+        public Task<TokenResponse> GenerateCookieToken(T user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenKey = Encoding.ASCII.GetBytes(_key);
+
+            //todo auth schema
+            var claims = GenerateClaims(user);
+            var userClaim = new ClaimsIdentity(claims, Init.Sket.Cfg.Settings.AuthType.ToString());
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = userClaim,
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var key = tokenHandler.WriteToken(token);
+
+            return Task.FromResult(new TokenResponse
+            {
+                jwt = key,
+                userId = user.ID,
+                Claims = new ClaimsPrincipal(userClaim)
+            });
+        }
+
+        private Claim[] GenerateClaims(T user)
+        {
+            return new[]
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
         }
     }
 }

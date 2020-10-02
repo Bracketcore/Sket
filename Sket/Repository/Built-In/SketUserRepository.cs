@@ -1,28 +1,37 @@
-﻿using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Manager;
-using Bracketcore.Sket.Misc;
-using Bracketcore.Sket.Responses;
-using MongoDB.Driver.Linq;
-using MongoDB.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Manager;
+using Bracketcore.Sket.Misc;
+using Bracketcore.Sket.Repository.Interfaces;
+using Bracketcore.Sket.Responses;
+using MongoDB.Driver.Linq;
+using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Repository
 {
     /// <summary>
-    /// Base user repository
+    ///     Base user repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
+        private ISketAuthenticationManager<T> _sketAuthenticationManager;
+
+        public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> AccessToken,
+            ISketAuthenticationManager<T> sketAuthenticationManager)
+        {
+            _accessToken = AccessToken;
+            _sketAuthenticationManager = sketAuthenticationManager;
+        }
+
         public ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
-        private  ISketAuthenticationManager<T> _sketAuthenticationManager;
 
 
         /// <summary>
-        /// Create user
+        ///     Create user
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -37,11 +46,11 @@ namespace Bracketcore.Sket.Repository
                 {
                     var before = (await BeforeCreate(doc)).Model;
                     before.Password = _sketAuthenticationManager.HashPassword(doc.Password);
-                    
+
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
-                    
-                    before.Role = new List<string>()
+
+                    before.Role = new List<string>
                     {
                         role.Name
                     };
@@ -65,22 +74,15 @@ namespace Bracketcore.Sket.Repository
             catch (Exception e)
             {
                 if (e.Message.Contains("Email"))
-                {
                     return null;
-                }
-                else if (e.Message.Contains("Username"))
-                {
+                if (e.Message.Contains("Username"))
                     return null;
-                }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
         }
 
         /// <summary>
-        /// Login user via model
+        ///     Login user via model
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -90,20 +92,19 @@ namespace Bracketcore.Sket.Repository
             {
                 var check = await _sketAuthenticationManager.Authenticate(user);
 
-                if (check is null) return null;
-                    // return basic user info and authentication token
+                if (check is null) return new LoginResponse();
+
+                // return basic user info and authentication token
 
                 await _accessToken.Create(check.userId, check.jwt);
 
-                var endVerification = new LoginResponse()
+                return new LoginResponse
                 {
                     Tk = check.jwt,
                     Message = "Ok",
                     CreatedOn = DateTime.UtcNow,
-                    // ClaimsPrincipal = check.Claims
+                    IsStatueOk = true
                 };
-
-                return endVerification;
             }
             catch (Exception e)
             {
@@ -113,7 +114,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Verify users
+        ///     Verify users
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -164,7 +165,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Logout user
+        ///     Logout user
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -174,12 +175,11 @@ namespace Bracketcore.Sket.Repository
 
             if (token.Contains("Deleted"))
                 return true;
-            else
-                return true;
+            return true;
         }
 
         /// <summary>
-        /// Confirm user
+        ///     Confirm user
         /// </summary>
         /// <param name="email"></param>
         /// <param name="userId"></param>
@@ -214,7 +214,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Create reset token.
+        ///     Create reset token.
         /// </summary>
         /// <returns></returns>
         public void Reset()
@@ -223,7 +223,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Reset user password with the sent token.
+        ///     Reset user password with the sent token.
         /// </summary>
         /// <param name="newPassword">Users new password</param>
         /// <param name="resetToken"></param>
@@ -236,7 +236,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Find user 
+        ///     Find user
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -244,13 +244,6 @@ namespace Bracketcore.Sket.Repository
         {
             var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
             return user;
-        }
-
-        public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> AccessToken,
-            ISketAuthenticationManager<T> sketAuthenticationManager) : base()
-        {
-            _accessToken = AccessToken;
-            _sketAuthenticationManager = sketAuthenticationManager;
         }
     }
 }

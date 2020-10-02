@@ -1,31 +1,34 @@
-using Bracketcore.Sket.Entity;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-using MongoDB.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Repository
 {
     /// <summary>
-    /// Base Access token Repository
+    ///     Base Access token Repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
-     public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T>   where T: SketAccessTokenModel
+    public class SketAccessTokenRepository<T> : SketBaseRepository<T>, ISketAccessTokenRepository<T>
+        where T : SketAccessTokenModel
     {
-        public string Config { get; set; }
-        public SketAccessTokenRepository() : base()
+        public SketAccessTokenRepository()
         {
-            this.Config = Sket.Cfg.Settings.JwtKey;
+            Config = Init.Sket.Cfg.Settings.JwtKey;
         }
-        
+
+        public string Config { get; set; }
+
         /// <summary>
-        /// Creates Token on user login successfully
+        ///     Creates Token on user login successfully
         /// </summary>
         /// <param name="userModelInfo"></param>
         /// <returns></returns>
@@ -37,37 +40,37 @@ namespace Bracketcore.Sket.Repository
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, userModelInfo.ID),
-                    new Claim(ClaimTypes.Role, userModelInfo.Role.ToString()),
+                    new Claim(ClaimTypes.Role, userModelInfo.Role.ToString())
                 }),
                 Expires = ttl,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tk = tokenHandler.WriteToken(token);
 
             await DB.Collection<SketAccessTokenModel>()
-                .InsertOneAsync(new SketAccessTokenModel()
+                .InsertOneAsync(new SketAccessTokenModel
                 {
                     Tk = tk,
                     Ttl = ttl,
-                    OwnerID = userModelInfo.ID,
+                    OwnerID = userModelInfo.ID
                 });
             return tk;
-
         }
 
         public async Task<SketAccessTokenModel> Create(string userId, string token)
         {
             var ttl = DateTime.UtcNow.AddDays(7);
-            var access = new SketAccessTokenModel()
+            var access = new SketAccessTokenModel
             {
                 Tk = token,
                 Ttl = ttl,
-                OwnerID = userId,
+                OwnerID = userId
             };
 
             await DB.SaveAsync(access);
@@ -75,13 +78,13 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Verify if the token exist and valid
+        ///     Verify if the token exist and valid
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
         public async Task<bool> VerifyAccessToken(string token)
         {
-            var find = (await ExistToken(token));
+            var find = await ExistToken(token);
 
             if (find) return false;
 
@@ -91,7 +94,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Get token by id. 
+        ///     Get token by id.
         /// </summary>
         /// <param name="tokenId"></param>
         /// <returns></returns>
@@ -102,7 +105,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Get token by token value
+        ///     Get token by token value
         /// </summary>
         /// <param name="token">Token Value</param>
         /// <returns> returns token and token owner id</returns>
@@ -113,7 +116,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Get user by id
+        ///     Get user by id
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
@@ -124,7 +127,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Delete token by users id
+        ///     Delete token by users id
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
@@ -144,14 +147,12 @@ namespace Bracketcore.Sket.Repository
 
                 return $"{string.Join(",", ls.ToArray())} Deleted";
             }
-            else
-            {
-                return "Error Id not found";
-            }
+
+            return "Error Id not found";
         }
 
         /// <summary>
-        /// Check if token exist by the value of the token
+        ///     Check if token exist by the value of the token
         /// </summary>
         /// <param name="token">Token Value</param>
         /// <returns></returns>
@@ -161,8 +162,5 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
-        
     }
-
-
 }

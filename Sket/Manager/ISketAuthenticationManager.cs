@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Responses;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace Bracketcore.Sket.Manager
@@ -8,10 +8,15 @@ namespace Bracketcore.Sket.Manager
     {
         IDataProtector _protector { get; set; }
         string _key { get; set; }
-        public Task<TokenResponse> Authenticate(T Cred);
+        string _Issuer { get; set; }
 
-        public bool isPasswordOk(string password, string userPassword);
+        Task<TokenResponse> Authenticate(T Cred);
 
-        public string HashPassword(string password);
+        bool isPasswordOk(string password, string userPassword);
+
+        string HashPassword(string password);
+        Task<TokenResponse> GenerateCookieToken(T user);
+
+        Task<TokenResponse> GenerateJSONWebToken(T userInfo);
     }
 }

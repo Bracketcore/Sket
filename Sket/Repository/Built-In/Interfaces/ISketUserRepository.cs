@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Responses;
 
-namespace Bracketcore.Sket.Repository
+namespace Bracketcore.Sket.Repository.Interfaces
 {
-    public interface ISketUserRepository<T>: ISketBaseRepository<T> where T : SketUserModel
+    public interface ISketUserRepository<T> : ISketBaseRepository<T>
     {
         ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
         Task<LoginResponse> Login(T user);

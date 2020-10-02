@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 
 namespace Bracketcore.Sket.StateManager
 {
@@ -31,6 +31,6 @@ namespace Bracketcore.Sket.StateManager
             AppState.StateChanged -= async (source, property) => await AppStateStateChanged(source, property);
             GC.SuppressFinalize(this);
         }
-        
+
     }
 }

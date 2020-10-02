@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Bracketcore.Sket
+namespace Bracketcore.Sket.HttpClient
 {
-    public class ApiConfig:IApiConfig
+    public class ApiConfig : IApiConfig
 
     {
         public string BaseUrl { get; set; }

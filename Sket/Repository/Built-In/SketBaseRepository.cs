@@ -1,17 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository.Interfaces;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Bracketcore.Sket.Repository
 {
     /// <summary>
-    /// Based Repository 
+    ///     Based Repository
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
     [Route("api/[controller]")]
@@ -19,15 +20,15 @@ namespace Bracketcore.Sket.Repository
     [EnableCors("Custom")]
     public class SketBaseRepository<T> : ISketBaseRepository<T> where T : SketPersistedModel
     {
-        public SketContextModel<T> SketContextModel { get; set; }
-
         public SketBaseRepository()
         {
             SketContextModel = new SketContextModel<T>();
         }
 
+        public SketContextModel<T> SketContextModel { get; set; }
+
         /// <summary>
-        /// Set model modification before its been created.
+        ///     Set model modification before its been created.
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -38,7 +39,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Create model
+        ///     Create model
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -60,7 +61,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Set model modification after its been created.
+        ///     Set model modification after its been created.
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -70,7 +71,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Create multiple 
+        ///     Create multiple
         /// </summary>
         /// <param name="fix"></param>
         /// <returns></returns>
@@ -88,7 +89,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Get count on the model
+        ///     Get count on the model
         /// </summary>
         /// <returns></returns>
         public virtual async Task<int> Count()
@@ -98,7 +99,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Get all model data
+        ///     Get all model data
         /// </summary>
         /// <returns></returns>
         public virtual async Task<List<T>> FindAll()
@@ -109,7 +110,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Get model data by id
+        ///     Get model data by id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -119,7 +120,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Update models by the id and the model structure
+        ///     Update models by the id and the model structure
         /// </summary>
         /// <param name="id"></param>
         /// <param name="doc"></param>
@@ -129,13 +130,13 @@ namespace Bracketcore.Sket.Repository
             doc.ID = id;
             var filter = Builders<T>.Filter.Eq(i => i.ID, id);
 
-            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions() {IsUpsert = true});
+            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions {IsUpsert = true});
 
             return $"{id} updated";
         }
 
         /// <summary>
-        /// Set a list bulk model to be updated
+        ///     Set a list bulk model to be updated
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -152,7 +153,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Destroy bulk model list
+        ///     Destroy bulk model list
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -170,7 +171,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// modify model to destroy by id before been destroyed
+        ///     modify model to destroy by id before been destroyed
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -180,7 +181,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// destroy model by id
+        ///     destroy model by id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -191,7 +192,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// modify model to destroy by id after been destroyed
+        ///     modify model to destroy by id after been destroyed
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -201,7 +202,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Check if model exist by id
+        ///     Check if model exist by id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -211,6 +212,7 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
+
         //
         // protected virtual void Dispose(bool disposing)
         // {

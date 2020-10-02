@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 
-namespace Bracketcore.Sket.Repository
+namespace Bracketcore.Sket.Repository.Interfaces
 {
     public interface ISketAccessTokenRepository<T>
     {

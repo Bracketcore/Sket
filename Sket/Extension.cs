@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Text;
 using Blazored.LocalStorage;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Init;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Entities;
 
 namespace Bracketcore.Sket
@@ -120,20 +122,20 @@ namespace Bracketcore.Sket
                         option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                         option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                     })
-                    //     .AddJwtBearer(options =>
-                    // {
-                    //     options.TokenValidationParameters = new TokenValidationParameters
-                    //     {
-                    //         ValidateIssuer = true,
-                    //         ValidateAudience = true,
-                    //         ValidateLifetime = false,
-                    //         ValidateIssuerSigningKey = true,
-                    //         ValidIssuer = settings.DomainUrl,
-                    //         ValidAudience = settings.DomainUrl,
-                    //         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))
-                    //     };
-                    //     options.SaveToken = true;
-                    // })
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidateLifetime = false,
+                            ValidateIssuerSigningKey = true,
+                            ValidIssuer = settings.DomainUrl,
+                            ValidAudience = settings.DomainUrl,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))
+                        };
+                        options.SaveToken = true;
+                    })
                     .AddCookie(Init.Sket.Cfg.Settings.AuthType.ToString(), c =>
                     {
                         c.Cookie.Name = Init.Sket.Cfg.Settings.AuthType.ToString();
@@ -194,7 +196,7 @@ namespace Bracketcore.Sket
                             client.DefaultRequestHeaders.Accept.Add(
                                 new MediaTypeWithQualityHeaderValue("text/plain"));
                         });
-                // .AddHttpMessageHandler<SketTokenHeaderHandler>();
+            // .AddHttpMessageHandler<SketTokenHeaderHandler>();
 
             #endregion
 

@@ -15,9 +15,7 @@ namespace Bracketcore.Sket.Repository
     ///     Based Repository
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    [Route("api/[controller]")]
-    [ApiController]
-    [EnableCors("Custom")]
+
     public class SketBaseRepository<T> : ISketBaseRepository<T> where T : SketPersistedModel
     {
         public SketBaseRepository()
@@ -212,6 +210,34 @@ namespace Bracketcore.Sket.Repository
 
             return exist != null;
         }
+
+        public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter)
+        {
+            var sort = Builders<T>.Sort.Descending(a => a.ID);
+            return await FindByFilter(filter, sort, 0, 0);
+        }
+
+        public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort)
+        {
+            return await FindByFilter(filter, sort, 0, 0);
+        }
+        
+        public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort,
+            int skip)
+        {
+            return await FindByFilter(filter, sort, 0, 0);
+        }
+
+        public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort,
+            int skip, int limit)
+        {
+            return await DB.Fluent<T>().Match(filter)
+                .Sort(sort)
+                .Skip(skip)
+                .Limit(limit)
+                .ToListAsync();
+        }
+
 
         //
         // protected virtual void Dispose(bool disposing)

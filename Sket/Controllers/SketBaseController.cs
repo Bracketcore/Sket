@@ -19,7 +19,6 @@ namespace Bracketcore.Sket.Controllers
     [Produces("application/json")]
     [ApiController]
     [Route("api/[Controller]")]
-    [Authorize]
     public abstract class SketBaseController<T, TC> : ControllerBase, ISketBaseController<T>
         where T : SketPersistedModel
         where TC : ISketBaseRepository<T>

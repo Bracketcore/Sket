@@ -34,7 +34,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(T User)
+        public async Task<ActionResult<T>> Login(T User)
         {
             var verify = await _repo.Login(User);
 
@@ -58,7 +58,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("currentUser")]
-        public async Task<IActionResult> GetCurrentUser()
+        public async Task<ActionResult<T>> GetCurrentUser()
         {
             try
             {
@@ -87,7 +87,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<IActionResult> Logout(SketUserModel user)
+        public virtual async Task<ActionResult<T>> Logout(SketUserModel user)
         {
             var token = HttpContext.Request.Headers["Authorization"];
             if (!string.IsNullOrEmpty(token)) return BadRequest();

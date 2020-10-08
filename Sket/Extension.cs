@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MongoDB.Entities;
 
 namespace Bracketcore.Sket
@@ -78,6 +79,15 @@ namespace Bracketcore.Sket
                                   .Cluster
                                   .Description
                                   .State);
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo()
+                {
+                    Title = "API Explorer",
+                    Version = "v1"
+                });
+            });
 
             #endregion
 
@@ -211,6 +221,12 @@ namespace Bracketcore.Sket
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.DocumentTitle = "API Explorer";
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Explorer");
+            });
             app.UseAuthentication();
 
             return app;

@@ -7,8 +7,8 @@ namespace Bracketcore.Sket.Controllers
 {
     public interface ISketUserController<T> : ISketBaseController<T>
     {
-        public Task<IActionResult> Login(T User);
-        public Task<ActionResult> GetCurrentUser();
+        public Task<ActionResult<T>> Login(T User);
+        public Task<ActionResult<T>> GetCurrentUser();
         public Task Logout(SketUserModel user);
     }
 }

@@ -36,7 +36,7 @@ namespace Bracketcore.Sket.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> GetAll()
+        public virtual async Task<ActionResult<T>> GetAll()
         {
             return Ok(await Repo.FindAll().ConfigureAwait(false));
         }
@@ -44,7 +44,7 @@ namespace Bracketcore.Sket.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> GetById(string id)
+        public virtual async Task<ActionResult<T>> GetById(string id)
         {
             var exist = await Repo.Exist(id).ConfigureAwait(false);
 
@@ -58,7 +58,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "App,Admin,Support")]
-        public virtual async Task<IActionResult> Create(T doc)
+        public virtual async Task<ActionResult<T>> Create(T doc)
         {
             try
             {
@@ -86,9 +86,9 @@ namespace Bracketcore.Sket.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Update(string id, T replace)
+        public virtual async Task<ActionResult<T>> Update(string id, T replace)
         {
-            async Task<IActionResult> command()
+            async Task<ActionResult<T>> command()
             {
                 //Check if user is owner
                 var exist = await Repo.Exist(id).ConfigureAwait(false);
@@ -113,9 +113,9 @@ namespace Bracketcore.Sket.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Remove(string id)
+        public virtual async Task<ActionResult<T>> Remove(string id)
         {
-            async Task<IActionResult> command()
+            async Task<ActionResult<T>> command()
             {
                 var exist = await Repo.Exist(id).ConfigureAwait(false);
 
@@ -130,10 +130,15 @@ namespace Bracketcore.Sket.Controllers
             return await command();
         }
 
+        /// <summary>
+        /// Check if id exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Bool</returns>
         [HttpGet("exist/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual IActionResult Exist(string id)
+        public virtual ActionResult Exist(string id)
         {
             return Ok(Repo.Exist(id));
         }

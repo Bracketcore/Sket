@@ -5,11 +5,11 @@ namespace Bracketcore.Sket.Controllers
 {
     public interface ISketBaseController<T>
     {
-        Task<IActionResult> Create(T doc);
-        Task<IActionResult> GetAll();
-        Task<IActionResult> GetById(string id);
-        Task<IActionResult> Update(string id, T updateDoc);
-        Task<IActionResult> Remove(string id);
-        IActionResult Exist(string id);
+        Task<ActionResult<T>> Create(T doc);
+        Task<ActionResult<T>> GetAll();
+        Task<ActionResult<T>> GetById(string id);
+        Task<ActionResult<T>> Update(string id, T updateDoc);
+        Task<ActionResult<T>> Remove(string id);
+        ActionResult Exist(string id);
     }
 }

@@ -1,33 +1,35 @@
-# This is a basic workflow to help you get started with Actions
+name: .NET Core
 
-name: CI
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
+    name: Test and deploy
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.302
+    
+    - name: Install dependencies
+      run: dotnet restore
+      
+    - name: Build dotnet
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Publish NuGet
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: 'Sket/Sket.csproj'
+        NUGET_KEY: ${{ secrets.NUGET }}
+      
+    - name: Start github package
+      run: dotnet nuget add source https://nuget.pkg.github.com/Bracketcore/index.json -n github -u Bracketcore -p ${{secrets.GH_PACKAGE_PAUL}} --store-password-in-clear-text 
+ 
+    - name: publish to github package
+      run: dotnet nuget push "Sket/bin/Release/*.nupkg" --source "github"

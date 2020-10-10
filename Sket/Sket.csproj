@@ -12,6 +12,7 @@
         <Product>Bracketcore.Sket</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>0.0.1-Beta</Version>
+        <PackageVersion>0.0.2-Beta</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

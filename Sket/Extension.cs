@@ -82,7 +82,7 @@ namespace Bracketcore.Sket
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo()
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "API Explorer",
                     Version = "v1"
@@ -178,7 +178,7 @@ namespace Bracketcore.Sket
 
             #region CORS security Section
 
-            if (settings.CorsDomains != null)
+            if (settings.CorsDomains.Any())
                 services.AddCors(options =>
                 {
                     options.AddPolicy("Custom", builder =>

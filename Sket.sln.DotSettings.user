@@ -6,14 +6,14 @@
   &lt;Assembly Path="C:\Users\Ehigiepaul\.nuget\packages\microsoft.aspnetcore.cors\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Cors.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\Ehigiepaul\.nuget\packages\microsoft.extensions.identity.core\3.1.7\lib\netstandard2.0\Microsoft.Extensions.Identity.Core.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=25248ab2_002D83e5_002D4e88_002D9cf7_002Db2991972107a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests in category '&amp;lt;Uncategorized&amp;gt;'" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Category&gt;&amp;lt;Uncategorized&amp;gt;&lt;/Category&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=25248ab2_002D83e5_002D4e88_002D9cf7_002Db2991972107a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests in category '&amp;lt;Uncategorized&amp;gt;'" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Category&gt;&amp;lt;Uncategorized&amp;gt;&lt;/Category&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9e516e57_002D8997_002D4b53_002Db7c0_002D089b577a5927/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Solution /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9e516e57_002D8997_002D4b53_002Db7c0_002D089b577a5927/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c3d387ec_002D460a_002D48bb_002D99a0_002D8d8e70b00b33/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PropertiesIsSet" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Solution /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c3d387ec_002D460a_002D48bb_002D99a0_002D8d8e70b00b33/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PropertiesIsSet" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	

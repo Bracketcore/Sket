@@ -6,7 +6,7 @@ namespace Bracketcore.Sket.Misc
     /// <summary>
     /// Auto generate JWT secret key
     /// </summary>
-    public class JwtSecretKeyGenerator
+    public class JwtSecretKeyGenerator : IDisposable
     {
         /// <summary>
         /// Create auto jwt secret keys
@@ -16,6 +16,19 @@ namespace Bracketcore.Sket.Misc
         {
             HMACSHA256 hmac = new HMACSHA256();
             return Convert.ToBase64String(hmac.Key);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

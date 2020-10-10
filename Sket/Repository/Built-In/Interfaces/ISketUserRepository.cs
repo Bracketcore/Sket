@@ -1,11 +1,12 @@
-﻿using Bracketcore.Sket.Entity;
+﻿using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Responses;
-using System.Threading.Tasks;
 
-namespace Bracketcore.Sket.Interfaces
+namespace Bracketcore.Sket.Repository.Interfaces
 {
-    public interface ISketUserRepository<T> : ISketBaseRepository<T> where T : SketUserModel
+    public interface ISketUserRepository<T> : ISketBaseRepository<T>
     {
+        ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
         Task<LoginResponse> Login(T user);
         Task<T> Verify(T user);
         Task<bool> LogOut(T user);
@@ -14,6 +15,4 @@ namespace Bracketcore.Sket.Interfaces
         void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken);
         Task<T> FindByUsername(string username);
     }
-
-
 }

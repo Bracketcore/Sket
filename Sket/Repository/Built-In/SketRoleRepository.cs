@@ -1,13 +1,13 @@
 ﻿using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Repository.Interfaces;
 
 namespace Bracketcore.Sket.Repository
 {
     /// <summary>
-    /// Base role repository
+    ///     Base role repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SketRoleRepository<T> : SketBaseRepository<T> where T : SketRoleModel
+    public class SketRoleRepository<T> : SketBaseRepository<T>, ISketBaseRepository<T> where T : SketRoleModel
     {
-
     }
 }

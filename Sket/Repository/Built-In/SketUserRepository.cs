@@ -1,29 +1,37 @@
-﻿using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Interfaces;
-using Bracketcore.Sket.Manager;
-using Bracketcore.Sket.Misc;
-using Bracketcore.Sket.Responses;
-using MongoDB.Driver.Linq;
-using MongoDB.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
+using Bracketcore.Sket.Manager;
+using Bracketcore.Sket.Misc;
+using Bracketcore.Sket.Repository.Interfaces;
+using Bracketcore.Sket.Responses;
+using MongoDB.Driver.Linq;
+using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Repository
 {
     /// <summary>
-    /// Base user repository
+    ///     Base user repository
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
-        private JwtManager<T> _jwtManager;
+        private ISketAuthenticationManager<T> _sketAuthenticationManager;
 
-        private SketAccessTokenRepository<SketAccessTokenModel> SketAccessTokenRepository { get; set; }
+        public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> AccessToken,
+            ISketAuthenticationManager<T> sketAuthenticationManager)
+        {
+            _accessToken = AccessToken;
+            _sketAuthenticationManager = sketAuthenticationManager;
+        }
+
+        public ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
+
 
         /// <summary>
-        /// Create user
+        ///     Create user
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -37,10 +45,12 @@ namespace Bracketcore.Sket.Repository
                 if (u is null)
                 {
                     var before = (await BeforeCreate(doc)).Model;
-                    before.Password = _jwtManager.HashPassword(doc.Password);
+                    before.Password = _sketAuthenticationManager.HashPassword(doc.Password);
+
                     var role = await DB.Queryable<SketRoleModel>()
                         .FirstOrDefaultAsync(i => i.Name.Contains(SketRoleEnum.User.ToString()));
-                    before.Role = new List<string>()
+
+                    before.Role = new List<string>
                     {
                         role.Name
                     };
@@ -51,7 +61,7 @@ namespace Bracketcore.Sket.Repository
 
                     await DB.SaveAsync(before);
 
-                    before.OwnerID = before;
+                    before.OwnerID = before.ID;
                     await before.SaveAsync();
 
                     await AfterCreate(before);
@@ -64,22 +74,15 @@ namespace Bracketcore.Sket.Repository
             catch (Exception e)
             {
                 if (e.Message.Contains("Email"))
-                {
                     return null;
-                }
-                else if (e.Message.Contains("Username"))
-                {
+                if (e.Message.Contains("Username"))
                     return null;
-                }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
         }
 
         /// <summary>
-        /// Login user via model
+        ///     Login user via model
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -87,23 +90,21 @@ namespace Bracketcore.Sket.Repository
         {
             try
             {
-                var check = await _jwtManager.Authenticate(user);
+                var check = await _sketAuthenticationManager.Authenticate(user);
 
+                if (check is null) return new LoginResponse();
 
                 // return basic user info and authentication token
 
-                await SketAccessTokenRepository.Create(check.userId, check.jwt);
+                await _accessToken.Create(check.userId, check.jwt);
 
-                var endVerification = new LoginResponse()
+                return new LoginResponse
                 {
                     Tk = check.jwt,
                     Message = "Ok",
                     CreatedOn = DateTime.UtcNow,
-                    ClaimsPrincipal = check.Claims
+                    IsStatueOk = true
                 };
-
-
-                return endVerification;
             }
             catch (Exception e)
             {
@@ -113,7 +114,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Verify users
+        ///     Verify users
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -164,22 +165,21 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Logout user
+        ///     Logout user
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
         public async Task<bool> LogOut(T user)
         {
-            var token = await SketAccessTokenRepository.DestroyByUserId(user.ID);
+            var token = await _accessToken.DestroyByUserId(user.ID);
 
             if (token.Contains("Deleted"))
                 return true;
-            else
-                return true;
+            return true;
         }
 
         /// <summary>
-        /// Confirm user
+        ///     Confirm user
         /// </summary>
         /// <param name="email"></param>
         /// <param name="userId"></param>
@@ -214,26 +214,29 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        /// Create reset token.
+        ///     Create reset token.
         /// </summary>
         /// <returns></returns>
         public void Reset()
         {
-            //create a reset token and send to user
+            //todo: create a reset token and send to user
         }
 
         /// <summary>
-        /// Reset user password with the sent token.
+        ///     Reset user password with the sent token.
         /// </summary>
+        /// <param name="newPassword">Users new password</param>
         /// <param name="resetToken"></param>
+        /// <param name="userId">User ID</param>
+        /// <param name="oldPassword">Users old password</param>
         /// <returns></returns>
         public void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
         {
-            //verify the reset token and give user a form to change password
+            //Todo: verify the reset token and give user a form to change password
         }
 
         /// <summary>
-        /// Find user 
+        ///     Find user
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -241,13 +244,6 @@ namespace Bracketcore.Sket.Repository
         {
             var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
             return user;
-        }
-
-        public SketUserRepository(SketAccessTokenRepository<SketAccessTokenModel> sketAccess,
-            JwtManager<T> jwtManager) : base()
-        {
-            SketAccessTokenRepository = sketAccess;
-            _jwtManager = jwtManager;
         }
     }
 }

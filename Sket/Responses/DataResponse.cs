@@ -1,10 +1,12 @@
-﻿namespace Bracketcore.Sket.Responses
+﻿using System;
+
+namespace Bracketcore.Sket.Responses
 {
     /// <summary>
     /// Get Status data response
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class DataResponse<T>
+    public class DataResponse<T> : IDisposable
     {
         public string Message { get; set; }
         public string Status { get; set; }
@@ -15,6 +17,19 @@
             Message = message;
             Status = status;
             Data = data;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

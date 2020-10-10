@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">SOLUTION</s:String>
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\Ehigiepaul\.nuget\packages\microsoft.aspnetcore.mvc.core\2.2.5\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Core.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\Ehigiepaul\.nuget\packages\microsoft.extensions.dependencyinjection.abstractions\3.1.7\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" /&gt;&#xD;
@@ -12,14 +13,8 @@
   &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c3d387ec_002D460a_002D48bb_002D99a0_002D8d8e70b00b33/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PropertiesIsSet" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2762ED5A-DF2B-463E-99D7-559E73CE4B64::.NETCoreApp,Version=v3.1::TestProject1.Entity.PersistedShould.PropertiesIsSet&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ec2f2d41_002D24ea_002D40d5_002Dafaf_002D377ee2b9d2f7/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="1" Name="DIShould" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::2762ED5A-DF2B-463E-99D7-559E73CE4B64::.NETCoreApp,Version=v3.1::TestProject1.DiShould&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
 	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Sket/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

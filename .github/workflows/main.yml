@@ -1,6 +1,7 @@
 name: .NET Core
 
 on:
+  workflow_dispatch:
   check_run:
     branches: [ master ]
   pull_request:

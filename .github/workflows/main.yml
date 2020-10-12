@@ -3,6 +3,8 @@ name: .NET Core
 on:
   check_run:
     branches: [ master ]
+  push:
+    branches: [ master ]
   pull_request:
       branches: [ master ]
   

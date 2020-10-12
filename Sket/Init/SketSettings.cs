@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Bracketcore.Sket.HttpClient;
 using Bracketcore.Sket.Manager;
-using MongoDB.Driver;
 
 namespace Bracketcore.Sket.Init
 {
@@ -46,8 +45,7 @@ namespace Bracketcore.Sket.Init
         /// <summary>
         ///     Set your MongoClientSettings
         /// </summary>
-        public MongoClientSettings MongoSettings { get; set; } = new MongoClientSettings
-            {Server = new MongoServerAddress("localhost"), ReadConcern = ReadConcern.Majority};
+        public string MongoConnectionString { get; set; }
 
         public void Dispose()
         {

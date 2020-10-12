@@ -1,6 +1,6 @@
-bin/
-obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
-/WebApplication1/
+BlazorServerDemo
+BlazorWASM
+Demo
+.idea/
+Sket/bin/
+Sket/obj/

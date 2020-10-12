@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 using MongoDB.Entities;
 
 namespace Bracketcore.Sket
@@ -45,7 +46,10 @@ namespace Bracketcore.Sket
 
             #region Core Section
 
-            DB.InitAsync(settings.DatabaseName, settings.MongoSettings);
+            DB.InitAsync(settings.DatabaseName, string.IsNullOrEmpty(settings.MongoConnectionString)
+                ? new MongoClientSettings {Server = new MongoServerAddress("localhost", 27017)}
+                : MongoClientSettings.FromConnectionString(settings.MongoConnectionString));
+
             var SketInit = Init.Sket.Init(settings);
 
             services.Add(new ServiceDescriptor(typeof(SketConfig), SketInit));
@@ -60,6 +64,7 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
+
 
             services.AddBlazoredLocalStorage(config =>
                 config.JsonSerializerOptions.WriteIndented = true);
@@ -178,7 +183,7 @@ namespace Bracketcore.Sket
 
             #region CORS security Section
 
-            if (settings.CorsDomains.Any())
+            if (settings.CorsDomains != null)
                 services.AddCors(options =>
                 {
                     options.AddPolicy("Custom", builder =>
@@ -192,7 +197,7 @@ namespace Bracketcore.Sket
 
             #region Api HttpClient Configuration Section
 
-            if (settings.ApiSetup.Any())
+            if (settings.ApiSetup != null)
                 foreach (var apiConfig in settings.ApiSetup)
                 foreach (var control in apiConfig.Endpoints)
                     services.AddHttpClient(control,

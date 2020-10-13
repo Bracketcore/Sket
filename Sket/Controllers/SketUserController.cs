@@ -66,6 +66,12 @@ namespace Bracketcore.Sket.Controllers
 
                 if (access is null) return NotFound();
 
+                if (access.Ttl.Ticks < DateTime.Now.Ticks)
+                {
+                    await _accessTokenRepository.DestroyByUserId(access.OwnerID.ID);
+                    return NotFound();
+                }
+
                 var user = await _repo.FindById(access.OwnerID.ID);
 
                 if (user is null) return NotFound();

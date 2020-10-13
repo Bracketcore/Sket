@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
-using Bracketcore.Sket.Manager;
 using Bracketcore.Sket.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -39,13 +38,11 @@ namespace Bracketcore.Sket.Controllers
             var verify = await _repo.Login(User);
 
             if (verify != null)
-            {
                 // todo auth schema check
                 // await HttpContext.SignInAsync(verify.ClaimsPrincipal);
-                await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LoginUser(User, verify.Tk,
-                    HttpContext);
+                // await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LoginUser(User, verify.Tk,
+                //     HttpContext);
                 return Ok(verify);
-            }
 
             return BadRequest(new
             {
@@ -98,7 +95,7 @@ namespace Bracketcore.Sket.Controllers
 
             await _accessTokenRepository.DestroyByUserId(access.OwnerID.ID);
 
-            await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LogOutUser(HttpContext);
+            // await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LogOutUser(HttpContext);
 
             return Ok();
         }

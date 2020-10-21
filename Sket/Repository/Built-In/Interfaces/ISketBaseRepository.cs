@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bracketcore.Sket.Entity;
 using MongoDB.Driver;
 
 namespace Bracketcore.Sket.Repository.Interfaces
 {
     public interface ISketBaseRepository<T>
     {
-        public SketContextModel<T> SketContextModel { get; set; }
-        Task<SketContextModel<T>> BeforeCreate(T doc);
+        Task<T> BeforeCreate(T doc);
         Task<T> Create(T doc);
         Task<T> AfterCreate(T doc);
         Task<string> CreateBulk(IEnumerable<T> fix);

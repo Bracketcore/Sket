@@ -44,7 +44,7 @@ namespace Bracketcore.Sket.Repository
 
                 if (u is null)
                 {
-                    var before = (await BeforeCreate(doc)).Model;
+                    var before = await BeforeCreate(doc);
                     before.Password = _sketAuthenticationManager.HashPassword(doc.Password);
 
                     var role = await DB.Queryable<SketRoleModel>()

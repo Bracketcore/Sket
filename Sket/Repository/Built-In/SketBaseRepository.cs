@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Repository.Interfaces;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
@@ -15,25 +13,25 @@ namespace Bracketcore.Sket.Repository
     ///     Based Repository
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-
-    public class SketBaseRepository<T> : ISketBaseRepository<T> where T : SketPersistedModel
+    public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
     {
-        public SketBaseRepository()
+        protected Transaction _Tn = DB.Transaction();
+
+        public void Dispose()
         {
-            SketContextModel = new SketContextModel<T>();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public SketContextModel<T> SketContextModel { get; set; }
 
         /// <summary>
         ///     Set model modification before its been created.
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
-        public virtual Task<SketContextModel<T>> BeforeCreate(T doc)
+        public virtual Task<T> BeforeCreate(T doc)
         {
-            SketContextModel.Model = doc;
-            return Task.FromResult(SketContextModel);
+            return Task.FromResult(doc);
         }
 
         /// <summary>
@@ -46,7 +44,7 @@ namespace Bracketcore.Sket.Repository
             try
             {
                 var before = await BeforeCreate(doc);
-                await DB.SaveAsync(before.Model);
+                var n = await _Tn.SaveAsync(before);
                 var after = await AfterCreate(doc);
 
                 return after;
@@ -63,9 +61,10 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
-        public virtual Task<T> AfterCreate(T doc)
+        public virtual async Task<T> AfterCreate(T doc)
         {
-            return Task.FromResult(doc);
+            await _Tn.CommitAsync();
+            return await Task.FromResult(doc);
         }
 
         /// <summary>
@@ -125,12 +124,18 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<string> Update(string id, T doc)
         {
-            doc.ID = id;
-            var filter = Builders<T>.Filter.Eq(i => i.ID, id);
-
-            await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions {IsUpsert = true});
-
-            return $"{id} updated";
+            try
+            {
+                doc.ID = id;
+                await _Tn.SaveAsync(doc);
+                await _Tn.CommitAsync();
+                return $"{id} updated";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -185,8 +190,18 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<string> DestroyById(string id)
         {
-            var d = await DB.Collection<T>().DeleteOneAsync(i => i.ID == id);
-            return $"{d}";
+            try
+            {
+                var before = await BeforeDestroyById(id);
+                var del = await _Tn.DeleteAsync<T>(before);
+                var after = await AfterDestroyById(id);
+                return $"{id} Deleted";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -194,9 +209,10 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public virtual Task<string> AfterDestroyById(string id)
+        public virtual async Task<string> AfterDestroyById(string id)
         {
-            return Task.FromResult(id);
+            await _Tn.CommitAsync();
+            return await Task.FromResult(id);
         }
 
         /// <summary>
@@ -221,7 +237,7 @@ namespace Bracketcore.Sket.Repository
         {
             return await FindByFilter(filter, sort, 0, 0);
         }
-        
+
         public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort,
             int skip)
         {
@@ -238,22 +254,20 @@ namespace Bracketcore.Sket.Repository
                 .ToListAsync();
         }
 
+        private void ReleaseUnmanagedResources()
+        {
+            // TODO release unmanaged resources here
+        }
 
-        //
-        // protected virtual void Dispose(bool disposing)
-        // {
-        //     if (disposing)
-        //     {
-        //     }
-        // }
-        //
-        // /// <summary>
-        // /// Dispose method
-        // /// </summary>
-        // public void Dispose()
-        // {
-        //     Dispose(true);
-        //     GC.SuppressFinalize(this);
-        // }
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing) _Tn?.Dispose();
+        }
+
+        ~SketBaseRepository()
+        {
+            Dispose(false);
+        }
     }
 }

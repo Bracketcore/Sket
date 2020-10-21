@@ -29,6 +29,18 @@ namespace Bracketcore.Sket.Controllers
 
         public AuthenticationStateProvider _authenticationStateProvider { get; set; }
 
+        /// <summary>
+        ///     Login user
+        /// </summary>
+        /// <remarks>
+        ///     {
+        ///     username:"username",
+        ///     email:"your email",
+        ///     password:"your password"
+        ///     }
+        /// </remarks>
+        /// <param name="User"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -51,6 +63,10 @@ namespace Bracketcore.Sket.Controllers
             });
         }
 
+        /// <summary>
+        ///     Get Current Users Details
+        /// </summary>
+        /// <returns></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

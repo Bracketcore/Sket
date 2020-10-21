@@ -94,17 +94,6 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        ///     Get token by id.
-        /// </summary>
-        /// <param name="tokenId"></param>
-        /// <returns></returns>
-        public override async Task<T> FindById(string tokenId)
-        {
-            var search = await DB.Find<T>().OneAsync(tokenId);
-            return search;
-        }
-
-        /// <summary>
         ///     Get token by token value
         /// </summary>
         /// <param name="token">Token Value</param>

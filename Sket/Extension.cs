@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -19,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using MongoDB.Entities;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Bracketcore.Sket
 {
@@ -65,7 +67,6 @@ namespace Bracketcore.Sket
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
 
-
             services.AddBlazoredLocalStorage(config =>
                 config.JsonSerializerOptions.WriteIndented = true);
 
@@ -85,12 +86,31 @@ namespace Bracketcore.Sket
                                   .Description
                                   .State);
 
+            #endregion
+
+            #region Swagger
+
             services.AddSwaggerGen(c =>
             {
+                c.UseAllOfForInheritance();
+                // c.UseOneOfForPolymorphism();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "API Explorer",
                     Version = "v1"
+                });
+
+                // c.CustomOperationIds(apiDesc =>
+                // {
+                //     return apiDesc.TryGetMethodInfo(out var methodInfo) ? methodInfo.Name : null;
+                // });
+
+                c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
+                {
+                    BearerFormat = JwtBearerDefaults.AuthenticationScheme,
+                    In = ParameterLocation.Header,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    Type = SecuritySchemeType.ApiKey
                 });
             });
 
@@ -226,11 +246,31 @@ namespace Bracketcore.Sket
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-            app.UseSwagger();
+            app.UseSwagger(d =>
+            {
+                d.RouteTemplate = "explorer/{documentName}/swagger.json";
+                d.SerializeAsV2 = true;
+            });
+
             app.UseSwaggerUI(c =>
             {
+                c.RoutePrefix = "explorer";
                 c.DocumentTitle = "API Explorer";
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Explorer");
+                c.SwaggerEndpoint("/explorer/v1/swagger.json", "API Explorer");
+                c.DocumentTitle = "Api Explorer";
+                c.EnableValidator("localhost");
+                c.EnableFilter();
+                c.EnableDeepLinking();
+
+                c.DocExpansion(DocExpansion.None);
+
+                c.OAuthClientId("test-id");
+                c.OAuthClientSecret("test-secret");
+                c.OAuthRealm("test-realm");
+                c.OAuthAppName("test-app");
+                c.OAuthScopeSeparator(" ");
+                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> {{"foo", "bar"}});
+                c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
             });
             app.UseAuthentication();
 

@@ -77,6 +77,8 @@ namespace Bracketcore.Sket.Repository
                     return null;
                 if (e.Message.Contains("Username"))
                     return null;
+
+                await DestroyById(doc.ID);
                 return null;
             }
         }

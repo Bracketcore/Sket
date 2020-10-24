@@ -15,14 +15,9 @@ namespace Bracketcore.Sket.Repository
     /// <typeparam name="T">Repository Model</typeparam>
     public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
     {
-        protected Transaction _Tn = DB.Transaction();
-
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
-
 
         /// <summary>
         ///     Set model modification before its been created.
@@ -44,9 +39,8 @@ namespace Bracketcore.Sket.Repository
             try
             {
                 var before = await BeforeCreate(doc);
-                var n = await _Tn.SaveAsync(before);
+                var n = await DB.SaveAsync(before);
                 var after = await AfterCreate(doc);
-
                 return after;
             }
             catch (Exception e)
@@ -63,7 +57,6 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<T> AfterCreate(T doc)
         {
-            await _Tn.CommitAsync();
             return await Task.FromResult(doc);
         }
 
@@ -127,8 +120,9 @@ namespace Bracketcore.Sket.Repository
             try
             {
                 doc.ID = id;
-                await _Tn.SaveAsync(doc);
-                await _Tn.CommitAsync();
+                var filter = Builders<T>.Filter.Eq(i => i.ID, id);
+                await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions {IsUpsert = true});
+
                 return $"{id} updated";
             }
             catch (Exception e)
@@ -137,6 +131,7 @@ namespace Bracketcore.Sket.Repository
                 throw;
             }
         }
+
 
         /// <summary>
         ///     Set a list bulk model to be updated
@@ -193,7 +188,7 @@ namespace Bracketcore.Sket.Repository
             try
             {
                 var before = await BeforeDestroyById(id);
-                var del = await _Tn.DeleteAsync<T>(before);
+                var del = await DB.DeleteAsync<T>(before);
                 var after = await AfterDestroyById(id);
                 return $"{id} Deleted";
             }
@@ -211,7 +206,6 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<string> AfterDestroyById(string id)
         {
-            await _Tn.CommitAsync();
             return await Task.FromResult(id);
         }
 
@@ -252,22 +246,6 @@ namespace Bracketcore.Sket.Repository
                 .Skip(skip)
                 .Limit(limit)
                 .ToListAsync();
-        }
-
-        private void ReleaseUnmanagedResources()
-        {
-            // TODO release unmanaged resources here
-        }
-
-        private void Dispose(bool disposing)
-        {
-            ReleaseUnmanagedResources();
-            if (disposing) _Tn?.Dispose();
-        }
-
-        ~SketBaseRepository()
-        {
-            Dispose(false);
         }
     }
 }

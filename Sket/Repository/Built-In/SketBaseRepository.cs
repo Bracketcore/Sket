@@ -46,7 +46,7 @@ namespace Bracketcore.Sket.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                return null;
+                throw;
             }
         }
 

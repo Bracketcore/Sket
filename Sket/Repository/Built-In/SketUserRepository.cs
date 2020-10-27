@@ -120,7 +120,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<T> Verify(T user)
+        public virtual async Task<T> Verify(T user)
         {
             try
             {
@@ -171,7 +171,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<bool> LogOut(T user)
+        public virtual async Task<bool> LogOut(T user)
         {
             var token = await _accessToken.DestroyByUserId(user.ID);
 
@@ -187,7 +187,7 @@ namespace Bracketcore.Sket.Repository
         /// <param name="userId"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<string> Confirm(string email, string userId, string token)
+        public virtual async Task<string> Confirm(string email, string userId, string token)
         {
             try
             {
@@ -219,7 +219,7 @@ namespace Bracketcore.Sket.Repository
         ///     Create reset token.
         /// </summary>
         /// <returns></returns>
-        public void Reset()
+        public virtual void Reset()
         {
             //todo: create a reset token and send to user
         }
@@ -232,7 +232,7 @@ namespace Bracketcore.Sket.Repository
         /// <param name="userId">User ID</param>
         /// <param name="oldPassword">Users old password</param>
         /// <returns></returns>
-        public void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
+        public virtual void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
         {
             //Todo: verify the reset token and give user a form to change password
         }
@@ -242,7 +242,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public async Task<T> FindByUsername(string username)
+        public virtual async Task<T> FindByUsername(string username)
         {
             var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
             return user;

@@ -45,7 +45,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("login")]
-        public async Task<ActionResult<T>> Login(T User)
+        public virtual async Task<ActionResult<T>> Login(T User)
         {
             var verify = await _repo.Login(User);
 
@@ -71,7 +71,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("currentUser")]
-        public async Task<ActionResult<T>> GetCurrentUser()
+        public virtual async Task<ActionResult<T>> GetCurrentUser()
         {
             try
             {

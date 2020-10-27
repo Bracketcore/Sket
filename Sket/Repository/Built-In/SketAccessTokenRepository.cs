@@ -32,7 +32,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="userModelInfo"></param>
         /// <returns></returns>
-        public async Task<string> GenerateToken(SketUserModel userModelInfo)
+        public virtual async Task<string> GenerateToken(SketUserModel userModelInfo)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Config);
@@ -63,7 +63,7 @@ namespace Bracketcore.Sket.Repository
             return tk;
         }
 
-        public async Task<SketAccessTokenModel> Create(string userId, string token)
+        public virtual async Task<SketAccessTokenModel> Create(string userId, string token)
         {
             var ttl = DateTime.UtcNow.AddDays(7);
             var access = new SketAccessTokenModel
@@ -82,7 +82,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<bool> VerifyAccessToken(string token)
+        public virtual async Task<bool> VerifyAccessToken(string token)
         {
             var find = await ExistToken(token);
 
@@ -98,7 +98,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="token">Token Value</param>
         /// <returns> returns token and token owner id</returns>
-        public async Task<T> FindByToken(string token)
+        public virtual async Task<T> FindByToken(string token)
         {
             var search = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Tk == token);
             return search;
@@ -109,7 +109,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<T> FindByUserId(string userId)
+        public virtual async Task<T> FindByUserId(string userId)
         {
             var search = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.OwnerID.ID == userId);
             return search ?? null;
@@ -120,7 +120,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<string> DestroyByUserId(string userId)
+        public virtual async Task<string> DestroyByUserId(string userId)
         {
             var tokenId = await DB.Queryable<T>().Where(i => i.OwnerID.ID == userId).ToListAsync();
 
@@ -145,7 +145,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="token">Token Value</param>
         /// <returns></returns>
-        public async Task<bool> ExistToken(string token)
+        public virtual async Task<bool> ExistToken(string token)
         {
             var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Tk == token);
 

@@ -36,7 +36,7 @@ namespace Bracketcore.Sket.Manager
         /// <param name="Cred"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> Authenticate(T Cred)
+        public virtual async Task<TokenResponse> Authenticate(T Cred)
         {
             var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == Cred.Username);
 
@@ -63,6 +63,7 @@ namespace Bracketcore.Sket.Manager
                     return await GenerateJSONWebToken(user);
             }
         }
+
 
         public bool isPasswordOk(string password, string userPassword)
         {

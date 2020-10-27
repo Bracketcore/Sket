@@ -88,7 +88,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<LoginResponse> Login(T user)
+        public virtual async Task<LoginResponse> Login(T user)
         {
             try
             {

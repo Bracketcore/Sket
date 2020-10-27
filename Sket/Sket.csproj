@@ -11,8 +11,8 @@
         <PackageId>Bracketcore.Sket</PackageId>
         <Product>Bracketcore.Sket</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.0.8-Beta</Version>
-        <PackageVersion>0.0.8-Beta</PackageVersion>
+        <Version>0.0.9-Beta</Version>
+        <PackageVersion>0.0.9-Beta</PackageVersion>
         <Copyright>Bracketcore</Copyright>
         <PackageProjectUrl>https://github.com/Bracketcore/Sket</PackageProjectUrl>
         <PackageIconUrl>https://avatars2.githubusercontent.com/u/26839530?s=200&amp;v=4</PackageIconUrl>

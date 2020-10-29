@@ -36,38 +36,51 @@ namespace Bracketcore.Sket.Manager
         /// <param name="Cred"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public virtual async Task<TokenResponse> Authenticate(T Cred)
+        public virtual async Task<TokenResponse> Authenticate(SketLoginModel Cred)
         {
-            var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == Cred.Username);
-
-            if (user is null)
+            try
             {
-                user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
-                if (user is null) return null;
+                T user;
+
+                user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == Cred.Username);
+
+                if (user is null)
+                {
+                    user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
+
+                    if (user is null)
+                    {
+                        user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Phone == Cred.Phone);
+
+                        if (user is null) throw new Exception("Invalid Credentials");
+                    }
+                }
+
+
+                var verify = isPasswordOk(Cred.Password, user.Password);
+
+                if (!verify) throw new Exception("Invalid Password");
+                ;
+
+                switch (Init.Sket.Cfg.Settings.AuthType.ToString())
+                {
+                    case CookieAuthenticationDefaults.AuthenticationScheme:
+                        return await GenerateCookieToken(user);
+
+                    default:
+                        return await GenerateJSONWebToken(user);
+                }
             }
-            else
+            catch (Exception e)
             {
-                return null;
-            }
-
-            var verify = isPasswordOk(Cred.Password, user.Password);
-
-            if (!verify) return null;
-
-            switch (Init.Sket.Cfg.Settings.AuthType.ToString())
-            {
-                case CookieAuthenticationDefaults.AuthenticationScheme:
-                    return await GenerateCookieToken(user);
-
-                default:
-                    return await GenerateJSONWebToken(user);
+                Console.WriteLine(e);
+                throw;
             }
         }
 
-
         public bool isPasswordOk(string password, string userPassword)
         {
-            return password == _protector.Unprotect(userPassword);
+            return _protector.Unprotect(userPassword).Equals(password);
         }
 
         /// <summary>

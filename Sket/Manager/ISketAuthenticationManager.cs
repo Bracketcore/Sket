@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Responses;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -10,7 +11,7 @@ namespace Bracketcore.Sket.Manager
         string _key { get; set; }
         string _Issuer { get; set; }
 
-        Task<TokenResponse> Authenticate(T Cred);
+        Task<TokenResponse> Authenticate(SketLoginModel Cred);
 
         bool isPasswordOk(string password, string userPassword);
 

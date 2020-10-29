@@ -35,7 +35,7 @@ namespace Bracketcore.Sket.Manager
 
         public CancellationToken CancellationToken { get; set; }
 
-        public async Task LoginUser(T loginData, string Token, HttpContext httpContext)
+        public async Task LoginUser(string Token, HttpContext httpContext)
         {
             try
             {
@@ -127,9 +127,9 @@ namespace Bracketcore.Sket.Manager
             return await Task.FromResult(new AuthenticationState(user));
         }
 
-        public async Task LoginUser(T loginData, string Token)
+        public async Task LoginUser(string Token)
         {
-            await LoginUser(loginData, Token, null);
+            await LoginUser(Token, null);
         }
 
         // protected virtual void Dispose(bool disposing)

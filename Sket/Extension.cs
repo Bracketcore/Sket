@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Bracketcore.Sket.Entity;
 using Bracketcore.Sket.Init;
@@ -92,7 +93,9 @@ namespace Bracketcore.Sket
 
             services.AddSwaggerGen(c =>
             {
-                c.UseAllOfForInheritance();
+                c.UseOneOfForPolymorphism();
+                c.SelectDiscriminatorNameUsing(baseType => "TypeName");
+                c.SelectDiscriminatorValueUsing(subType => subType.Name);
                 // c.UseOneOfForPolymorphism();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -170,6 +173,16 @@ namespace Bracketcore.Sket
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.JwtKey))
                         };
                         options.SaveToken = true;
+
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnAuthenticationFailed = context =>
+                            {
+                                if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                                    context.Response.Headers.Add("Token-Expired", "true");
+                                return Task.CompletedTask;
+                            }
+                        };
                     })
                     .AddCookie(Init.Sket.Cfg.Settings.AuthType.ToString(), c =>
                     {
@@ -246,6 +259,26 @@ namespace Bracketcore.Sket
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
+            app.UseReDoc(c =>
+            {
+                c.RoutePrefix = "docs";
+                c.DocumentTitle = "My API Docs";
+                c.SpecUrl("/v1/swagger.json");
+                c.EnableUntrustedSpec();
+                c.ScrollYOffset(10);
+                c.HideHostname();
+                c.HideDownloadButton();
+                c.ExpandResponses("200,201");
+                c.RequiredPropsFirst();
+                c.NoAutoAuth();
+                c.PathInMiddlePanel();
+                c.HideLoading();
+                c.NativeScrollbars();
+                c.DisableSearch();
+                c.OnlyRequiredInSamples();
+                c.SortPropsAlphabetically();
+            });
+
             app.UseSwagger(d =>
             {
                 d.RouteTemplate = "explorer/{documentName}/swagger.json";

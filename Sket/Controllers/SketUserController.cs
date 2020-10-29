@@ -45,22 +45,28 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("login")]
-        public virtual async Task<ActionResult<T>> Login(T User)
+        public virtual async Task<ActionResult<T>> Login([FromBody] SketLoginModel User)
         {
-            var verify = await _repo.Login(User);
+            try
+            {
+                var verify = await _repo.Login(User);
 
-            if (verify != null)
+
                 // todo auth schema check
                 // await HttpContext.SignInAsync(verify.ClaimsPrincipal);
                 // await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LoginUser(User, verify.Tk,
                 //     HttpContext);
                 return Ok(verify);
-
-            return BadRequest(new
+            }
+            catch (Exception e)
             {
-                Message = "Invalid Credentials",
-                Status = "Error"
-            });
+                return BadRequest(new
+                {
+                    e.Message,
+                    Status = "Error"
+                });
+                throw;
+            }
         }
 
         /// <summary>
@@ -106,7 +112,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<ActionResult<T>> Logout(SketUserModel user)
+        public virtual async Task<ActionResult<T>> Logout([FromBody] T user)
         {
             var token = HttpContext.Request.Headers["Authorization"];
             if (!string.IsNullOrEmpty(token)) return BadRequest();

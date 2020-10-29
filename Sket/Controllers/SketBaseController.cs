@@ -58,7 +58,7 @@ namespace Bracketcore.Sket.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "App,Admin,Support")]
-        public virtual async Task<ActionResult<T>> Create(T doc)
+        public virtual async Task<ActionResult<T>> Create([FromBody] T doc)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace Bracketcore.Sket.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<ActionResult<T>> Update(string id, T replace)
+        public virtual async Task<ActionResult<T>> Update(string id, [FromBody] T replace)
         {
             async Task<ActionResult<T>> command()
             {
@@ -131,16 +131,17 @@ namespace Bracketcore.Sket.Controllers
         }
 
         /// <summary>
-        /// Check if id exist
+        ///     Check if id exist
         /// </summary>
         /// <param name="id"></param>
         /// <returns>Bool</returns>
-        [HttpGet("exist/{id}")]
+        [HttpGet("{id}/exist")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual ActionResult Exist(string id)
+        public virtual async Task<ActionResult> Exist(string id)
         {
-            return Ok(Repo.Exist(id));
+            var exist = await Repo.Exist(id);
+            return exist ? (ActionResult) Ok() : NotFound();
         }
     }
 }

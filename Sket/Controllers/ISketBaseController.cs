@@ -10,6 +10,6 @@ namespace Bracketcore.Sket.Controllers
         Task<ActionResult<T>> GetById(string id);
         Task<ActionResult<T>> Update(string id, T updateDoc);
         Task<ActionResult<T>> Remove(string id);
-        ActionResult Exist(string id);
+        Task<ActionResult> Exist(string id);
     }
 }

@@ -62,7 +62,7 @@ namespace Bracketcore.Sket.Controllers
             {
                 return BadRequest(new
                 {
-                    e.Message,
+                    message = e.Message,
                     Status = "Error"
                 });
                 throw;

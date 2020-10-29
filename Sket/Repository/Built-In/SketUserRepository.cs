@@ -88,7 +88,7 @@ namespace Bracketcore.Sket.Repository
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public virtual async Task<LoginResponse> Login(T user)
+        public virtual async Task<LoginResponse> Login(SketLoginModel user)
         {
             try
             {
@@ -173,11 +173,19 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<bool> LogOut(T user)
         {
-            var token = await _accessToken.DestroyByUserId(user.ID);
+            try
+            {
+                var token = await _accessToken.DestroyByUserId(user.ID);
 
-            if (token.Contains("Deleted"))
+                if (token.Contains("Deleted"))
+                    return true;
                 return true;
-            return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -244,8 +252,16 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<T> FindByUsername(string username)
         {
-            var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
-            return user;
+            try
+            {
+                var user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username.Contains(username));
+                return user;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

@@ -67,15 +67,23 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<string> CreateBulk(IEnumerable<T> fix)
         {
-            var ls = new List<string>();
-
-            foreach (var fi in fix)
+            try
             {
-                var d = await Create(fi);
-                ls.Add(d.ID);
-            }
+                var ls = new List<string>();
 
-            return $"{string.Join(",", ls.ToArray())} created";
+                foreach (var fi in fix)
+                {
+                    var d = await Create(fi);
+                    ls.Add(d.ID);
+                }
+
+                return $"{string.Join(",", ls.ToArray())} created";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -84,8 +92,16 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<int> Count()
         {
-            var c = await DB.Queryable<T>().ToListAsync();
-            return c.Count;
+            try
+            {
+                var c = await DB.Queryable<T>().ToListAsync();
+                return c.Count;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -94,9 +110,17 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<List<T>> FindAll()
         {
-            var filter = Builders<T>.Filter.Empty;
+            try
+            {
+                var filter = Builders<T>.Filter.Empty;
 
-            return await DB.Queryable<T>().ToListAsync();
+                return await DB.Queryable<T>().ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -132,7 +156,6 @@ namespace Bracketcore.Sket.Repository
             }
         }
 
-
         /// <summary>
         ///     Set a list bulk model to be updated
         /// </summary>
@@ -140,14 +163,22 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<string> BulkUpdate(IEnumerable<T> doc)
         {
-            var ls = new List<string>();
-            foreach (var document in doc)
+            try
             {
-                await Update(document.ID, document);
-                ls.Add(document.ID);
-            }
+                var ls = new List<string>();
+                foreach (var document in doc)
+                {
+                    await Update(document.ID, document);
+                    ls.Add(document.ID);
+                }
 
-            return $"Updated {string.Join(",", ls.ToArray())}";
+                return $"Updated {string.Join(",", ls.ToArray())}";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -157,15 +188,23 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<string> DestroyAll(IEnumerable<T> doc)
         {
-            var ls = new List<string>();
-
-            foreach (var docs in doc)
+            try
             {
-                await DestroyById(docs.ID);
-                ls.Add(docs.ID);
-            }
+                var ls = new List<string>();
 
-            return $"{string.Join(",", ls.ToArray())} Deleted";
+                foreach (var docs in doc)
+                {
+                    await DestroyById(docs.ID);
+                    ls.Add(docs.ID);
+                }
+
+                return $"{string.Join(",", ls.ToArray())} Deleted";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -216,15 +255,31 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<bool> Exist(string id)
         {
-            var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.ID == id);
+            try
+            {
+                var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.ID == id);
 
-            return exist != null;
+                return exist != null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
         }
 
         public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter)
         {
-            var sort = Builders<T>.Sort.Descending(a => a.ID);
-            return await FindByFilter(filter, sort, 0, 0);
+            try
+            {
+                var sort = Builders<T>.Sort.Descending(a => a.ID);
+                return await FindByFilter(filter, sort, 0, 0);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public virtual async Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort)

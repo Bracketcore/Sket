@@ -7,7 +7,7 @@ namespace Bracketcore.Sket.Repository.Interfaces
     public interface ISketUserRepository<T> : ISketBaseRepository<T>
     {
         ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
-        Task<LoginResponse> Login(T user);
+        Task<LoginResponse> Login(SketLoginModel user);
         Task<T> Verify(T user);
         Task<bool> LogOut(T user);
         Task<string> Confirm(string email, string userId, string token);

@@ -17,6 +17,8 @@ namespace Bracketcore.Sket.Repository
     {
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -130,7 +132,15 @@ namespace Bracketcore.Sket.Repository
         /// <returns></returns>
         public virtual async Task<T> FindById(string id)
         {
-            return await DB.Find<T>().OneAsync(id);
+            try
+            {
+                return await DB.Find<T>().OneAsync(id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         /// <summary>
@@ -144,8 +154,9 @@ namespace Bracketcore.Sket.Repository
             try
             {
                 doc.ID = id;
+                doc.ModifiedOn = DateTime.UtcNow;
                 var filter = Builders<T>.Filter.Eq(i => i.ID, id);
-                await DB.Collection<T>().ReplaceOneAsync(filter, doc, new ReplaceOptions {IsUpsert = true});
+                await DB.Collection<T>().FindOneAndUpdateAsync(filter, new ObjectUpdateDefinition<T>(doc));
 
                 return $"{id} updated";
             }
@@ -301,6 +312,13 @@ namespace Bracketcore.Sket.Repository
                 .Skip(skip)
                 .Limit(limit)
                 .ToListAsync();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
         }
     }
 }

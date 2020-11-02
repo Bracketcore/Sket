@@ -17,13 +17,19 @@ namespace Bracketcore.Sket.Manager
     ///     use this to create claims
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SketAuthenticationManager<T> : ISketAuthenticationManager<T> where T : SketUserModel
+    public class SketAuthenticationManager<T> : ISketAuthenticationManager<T>, IDisposable where T : SketUserModel
     {
         public SketAuthenticationManager(IDataProtectionProvider provider)
         {
             _key = Init.Sket.Cfg.Settings.JwtKey;
             _Issuer = Init.Sket.Cfg.Settings.DomainUrl;
             _protector = provider.CreateProtector(new StringBuilder(GetType().Namespace).Append(_key).ToString());
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public IDataProtector _protector { get; set; }
@@ -151,6 +157,13 @@ namespace Bracketcore.Sket.Manager
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email)
             };
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
         }
     }
 }

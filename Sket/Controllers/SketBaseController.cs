@@ -19,7 +19,7 @@ namespace Bracketcore.Sket.Controllers
     [Produces("application/json")]
     [ApiController]
     [Route("api/[Controller]")]
-    public abstract class SketBaseController<T, TC> : ControllerBase, ISketBaseController<T>
+    public abstract class SketBaseController<T, TC> : ControllerBase, ISketBaseController<T>, IDisposable
         where T : SketPersistedModel
         where TC : ISketBaseRepository<T>
     {
@@ -32,6 +32,12 @@ namespace Bracketcore.Sket.Controllers
         }
 
         protected TC Repo { get; set; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -142,6 +148,13 @@ namespace Bracketcore.Sket.Controllers
         {
             var exist = await Repo.Exist(id);
             return exist ? (ActionResult) Ok() : NotFound();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
         }
     }
 }

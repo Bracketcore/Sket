@@ -8,10 +8,10 @@ namespace Bracketcore.Sket.StateManager
     {
         [Inject] public T AppState { get; set; }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            StateChanged -= async Source =>
-                await AppState_StateChanged(this);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public event Action<ComponentBase> StateChanged;
@@ -29,6 +29,13 @@ namespace Bracketcore.Sket.StateManager
         protected override void OnInitialized()
         {
             AppState.StateChanged += async Source => await AppState_StateChanged(Source);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
         }
     }
 

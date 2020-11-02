@@ -127,5 +127,14 @@ namespace Bracketcore.Sket.Controllers
 
             return Ok();
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

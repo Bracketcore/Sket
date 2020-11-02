@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Bracketcore.Sket.HttpClient;
 using Bracketcore.Sket.Manager;
 
@@ -49,8 +48,6 @@ namespace Bracketcore.Sket.Init
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
 

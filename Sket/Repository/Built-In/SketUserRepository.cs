@@ -167,7 +167,7 @@ namespace Bracketcore.Sket.Repository
         }
 
         /// <summary>
-        ///     Logout user
+        ///     Logout user and destroy access token
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -262,6 +262,15 @@ namespace Bracketcore.Sket.Repository
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

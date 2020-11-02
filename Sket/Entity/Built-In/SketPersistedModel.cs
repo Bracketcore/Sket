@@ -1,25 +1,19 @@
-using MongoDB.Entities;
 using System;
 using System.Text.Json.Serialization;
+using MongoDB.Entities;
 
 namespace Bracketcore.Sket.Entity
 {
     /// <summary>
-    /// Abstract model for the Persisted model
+    ///     Abstract model for the Persisted model
     /// </summary>
-    public abstract class SketPersistedModel : MongoDB.Entities.Entity, IDisposable, IModifiedOn, ICreatedOn
+    public abstract class SketPersistedModel : MongoDB.Entities.Entity, IDisposable, ICreatedOn
     {
-    [JsonIgnore]
-        public One<SketUserModel> OwnerID { get; set; }
-        [JsonIgnore]
-        public DateTime ModifiedOn { get; set; }
+        [JsonIgnore] public One<SketUserModel> OwnerID { get; set; }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-        }
+        [JsonIgnore] public DateTime ModifiedOn { get; set; }
+
+        [JsonIgnore] public DateTime CreatedOn { get; set; }
 
         public void Dispose()
         {
@@ -27,7 +21,11 @@ namespace Bracketcore.Sket.Entity
             GC.SuppressFinalize(this);
         }
 
-        [JsonIgnore]
-        public DateTime CreatedOn { get; set; }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
+        }
     }
 }

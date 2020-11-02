@@ -96,35 +96,43 @@ namespace Bracketcore.Sket.Manager
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // Todo work on the authentication to give user access to the platform
-            var user = new ClaimsPrincipal();
-
-            var getToken = await _localstorage.GetItemAsync<string>("Token");
-
-            if (getToken == null) return await Task.FromResult(new AuthenticationState(user));
-
-            var tokenExist = await _accessToken.FindByToken(getToken);
-
-            if (tokenExist is null) return await Task.FromResult(new AuthenticationState(user));
-
-            var getUser = await _userRepository.FindById(tokenExist.OwnerID.ID);
-
-            getUser.Password = string.Empty;
-
-            var RoleValue = string.Join(",", getUser.Role);
-
-            var identity = new ClaimsIdentity(new[]
+            try
             {
-                new Claim("Profile", JsonConvert.SerializeObject(getUser)),
-                new Claim(ClaimTypes.Email, getUser.Email),
-                new Claim(ClaimTypes.NameIdentifier, getUser.ID),
-                new Claim("Token", getToken),
-                new Claim(ClaimTypes.Role, RoleValue)
-            }, "SketAuth");
+                // Todo work on the authentication to give user access to the platform
+                var user = new ClaimsPrincipal();
 
-            user = new ClaimsPrincipal(identity);
+                var getToken = await _localstorage.GetItemAsync<string>("Token");
 
-            return await Task.FromResult(new AuthenticationState(user));
+                if (getToken == null) return await Task.FromResult(new AuthenticationState(user));
+
+                var tokenExist = await _accessToken.FindByToken(getToken);
+
+                if (tokenExist is null) return await Task.FromResult(new AuthenticationState(user));
+
+                var getUser = await _userRepository.FindById(tokenExist.OwnerID.ID);
+
+                getUser.Password = string.Empty;
+
+                var RoleValue = string.Join(",", getUser.Role);
+
+                var identity = new ClaimsIdentity(new[]
+                {
+                    new Claim("Profile", JsonConvert.SerializeObject(getUser)),
+                    new Claim(ClaimTypes.Email, getUser.Email),
+                    new Claim(ClaimTypes.NameIdentifier, getUser.ID),
+                    new Claim("Token", getToken),
+                    new Claim(ClaimTypes.Role, RoleValue)
+                }, "SketAuth");
+
+                user = new ClaimsPrincipal(identity);
+
+                return await Task.FromResult(new AuthenticationState(user));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task LoginUser(string Token)

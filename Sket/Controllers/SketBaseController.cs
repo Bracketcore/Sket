@@ -5,7 +5,6 @@ using Bracketcore.Sket.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 
 //Todo add a rate limiter
@@ -77,7 +76,7 @@ namespace Bracketcore.Sket.Controllers
                     var cre = await Repo.Create(doc);
                     if (cre == null) return BadRequest();
 
-                    return Created(typeof(T).Name + " Created", JsonConvert.SerializeObject(cre));
+                    return Created(typeof(T).Name + " Created", cre);
                 }
 
                 return null;
@@ -123,11 +122,11 @@ namespace Bracketcore.Sket.Controllers
         {
             async Task<ActionResult<T>> command()
             {
-                var exist = await Repo.Exist(id).ConfigureAwait(false);
+                var exist = await Repo.Exist(id);
 
                 if (!exist) return NotFound();
 
-                _ = await Repo.DestroyById(id).ConfigureAwait(false);
+                _ = await Repo.DestroyById(id);
                 return NoContent();
             }
 

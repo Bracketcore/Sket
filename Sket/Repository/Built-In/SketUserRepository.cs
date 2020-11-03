@@ -65,7 +65,7 @@ namespace Bracketcore.Sket.Repository
                     await before.SaveAsync();
 
                     await AfterCreate(before);
-
+                    before.Password = string.Empty;
                     return before;
                 }
 

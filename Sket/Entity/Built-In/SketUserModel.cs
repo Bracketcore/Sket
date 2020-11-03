@@ -14,6 +14,7 @@ namespace Bracketcore.Sket.Entity
             DB.Index<SketUserModel>()
                 .Key(o => o.Email, KeyType.Text)
                 .Key(o => o.Username, KeyType.Text)
+                .Key(o => o.Phone, KeyType.Text)
                 .Option(o => o.Unique = true)
                 .CreateAsync();
         }

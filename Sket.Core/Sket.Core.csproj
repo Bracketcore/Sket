@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <AssemblyName>UnoRoute.Sket.Core</AssemblyName>
+        <RootNamespace>UnoRoute.Sket.Core</RootNamespace>
+        <Title>Sket</Title>
+        <Authors>UnoRoute</Authors>
+        <PackageTags>API, UnoRoute</PackageTags>
+        <Nullable>disable</Nullable>
+        <PackageId>UnoRoute.Sket.Core</PackageId>
+        <Product>UnoRoute.Sket.Core</Product>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.1.3-Beta</Version>
+        <PackageVersion>0.1.3-Beta</PackageVersion>
+        <Copyright>UnoRoute</Copyright>
+        <PackageProjectUrl>https://github.com/UnoRoute/Sket.Core</PackageProjectUrl>
+        <PackageIconUrl>https://avatars2.githubusercontent.com/u/26839530?s=200&amp;v=4</PackageIconUrl>
+        <RepositoryUrl>https://github.com/unoroute/Sket.core</RepositoryUrl>
+        <LangVersion>9</LangVersion>
+        <Company>UnoRoute</Company>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile></DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Stores\**" />
+      <EmbeddedResource Remove="Stores\**" />
+      <None Remove="Stores\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
+      <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.9" />
+      <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="3.1.9" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.9" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.9" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.9" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.9" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.9" />
+      <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="3.1.9" />
+      <PackageReference Include="Microsoft.JSInterop" Version="3.1.9" />
+      <PackageReference Include="MongoDB.Entities" Version="20.2.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+      <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.6.3" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.6.3" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Repository\Built-In\MongoDB" />
+      <Folder Include="Repository\Built-In\Template" />
+    </ItemGroup>
+
+</Project>

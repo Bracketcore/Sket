@@ -28,5 +28,8 @@ namespace UnoRoute.Sket.Core.Entity
         public List<string> Role { get; set; }
         public string VerificationToken { get; set; }
         public double PhoneVerification { get; set; }
+        
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }

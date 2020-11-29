@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using UnoRoute.Sket.Core.HttpClient;
 using UnoRoute.Sket.Core.Manager;
 
@@ -9,16 +10,18 @@ namespace UnoRoute.Sket.Core.Init
     /// </summary>
     public class SketSettings : ISketSetting
     {
-        public AuthType AuthType { get; set; } = AuthType.Cookie;
+        public AuthType AuthType { get; set; } = AuthType.Jwt;
 
         /// <summary>
         ///     Set Database name
         /// </summary>
+        [Required(ErrorMessage = "Empty Database name")]
         public string DatabaseName { get; set; }
 
         /// <summary>
         ///     Set JwtKey to setup your token creator
         /// </summary>
+        [Required (ErrorMessage = "Empty Jtwkey, Hit Generate" )]
         public string JwtKey { get; set; }
 
         /// <summary>
@@ -26,25 +29,29 @@ namespace UnoRoute.Sket.Core.Init
         /// </summary>
         public string DomainUrl { get; set; }
 
-        /// <summary>
-        ///     Default = false
-        /// </summary>
-        public bool EnableCamelCase { get; set; } = false;
 
         /// <summary>
         ///     Set a list of URL to add to your Cors list. If empty Cors is disabled.
         /// </summary>
         public List<string> CorsDomains { get; set; }
 
-        /// <summary>
-        ///     Set a list of external api routes
-        /// </summary>
-        public List<ApiConfig> ApiSetup { get; set; }
+        [Required(ErrorMessage = "Choose a datasource")]
+        public string Datasource { get; set; }
+        [Required(ErrorMessage = "Enter DB Username")]
+       
+        public string DBUsername { get; set; } 
+        [Required(ErrorMessage = "Enter DB Password")]
+        public string DBPassword { get; set; }
+        [Required(ErrorMessage = "Port Number needed")]
+        public int DBPort { get; set; }
+
+        public bool EnableSwagger { get; set; } 
 
         /// <summary>
         ///     Set your MongoClientSettings
         /// </summary>
-        public string MongoConnectionString { get; set; }
+        [Required(ErrorMessage = "Enter host or connection string")]
+        public string ConnectionString { get; set; }
 
         public void Dispose()
         {

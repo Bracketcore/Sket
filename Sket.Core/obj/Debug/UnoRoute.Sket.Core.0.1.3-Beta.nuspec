@@ -33,6 +33,7 @@
         <dependency id="Microsoft.Extensions.Http" version="3.1.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Extensions.Identity.Core" version="3.1.9" exclude="Build,Analyzers" />
         <dependency id="Microsoft.JSInterop" version="3.1.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.VisualStudio.Web.BrowserLink" version="2.2.0" exclude="Build,Analyzers" />
         <dependency id="MongoDB.Entities" version="20.2.0" exclude="Build,Analyzers" />
         <dependency id="Newtonsoft.Json" version="12.0.3" exclude="Build,Analyzers" />
         <dependency id="Swashbuckle.AspNetCore" version="5.6.3" exclude="Build,Analyzers" />
@@ -43,6 +44,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="/Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/bin/Debug/netstandard2.1/UnoRoute.Sket.Core.dll" target="lib/netstandard2.1/UnoRoute.Sket.Core.dll" />
+    <file src="C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\UnoRoute.Sket.Core.dll" target="lib\netstandard2.1\UnoRoute.Sket.Core.dll" />
   </files>
 </package>

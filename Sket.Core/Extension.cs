@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -15,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using MongoDB.Entities;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using UnoRoute.Sket.Core.Entity;
 using UnoRoute.Sket.Core.Init;
@@ -30,6 +32,8 @@ namespace UnoRoute.Sket.Core
     /// </summary>
     public static class Extension
     {
+        private static SketSettings _settings;
+
         /// <summary>
         ///     Initial setup for Sket for dependency injection.
         /// </summary>
@@ -40,24 +44,62 @@ namespace UnoRoute.Sket.Core
         public static IServiceCollection AddSket(
             this IServiceCollection services, SketSettings settings)
         {
+            _settings = settings;
+            Init.Sket.SketServices = services;
+            var sketFile = Path.Join(Environment.CurrentDirectory, "Sket.Config.json");
 
-            var SketFile = Path.Join(Environment.CurrentDirectory, "Sket.Config.json");
+            switch (settings)
+            {
+                case null:
+                {
+                    if (File.Exists(sketFile))
+                    {
+                        settings = JsonConvert.DeserializeObject<SketSettings>(File.ReadAllText(sketFile));
+                        Sket.Core.Init.Sket.Cfg.Settings = settings;
+                        SetupDb();
+                    }
+                    else
+                    {
+                        // goto setup page
+                        Sket.Core.Init.Sket.Cfg.Settings = null;
+                    }
+
+                    break;
+                }
+                default:
+                    try
+                    {
+                        DefaultCheck();
+                        Sket.Core.Init.Sket.Cfg.Settings = settings;
+                        SetupDb();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+
+                    break;
+            }
+
             #region Check Setup Section
 
-            if (string.IsNullOrEmpty(settings.JwtKey)) throw new Exception("JwtKey is required");
-            if (string.IsNullOrEmpty(settings.DomainUrl)) throw new Exception("DomainUrl is required");
+            void DefaultCheck()
+            {
+                if (string.IsNullOrEmpty(settings.JwtKey)) throw new Exception("JwtKey is required");
+                // if (string.IsNullOrEmpty(settings.DomainUrl)) throw new Exception("DomainUrl is required");
+            }
 
             #endregion
 
-            #region Core Section
+            #region Db Section
 
-            DB.InitAsync(settings.DatabaseName, string.IsNullOrEmpty(settings.MongoConnectionString)
-                ? new MongoClientSettings {Server = new MongoServerAddress("localhost", 27017)}
-                : MongoClientSettings.FromConnectionString(settings.MongoConnectionString));
-
-            var SketInit = Init.Sket.Init(settings);
-
-            services.Add(new ServiceDescriptor(typeof(SketConfig), SketInit));
+            void SetupDb()
+            {
+                DB.InitAsync(settings.DatabaseName, string.IsNullOrEmpty(settings.ConnectionString)
+                    ? new MongoClientSettings {Server = new MongoServerAddress("localhost", 27017)}
+                    : MongoClientSettings.FromConnectionString(settings.ConnectionString));
+            }
 
             #endregion
 
@@ -70,54 +112,45 @@ namespace UnoRoute.Sket.Core
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
 
+            var sketInit = Init.Sket.Init(settings);
+            services.Add(new ServiceDescriptor(typeof(SketConfig), sketInit));
+
             services.AddBlazoredLocalStorage(config =>
                 config.JsonSerializerOptions.WriteIndented = true);
 
             services.AddAuthorizationCore(option =>
             {
                 var normalRole = Enum.GetValues(typeof(SketRoleEnum)).Cast<SketRoleEnum>();
-
                 foreach (var sketRoleEnum in normalRole)
-                    option.AddPolicy(sketRoleEnum.ToString(), policy => policy.RequireRole(sketRoleEnum.ToString()));
+                    option.AddPolicy(sketRoleEnum.ToString(),
+                        policy => policy.RequireRole(sketRoleEnum.ToString()));
             });
-
-
-            Console.WriteLine("Database " +
-                              DB.Database(settings.DatabaseName)
-                                  .Client
-                                  .Cluster
-                                  .Description
-                                  .State);
 
             #endregion
 
             #region Swagger
 
-            services.AddSwaggerGen(c =>
-            {
-                c.UseOneOfForPolymorphism();
-                c.SelectDiscriminatorNameUsing(baseType => "TypeName");
-                c.SelectDiscriminatorValueUsing(subType => subType.Name);
-                // c.UseOneOfForPolymorphism();
-                c.SwaggerDoc("v1", new OpenApiInfo
+            if (settings is not null)
+                services.AddSwaggerGen(c =>
                 {
-                    Title = "API Explorer",
-                    Version = "v1"
-                });
+                    c.UseOneOfForPolymorphism();
+                    c.SelectDiscriminatorNameUsing(baseType => "TypeName");
+                    c.SelectDiscriminatorValueUsing(subType => subType.Name);
+                    // c.UseOneOfForPolymorphism();
+                    c.SwaggerDoc("v1", new OpenApiInfo
+                    {
+                        Title = "API Explorer",
+                        Version = "v1"
+                    });
 
-                // c.CustomOperationIds(apiDesc =>
-                // {
-                //     return apiDesc.TryGetMethodInfo(out var methodInfo) ? methodInfo.Name : null;
-                // });
-
-                c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
-                {
-                    BearerFormat = JwtBearerDefaults.AuthenticationScheme,
-                    In = ParameterLocation.Header,
-                    Scheme = JwtBearerDefaults.AuthenticationScheme,
-                    Type = SecuritySchemeType.ApiKey
+                    c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
+                    {
+                        BearerFormat = JwtBearerDefaults.AuthenticationScheme,
+                        In = ParameterLocation.Header,
+                        Scheme = JwtBearerDefaults.AuthenticationScheme,
+                        Type = SecuritySchemeType.ApiKey
+                    });
                 });
-            });
 
             #endregion
 
@@ -144,7 +177,7 @@ namespace UnoRoute.Sket.Core
 
             services.AddDataProtection();
 
-            void addCookies()
+            void AddCookies()
             {
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, c =>
@@ -155,7 +188,7 @@ namespace UnoRoute.Sket.Core
                     });
             }
 
-            void addJwt()
+            void AddJwt()
             {
                 services.AddAuthentication(option =>
                     {
@@ -194,65 +227,53 @@ namespace UnoRoute.Sket.Core
                     });
             }
 
-            void addBoth()
+            void AddBoth()
             {
-                addJwt();
-                addCookies();
+                AddJwt();
+                AddCookies();
             }
 
-
-            switch (settings.AuthType)
-            {
-                case AuthType.Jwt:
-                    addJwt();
-                    break;
-                case AuthType.Both:
-                    addBoth();
-                    break;
-                default:
-                    addCookies();
-                    break;
-            }
+            if (settings is not null)
+                switch (settings.AuthType)
+                {
+                    case AuthType.Jwt:
+                        AddJwt();
+                        break;
+                    case AuthType.Both:
+                        AddBoth();
+                        break;
+                    default:
+                        AddCookies();
+                        break;
+                }
 
             #endregion
 
             #region CORS security Section
 
-            if (settings.CorsDomains != null)
-                services.AddCors(options =>
-                {
-                    options.AddPolicy("Custom", builder =>
+            if (settings is not null)
+                if (settings.CorsDomains is not null)
+                    services.AddCors(options =>
                     {
-                        foreach (var domains in settings.CorsDomains)
-                            builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
-                    });
-                });
-
-            #endregion
-
-            #region Api HttpClient Configuration Section
-
-            if (settings.ApiSetup != null)
-                foreach (var apiConfig in settings.ApiSetup)
-                foreach (var control in apiConfig.Endpoints)
-                    services.AddHttpClient(control,
-                        client =>
+                        options.AddPolicy("Custom", builder =>
                         {
-                            client.BaseAddress = new Uri(Path.Join(apiConfig.BaseUrl, control));
-                            client.DefaultRequestHeaders.Accept.Add(
-                                new MediaTypeWithQualityHeaderValue("application/json"));
-                            client.DefaultRequestHeaders.Accept.Add(
-                                new MediaTypeWithQualityHeaderValue("application/xml"));
-                            client.DefaultRequestHeaders.Accept.Add(
-                                new MediaTypeWithQualityHeaderValue("text/plain"));
+                            foreach (var domains in settings.CorsDomains)
+                                builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
                         });
-            // .AddHttpMessageHandler<SketTokenHeaderHandler>();
+                    });
 
             #endregion
+
 
             return services;
         }
 
+        public static IServiceCollection AddSket(this IServiceCollection services)
+        {
+            AddSket(services, null);
+
+            return services;
+        }
 
         /// <summary>
         ///     Initial setup for Sket middleware
@@ -281,32 +302,34 @@ namespace UnoRoute.Sket.Core
                 c.SortPropsAlphabetically();
             });
 
-            app.UseSwagger(d =>
-            {
-                d.RouteTemplate = "explorer/{documentName}/swagger.json";
-                d.SerializeAsV2 = true;
-            });
+            if (_settings is not null)
+                app.UseSwagger(d =>
+                {
+                    d.RouteTemplate = "explorer/{documentName}/swagger.json";
+                    d.SerializeAsV2 = true;
+                });
 
-            app.UseSwaggerUI(c =>
-            {
-                c.RoutePrefix = "explorer";
-                c.DocumentTitle = "API Explorer";
-                c.SwaggerEndpoint("/explorer/v1/swagger.json", "API Explorer");
-                c.DocumentTitle = "Api Explorer";
-                c.EnableValidator("localhost");
-                c.EnableFilter();
-                c.EnableDeepLinking();
+            if (_settings is not null)
+                app.UseSwaggerUI(c =>
+                {
+                    c.RoutePrefix = "explorer";
+                    c.DocumentTitle = "API Explorer";
+                    c.SwaggerEndpoint("/explorer/v1/swagger.json", "API Explorer");
+                    c.DocumentTitle = "Api Explorer";
+                    c.EnableValidator("localhost");
+                    c.EnableFilter();
+                    c.EnableDeepLinking();
 
-                c.DocExpansion(DocExpansion.None);
+                    c.DocExpansion(DocExpansion.None);
 
-                c.OAuthClientId("test-id");
-                c.OAuthClientSecret("test-secret");
-                c.OAuthRealm("test-realm");
-                c.OAuthAppName("test-app");
-                c.OAuthScopeSeparator(" ");
-                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> {{"foo", "bar"}});
-                c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
-            });
+                    c.OAuthClientId("test-id");
+                    c.OAuthClientSecret("test-secret");
+                    c.OAuthRealm("test-realm");
+                    c.OAuthAppName("test-app");
+                    c.OAuthScopeSeparator(" ");
+                    c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> {{"foo", "bar"}});
+                    c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+                });
             app.UseAuthentication();
 
             return app;

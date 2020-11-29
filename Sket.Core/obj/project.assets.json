@@ -1500,6 +1500,21 @@
           "lib/netstandard2.0/Microsoft.OpenApi.dll": {}
         }
       },
+      "Microsoft.VisualStudio.Web.BrowserLink/2.2.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNetCore.Hosting.Abstractions": "2.2.0",
+          "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
+          "Microsoft.AspNetCore.Http.Extensions": "2.2.0",
+          "Microsoft.Extensions.FileProviders.Physical": "2.2.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Microsoft.VisualStudio.Web.BrowserLink.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.VisualStudio.Web.BrowserLink.dll": {}
+        }
+      },
       "Microsoft.Win32.Primitives/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -5079,6 +5094,19 @@
         "lib/netstandard2.0/Microsoft.OpenApi.xml",
         "microsoft.openapi.1.2.3.nupkg.sha512",
         "microsoft.openapi.nuspec"
+      ]
+    },
+    "Microsoft.VisualStudio.Web.BrowserLink/2.2.0": {
+      "sha512": "cmeqhbB+rdMia3bj6cJaKQw1GDOqHxzDWAjoJqCnz+JYi9a2xsBdzycYy9eMEssVwLmLAUw6sWLMPMfGXAQmWA==",
+      "type": "package",
+      "path": "microsoft.visualstudio.web.browserlink/2.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Microsoft.VisualStudio.Web.BrowserLink.dll",
+        "lib/netstandard2.0/Microsoft.VisualStudio.Web.BrowserLink.xml",
+        "microsoft.visualstudio.web.browserlink.2.2.0.nupkg.sha512",
+        "microsoft.visualstudio.web.browserlink.nuspec"
       ]
     },
     "Microsoft.Win32.Primitives/4.3.0": {
@@ -9717,6 +9745,7 @@
       "Microsoft.Extensions.Http >= 3.1.9",
       "Microsoft.Extensions.Identity.Core >= 3.1.9",
       "Microsoft.JSInterop >= 3.1.9",
+      "Microsoft.VisualStudio.Web.BrowserLink >= 2.2.0",
       "MongoDB.Entities >= 20.2.0",
       "Newtonsoft.Json >= 12.0.3",
       "Swashbuckle.AspNetCore >= 5.6.3",
@@ -9726,28 +9755,31 @@
     ]
   },
   "packageFolders": {
-    "/Users/ehigiepaul/.nuget/packages/": {},
-    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
+    "C:\\Users\\ehigi\\.nuget\\packages\\": {},
+    "C:\\Microsoft\\Xamarin\\NuGet": {}
   },
   "project": {
     "version": "0.1.3-Beta",
     "restore": {
-      "projectUniqueName": "/Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/Sket.Core.csproj",
+      "projectUniqueName": "C:\\Users\\ehigi\\source\\repos\\UnoRoute\\Sket.Core\\Sket.Core\\Sket.Core.csproj",
       "projectName": "UnoRoute.Sket.Core",
-      "projectPath": "/Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/Sket.Core.csproj",
-      "packagesPath": "/Users/ehigiepaul/.nuget/packages/",
-      "outputPath": "/Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/obj/",
+      "projectPath": "C:\\Users\\ehigi\\source\\repos\\UnoRoute\\Sket.Core\\Sket.Core\\Sket.Core.csproj",
+      "packagesPath": "C:\\Users\\ehigi\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ehigi\\source\\repos\\UnoRoute\\Sket.Core\\Sket.Core\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        "C:\\Microsoft\\Xamarin\\NuGet"
       ],
       "configFilePaths": [
-        "/Users/ehigiepaul/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\ehigi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -9842,6 +9874,10 @@
             "target": "Package",
             "version": "[3.1.9, )"
           },
+          "Microsoft.VisualStudio.Web.BrowserLink": {
+            "target": "Package",
+            "version": "[2.2.0, )"
+          },
           "MongoDB.Entities": {
             "target": "Package",
             "version": "[20.2.0, )"
@@ -9882,7 +9918,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/5.0.100/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.100\\RuntimeIdentifierGraph.json"
       }
     }
   }

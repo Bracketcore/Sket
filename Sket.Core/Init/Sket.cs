@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using MongoDB.Entities;
 using UnoRoute.Sket.Core.Entity;
 using UnoRoute.Sket.Core.Repository;
@@ -14,6 +17,8 @@ namespace UnoRoute.Sket.Core.Init
     {
         public static SketConfig Cfg { get; set; } = new SketConfig();
 
+        public static IServiceCollection SketServices { get; set; }
+
         /// <summary>
         ///     Initiate a normal setup for your app
         /// </summary>
@@ -23,9 +28,13 @@ namespace UnoRoute.Sket.Core.Init
         public static SketConfig Init(SketSettings settings)
         {
             Cfg.Settings = settings;
+            if (settings is not null)
+            {
+                GetModels();
+                GetRoles();
+            }
 
-            GetModels();
-            GetRoles();
+          
 
             return Cfg;
         }
@@ -55,11 +64,23 @@ namespace UnoRoute.Sket.Core.Init
             foreach (var t in types.ToList()) Cfg.Context.Add(t);
         }
 
-        public static SketConfig Init(IServiceCollection services, SketSettings settings)
+        public static void Initialize(this IServiceCollection services, SketSettings settings)
         {
             services.AddSket(settings);
-            Cfg.Settings = settings;
-            return Cfg;
+        }
+
+        public static void Initialize(this IServiceCollection services)
+        {
+            services.AddSket(null);
+        }
+
+        public static void SketStaticFileDirectory(this IApplicationBuilder app, string ResourcePath, string ReqPath)
+        {
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Environment.CurrentDirectory, ResourcePath)),
+                RequestPath = ReqPath
+            });
         }
     }
 }

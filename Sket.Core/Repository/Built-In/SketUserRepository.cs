@@ -20,10 +20,10 @@ namespace UnoRoute.Sket.Core.Repository
     {
         private ISketAuthenticationManager<T> _sketAuthenticationManager;
 
-        public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> AccessToken,
+        public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> accessToken,
             ISketAuthenticationManager<T> sketAuthenticationManager)
         {
-            _accessToken = AccessToken;
+            _accessToken = accessToken;
             _sketAuthenticationManager = sketAuthenticationManager;
         }
 

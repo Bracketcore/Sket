@@ -1,6 +1,4 @@
-BlazorServerDemo
-BlazorWASM
-Demo
-.idea/
-Sket/bin/
-Sket/obj/
+Sket.Core/bin
+Sket.Core/obj
+.vs
+.idea

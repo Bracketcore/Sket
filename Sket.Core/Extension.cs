@@ -46,6 +46,7 @@ namespace UnoRoute.Sket.Core
         {
             _settings = settings;
             Init.Sket.SketServices = services;
+     
             var sketFile = Path.Join(Environment.CurrentDirectory, "Sket.Config.json");
 
             switch (settings)
@@ -57,6 +58,7 @@ namespace UnoRoute.Sket.Core
                         settings = JsonConvert.DeserializeObject<SketSettings>(File.ReadAllText(sketFile));
                         Sket.Core.Init.Sket.Cfg.Settings = settings;
                         SetupDb();
+                      SketServices(services, settings);
                     }
                     else
                     {
@@ -67,18 +69,11 @@ namespace UnoRoute.Sket.Core
                     break;
                 }
                 default:
-                    try
-                    {
-                        DefaultCheck();
-                        Sket.Core.Init.Sket.Cfg.Settings = settings;
-                        SetupDb();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-
+                    DefaultCheck();
+                    Sket.Core.Init.Sket.Cfg.Settings = settings;
+                    SetupDb();
+                    SketServices(services, settings);
+                    
                     break;
             }
 
@@ -102,9 +97,12 @@ namespace UnoRoute.Sket.Core
             }
 
             #endregion
+            
+            return services;
+        }
 
-            #region Dependency Injection Section
-
+        private static void SketServices(IServiceCollection services, SketSettings settings)
+        {
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.TryAddScoped(typeof(ISketAccessTokenRepository<>), typeof(SketAccessTokenRepository<>));
@@ -112,8 +110,8 @@ namespace UnoRoute.Sket.Core
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
 
-            var sketInit = Init.Sket.Init(settings);
-            services.Add(new ServiceDescriptor(typeof(SketConfig), sketInit));
+       
+            services.Add(new ServiceDescriptor(typeof(SketConfig), Init.Sket.Init(settings)));
 
             services.AddBlazoredLocalStorage(config =>
                 config.JsonSerializerOptions.WriteIndented = true);
@@ -126,33 +124,28 @@ namespace UnoRoute.Sket.Core
                         policy => policy.RequireRole(sketRoleEnum.ToString()));
             });
 
-            #endregion
-
-            #region Swagger
-
-            if (settings is not null)
-                services.AddSwaggerGen(c =>
+            //Swagger section
+            services.AddSwaggerGen(c =>
+            {
+                c.UseOneOfForPolymorphism();
+                c.SelectDiscriminatorNameUsing(baseType => "TypeName");
+                c.SelectDiscriminatorValueUsing(subType => subType.Name);
+                // c.UseOneOfForPolymorphism();
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    c.UseOneOfForPolymorphism();
-                    c.SelectDiscriminatorNameUsing(baseType => "TypeName");
-                    c.SelectDiscriminatorValueUsing(subType => subType.Name);
-                    // c.UseOneOfForPolymorphism();
-                    c.SwaggerDoc("v1", new OpenApiInfo
-                    {
-                        Title = "API Explorer",
-                        Version = "v1"
-                    });
-
-                    c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
-                    {
-                        BearerFormat = JwtBearerDefaults.AuthenticationScheme,
-                        In = ParameterLocation.Header,
-                        Scheme = JwtBearerDefaults.AuthenticationScheme,
-                        Type = SecuritySchemeType.ApiKey
-                    });
+                    Title = "API Explorer",
+                    Version = "v1"
                 });
 
-            #endregion
+                c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
+                {
+                    BearerFormat = JwtBearerDefaults.AuthenticationScheme,
+                    In = ParameterLocation.Header,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    Type = SecuritySchemeType.ApiKey
+                });
+            });
+
 
             #region Middlewares Section
 
@@ -160,18 +153,6 @@ namespace UnoRoute.Sket.Core
 
             #endregion
 
-            #region Identity Setup Section
-
-            #endregion
-
-            #region XSS and CRSF security Section
-
-            //     services.AddMvc(options =>
-            //{
-            //    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-            //});
-
-            #endregion
 
             #region Security Section
 
@@ -233,39 +214,36 @@ namespace UnoRoute.Sket.Core
                 AddCookies();
             }
 
-            if (settings is not null)
-                switch (settings.AuthType)
-                {
-                    case AuthType.Jwt:
-                        AddJwt();
-                        break;
-                    case AuthType.Both:
-                        AddBoth();
-                        break;
-                    default:
-                        AddCookies();
-                        break;
-                }
+
+            switch (settings.AuthType)
+            {
+                case AuthType.Jwt:
+                    AddJwt();
+                    break;
+                case AuthType.Both:
+                    AddBoth();
+                    break;
+                default:
+                    AddCookies();
+                    break;
+            }
 
             #endregion
+
 
             #region CORS security Section
 
-            if (settings is not null)
-                if (settings.CorsDomains is not null)
-                    services.AddCors(options =>
+            if (settings.CorsDomains is not null)
+                services.AddCors(options =>
+                {
+                    options.AddPolicy("Custom", builder =>
                     {
-                        options.AddPolicy("Custom", builder =>
-                        {
-                            foreach (var domains in settings.CorsDomains)
-                                builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
-                        });
+                        foreach (var domains in settings.CorsDomains)
+                            builder.WithOrigins(domains).AllowAnyHeader().AllowAnyMethod();
                     });
+                });
 
             #endregion
-
-
-            return services;
         }
 
         public static IServiceCollection AddSket(this IServiceCollection services)

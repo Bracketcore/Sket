@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Responses;
+using Sket.Core.Entity;
+using Sket.Core.Responses;
 
-namespace UnoRoute.Sket.Core.Manager
+namespace Sket.Core.Manager
 {
     public interface ISketAuthenticationManager<T>
     {

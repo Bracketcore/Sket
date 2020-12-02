@@ -1,6 +1,6 @@
-using UnoRoute.Sket.Core.Entity;
+using Sket.Core.Entity;
 
-namespace UnoRoute.Sket.Core.Repository
+namespace Sket.Core.Repository
 {
     //Todo work on the send email services
     public class SketEmailRepository<T> where T : SketEmailModel

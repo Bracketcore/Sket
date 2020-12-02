@@ -8,10 +8,10 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Repository.Interfaces;
+using Sket.Core.Entity;
+using Sket.Core.Repository.Interfaces;
 
-namespace UnoRoute.Sket.Core.Repository
+namespace Sket.Core.Repository
 {
     /// <summary>
     ///     Base Access token Repository

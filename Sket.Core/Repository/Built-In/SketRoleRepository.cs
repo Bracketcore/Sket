@@ -1,7 +1,7 @@
-﻿using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Repository.Interfaces;
+﻿using Sket.Core.Entity;
+using Sket.Core.Repository.Interfaces;
 
-namespace UnoRoute.Sket.Core.Repository
+namespace Sket.Core.Repository
 {
     /// <summary>
     ///     Base role repository

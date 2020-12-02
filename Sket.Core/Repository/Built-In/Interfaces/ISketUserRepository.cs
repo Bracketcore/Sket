@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Responses;
+using Sket.Core.Entity;
+using Sket.Core.Responses;
 
-namespace UnoRoute.Sket.Core.Repository.Interfaces
+namespace Sket.Core.Repository.Interfaces
 {
     public interface ISketUserRepository<T> : ISketBaseRepository<T>
     {

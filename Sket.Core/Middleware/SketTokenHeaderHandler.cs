@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UnoRoute.Sket.Core.Middleware
+namespace Sket.Core.Middleware
 {
     public class SketTokenHeaderHandler : DelegatingHandler
     {

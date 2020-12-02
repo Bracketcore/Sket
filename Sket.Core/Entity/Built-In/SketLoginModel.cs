@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UnoRoute.Sket.Core.Entity
+namespace Sket.Core.Entity
 {
     public class SketLoginModel
     {

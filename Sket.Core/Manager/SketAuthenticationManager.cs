@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Responses;
+using Sket.Core.Entity;
+using Sket.Core.Responses;
 
-namespace UnoRoute.Sket.Core.Manager
+namespace Sket.Core.Manager
 {
     /// <summary>
     ///     use this to create claims

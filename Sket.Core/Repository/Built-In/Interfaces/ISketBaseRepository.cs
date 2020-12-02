@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
-namespace UnoRoute.Sket.Core.Repository.Interfaces
+namespace Sket.Core.Repository.Interfaces
 {
     public interface ISketBaseRepository<T>
     {

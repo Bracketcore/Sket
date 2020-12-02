@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace UnoRoute.Sket.Core.Misc
+namespace Sket.Core.Misc
 {
     /// <summary>
     /// Auto generate JWT secret key

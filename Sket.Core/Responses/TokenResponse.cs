@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
 
-namespace UnoRoute.Sket.Core.Responses
+namespace Sket.Core.Responses
 {
     /// <summary>
     ///     Get token response data.

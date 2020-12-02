@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UnoRoute.Sket.Core.Responses
+namespace Sket.Core.Responses
 {
     /// <summary>
     /// Get Login data response.

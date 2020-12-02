@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnoRoute.Sket.Core.HttpClient;
-using UnoRoute.Sket.Core.Manager;
+using Sket.Core.Manager;
 
-namespace UnoRoute.Sket.Core.Init
+namespace Sket.Core.Init
 {
     public interface ISketSetting : IDisposable
     {

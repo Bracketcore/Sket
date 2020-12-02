@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Repository.Interfaces;
+using Sket.Core.Entity;
+using Sket.Core.Repository.Interfaces;
 
 
 //Todo add a rate limiter
-namespace UnoRoute.Sket.Core.Controllers
+namespace Sket.Core.Controllers
 {
     /// <summary>
     ///     Abstract Base Controller

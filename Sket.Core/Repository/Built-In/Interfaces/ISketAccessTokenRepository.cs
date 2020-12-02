@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using UnoRoute.Sket.Core.Entity;
+using Sket.Core.Entity;
 
-namespace UnoRoute.Sket.Core.Repository.Interfaces
+namespace Sket.Core.Repository.Interfaces
 {
     public interface ISketAccessTokenRepository<T>
     {

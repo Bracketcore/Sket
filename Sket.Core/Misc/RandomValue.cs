@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace UnoRoute.Sket.Core.Misc
+namespace Sket.Core.Misc
 {
     public static class RandomValue
     {

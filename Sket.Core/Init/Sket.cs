@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using MongoDB.Entities;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Repository;
+using Sket.Core.Entity;
+using Sket.Core.Repository;
 
-namespace UnoRoute.Sket.Core.Init
+namespace Sket.Core.Init
 {
     /// <summary>
     ///     This class setup the roles and context models.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UnoRoute.Sket.Core.Entity
+namespace Sket.Core.Entity
 {
     public class SketContextModel<T> : IDisposable
     {

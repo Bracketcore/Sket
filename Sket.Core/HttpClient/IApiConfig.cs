@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UnoRoute.Sket.Core.HttpClient
+namespace Sket.Core.HttpClient
 {
     public interface IApiConfig
     {

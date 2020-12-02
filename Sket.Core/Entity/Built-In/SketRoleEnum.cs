@@ -1,4 +1,4 @@
-﻿namespace UnoRoute.Sket.Core.Entity
+﻿namespace Sket.Core.Entity
 {
     public enum SketRoleEnum
     {

@@ -1,4 +1,4 @@
-namespace UnoRoute.Sket.Core.Entity
+namespace Sket.Core.Entity
 {
     /// <summary>
     /// Abstract model for the Email model

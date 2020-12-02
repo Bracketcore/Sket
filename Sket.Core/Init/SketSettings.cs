@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using UnoRoute.Sket.Core.HttpClient;
-using UnoRoute.Sket.Core.Manager;
+using Sket.Core.Manager;
 
-namespace UnoRoute.Sket.Core.Init
+namespace Sket.Core.Init
 {
     /// <summary>
     ///     Core setup class for Sket to work.
@@ -15,7 +14,7 @@ namespace UnoRoute.Sket.Core.Init
         /// <summary>
         ///     Set Database name
         /// </summary>
-        [Required(ErrorMessage = "Empty Database name")]
+        [Required]
         public string DatabaseName { get; set; }
 
         /// <summary>
@@ -37,14 +36,15 @@ namespace UnoRoute.Sket.Core.Init
 
         [Required(ErrorMessage = "Choose a datasource")]
         public string Datasource { get; set; }
-        [Required(ErrorMessage = "Enter DB Username")]
+       
        
         public string DBUsername { get; set; } 
-        [Required(ErrorMessage = "Enter DB Password")]
+    
         public string DBPassword { get; set; }
         [Required(ErrorMessage = "Port Number needed")]
         public int DBPort { get; set; }
 
+        public AppInfo AppInfo { get; set; }
         public bool EnableSwagger { get; set; } 
 
         /// <summary>

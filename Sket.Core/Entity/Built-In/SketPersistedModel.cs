@@ -2,7 +2,7 @@ using System;
 using System.Text.Json.Serialization;
 using MongoDB.Entities;
 
-namespace UnoRoute.Sket.Core.Entity
+namespace Sket.Core.Entity
 {
     /// <summary>
     ///     Abstract model for the Persisted model

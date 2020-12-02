@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
@@ -13,19 +10,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.SwaggerUI;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Init;
-using UnoRoute.Sket.Core.Manager;
-using UnoRoute.Sket.Core.Middleware;
-using UnoRoute.Sket.Core.Repository;
-using UnoRoute.Sket.Core.Repository.Interfaces;
+using Sket.Core.Entity;
+using Sket.Core.Init;
+using Sket.Core.Manager;
+using Sket.Core.Middleware;
+using Sket.Core.Repository;
+using Sket.Core.Repository.Interfaces;
 
-namespace UnoRoute.Sket.Core
+namespace Sket.Core
 {
     /// <summary>
     ///     This extension class is used for Dependency injections
@@ -46,7 +41,7 @@ namespace UnoRoute.Sket.Core
         {
             _settings = settings;
             Init.Sket.SketServices = services;
-     
+
             var sketFile = Path.Join(Environment.CurrentDirectory, "Sket.Config.json");
 
             switch (settings)
@@ -58,7 +53,7 @@ namespace UnoRoute.Sket.Core
                         settings = JsonConvert.DeserializeObject<SketSettings>(File.ReadAllText(sketFile));
                         Sket.Core.Init.Sket.Cfg.Settings = settings;
                         SetupDb();
-                      SketServices(services, settings);
+                        SketServices(services, settings);
                     }
                     else
                     {
@@ -73,7 +68,7 @@ namespace UnoRoute.Sket.Core
                     Sket.Core.Init.Sket.Cfg.Settings = settings;
                     SetupDb();
                     SketServices(services, settings);
-                    
+
                     break;
             }
 
@@ -97,7 +92,7 @@ namespace UnoRoute.Sket.Core
             }
 
             #endregion
-            
+
             return services;
         }
 
@@ -110,7 +105,9 @@ namespace UnoRoute.Sket.Core
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
 
-       
+            services.TryAddScoped(typeof(SketUserRepository<SketUserModel>));
+            services.TryAddScoped(typeof(SketAccessTokenRepository<SketAccessTokenModel>));
+
             services.Add(new ServiceDescriptor(typeof(SketConfig), Init.Sket.Init(settings)));
 
             services.AddBlazoredLocalStorage(config =>
@@ -124,27 +121,27 @@ namespace UnoRoute.Sket.Core
                         policy => policy.RequireRole(sketRoleEnum.ToString()));
             });
 
-            //Swagger section
-            services.AddSwaggerGen(c =>
-            {
-                c.UseOneOfForPolymorphism();
-                c.SelectDiscriminatorNameUsing(baseType => "TypeName");
-                c.SelectDiscriminatorValueUsing(subType => subType.Name);
-                // c.UseOneOfForPolymorphism();
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "API Explorer",
-                    Version = "v1"
-                });
-
-                c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
-                {
-                    BearerFormat = JwtBearerDefaults.AuthenticationScheme,
-                    In = ParameterLocation.Header,
-                    Scheme = JwtBearerDefaults.AuthenticationScheme,
-                    Type = SecuritySchemeType.ApiKey
-                });
-            });
+            // //Swagger section
+            // services.AddSwaggerGen(c =>
+            // {
+            //     c.UseOneOfForPolymorphism();
+            //     c.SelectDiscriminatorNameUsing(baseType => "TypeName");
+            //     c.SelectDiscriminatorValueUsing(subType => subType.Name);
+            //     // c.UseOneOfForPolymorphism();
+            //     c.SwaggerDoc("v1", new OpenApiInfo
+            //     {
+            //         Title = "API Explorer",
+            //         Version = "v1"
+            //     });
+            //
+            //     c.AddSecurityDefinition("Auth", new OpenApiSecurityScheme
+            //     {
+            //         BearerFormat = JwtBearerDefaults.AuthenticationScheme,
+            //         In = ParameterLocation.Header,
+            //         Scheme = JwtBearerDefaults.AuthenticationScheme,
+            //         Type = SecuritySchemeType.ApiKey
+            //     });
+            // });
 
 
             #region Middlewares Section
@@ -260,54 +257,54 @@ namespace UnoRoute.Sket.Core
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-            app.UseReDoc(c =>
-            {
-                c.RoutePrefix = "docs";
-                c.DocumentTitle = "My API Docs";
-                c.SpecUrl("/v1/swagger.json");
-                c.EnableUntrustedSpec();
-                c.ScrollYOffset(10);
-                c.HideHostname();
-                c.HideDownloadButton();
-                c.ExpandResponses("200,201");
-                c.RequiredPropsFirst();
-                c.NoAutoAuth();
-                c.PathInMiddlePanel();
-                c.HideLoading();
-                c.NativeScrollbars();
-                c.DisableSearch();
-                c.OnlyRequiredInSamples();
-                c.SortPropsAlphabetically();
-            });
-
-            if (_settings is not null)
-                app.UseSwagger(d =>
-                {
-                    d.RouteTemplate = "explorer/{documentName}/swagger.json";
-                    d.SerializeAsV2 = true;
-                });
-
-            if (_settings is not null)
-                app.UseSwaggerUI(c =>
-                {
-                    c.RoutePrefix = "explorer";
-                    c.DocumentTitle = "API Explorer";
-                    c.SwaggerEndpoint("/explorer/v1/swagger.json", "API Explorer");
-                    c.DocumentTitle = "Api Explorer";
-                    c.EnableValidator("localhost");
-                    c.EnableFilter();
-                    c.EnableDeepLinking();
-
-                    c.DocExpansion(DocExpansion.None);
-
-                    c.OAuthClientId("test-id");
-                    c.OAuthClientSecret("test-secret");
-                    c.OAuthRealm("test-realm");
-                    c.OAuthAppName("test-app");
-                    c.OAuthScopeSeparator(" ");
-                    c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> {{"foo", "bar"}});
-                    c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
-                });
+            // app.UseReDoc(c =>
+            // {
+            //     c.RoutePrefix = "docs";
+            //     c.DocumentTitle = "My API Docs";
+            //     c.SpecUrl("/v1/swagger.json");
+            //     c.EnableUntrustedSpec();
+            //     c.ScrollYOffset(10);
+            //     c.HideHostname();
+            //     c.HideDownloadButton();
+            //     c.ExpandResponses("200,201");
+            //     c.RequiredPropsFirst();
+            //     c.NoAutoAuth();
+            //     c.PathInMiddlePanel();
+            //     c.HideLoading();
+            //     c.NativeScrollbars();
+            //     c.DisableSearch();
+            //     c.OnlyRequiredInSamples();
+            //     c.SortPropsAlphabetically();
+            // });
+            //
+            // if (_settings is not null)
+            //     app.UseSwagger(d =>
+            //     {
+            //         d.RouteTemplate = "explorer/{documentName}/swagger.json";
+            //         d.SerializeAsV2 = true;
+            //     });
+            //
+            // if (_settings is not null)
+            //     app.UseSwaggerUI(c =>
+            //     {
+            //         c.RoutePrefix = "explorer";
+            //         c.DocumentTitle = "API Explorer";
+            //         c.SwaggerEndpoint("/explorer/v1/swagger.json", "API Explorer");
+            //         c.DocumentTitle = "Api Explorer";
+            //         c.EnableValidator("localhost");
+            //         c.EnableFilter();
+            //         c.EnableDeepLinking();
+            //
+            //         c.DocExpansion(DocExpansion.None);
+            //
+            //         c.OAuthClientId("test-id");
+            //         c.OAuthClientSecret("test-secret");
+            //         c.OAuthRealm("test-realm");
+            //         c.OAuthAppName("test-app");
+            //         c.OAuthScopeSeparator(" ");
+            //         c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> {{"foo", "bar"}});
+            //         c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+            //     });
             app.UseAuthentication();
 
             return app;

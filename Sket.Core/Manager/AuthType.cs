@@ -1,4 +1,4 @@
-﻿namespace UnoRoute.Sket.Core.Manager
+﻿namespace Sket.Core.Manager
 {
     public enum AuthType
     {

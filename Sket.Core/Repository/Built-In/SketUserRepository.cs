@@ -4,13 +4,13 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Manager;
-using UnoRoute.Sket.Core.Misc;
-using UnoRoute.Sket.Core.Repository.Interfaces;
-using UnoRoute.Sket.Core.Responses;
+using Sket.Core.Entity;
+using Sket.Core.Manager;
+using Sket.Core.Misc;
+using Sket.Core.Repository.Interfaces;
+using Sket.Core.Responses;
 
-namespace UnoRoute.Sket.Core.Repository
+namespace Sket.Core.Repository
 {
     /// <summary>
     ///     Base user repository

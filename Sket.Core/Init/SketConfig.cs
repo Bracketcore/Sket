@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnoRoute.Sket.Core.Entity;
+using Sket.Core.Entity;
 
-namespace UnoRoute.Sket.Core.Init
+namespace Sket.Core.Init
 {
     public class SketConfig : IDisposable
     {

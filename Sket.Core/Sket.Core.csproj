@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <AssemblyName>UnoRoute.Sket.Core</AssemblyName>
-        <RootNamespace>UnoRoute.Sket.Core</RootNamespace>
         <Title>Sket</Title>
         <Authors>UnoRoute</Authors>
         <PackageTags>API, UnoRoute</PackageTags>
         <Nullable>disable</Nullable>
-        <PackageId>UnoRoute.Sket.Core</PackageId>
+        <PackageId>Sket.Core</PackageId>
         <Product>Sket.Core</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>0.1.3-Beta</Version>
@@ -32,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="10.1.1" />
       <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
       <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />

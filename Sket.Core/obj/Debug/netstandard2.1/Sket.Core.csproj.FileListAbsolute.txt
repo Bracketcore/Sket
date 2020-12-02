@@ -7,12 +7,12 @@
 /Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/obj/Debug/netstandard2.1/Sket.Core.csproj.CoreCompileInputs.cache
 /Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/obj/Debug/netstandard2.1/UnoRoute.Sket.Core.dll
 /Users/ehigiepaul/RiderProjects/Sket.Core/Sket.Core/obj/Debug/netstandard2.1/UnoRoute.Sket.Core.pdb
-C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\UnoRoute.Sket.Core.deps.json
-C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\UnoRoute.Sket.Core.dll
-C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\UnoRoute.Sket.Core.pdb
 C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\Sket.Core.csprojAssemblyReference.cache
 C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\Sket.Core.AssemblyInfoInputs.cache
 C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\Sket.Core.AssemblyInfo.cs
 C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\Sket.Core.csproj.CoreCompileInputs.cache
-C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\UnoRoute.Sket.Core.dll
-C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\UnoRoute.Sket.Core.pdb
+C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\Sket.Core.deps.json
+C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\Sket.Core.dll
+C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\bin\Debug\netstandard2.1\Sket.Core.pdb
+C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\Sket.Core.dll
+C:\Users\ehigi\source\repos\UnoRoute\Sket.Core\Sket.Core\obj\Debug\netstandard2.1\Sket.Core.pdb

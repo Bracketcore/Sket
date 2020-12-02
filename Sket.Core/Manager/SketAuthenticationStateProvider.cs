@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using UnoRoute.Sket.Core.Entity;
-using UnoRoute.Sket.Core.Repository.Interfaces;
+using Sket.Core.Entity;
+using Sket.Core.Repository.Interfaces;
 
-namespace UnoRoute.Sket.Core.Manager
+namespace Sket.Core.Manager
 {
     /// <summary>
     ///     This is an abstract of the Authentication state provider.

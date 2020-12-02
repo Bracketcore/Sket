@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Entities;
 
-namespace UnoRoute.Sket.Core.Entity
+namespace Sket.Core.Entity
 {
     /// <summary>
     ///     Abstract model for the User model
@@ -20,7 +21,9 @@ namespace UnoRoute.Sket.Core.Entity
         }
 
         public string Username { get; set; }
+        [Required(ErrorMessage = "Password cant be empty")]
         public string Password { get; set; }
+        [Required]
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Realm { get; set; }

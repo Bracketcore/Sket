@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
-namespace UnoRoute.Sket.Core.StateManager
+namespace Sket.Core.StateManager
 {
     public abstract class SketAppState<T> : ComponentBase, IDisposable where T : ISketAppState
     {

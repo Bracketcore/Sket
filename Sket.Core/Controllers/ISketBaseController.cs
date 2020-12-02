@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace UnoRoute.Sket.Core.Controllers
+namespace Sket.Core.Controllers
 {
     public interface ISketBaseController<T>
     {

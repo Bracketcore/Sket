@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.3.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.3-Beta")]
 [assembly: System.Reflection.AssemblyProductAttribute("Sket.Core")]
-[assembly: System.Reflection.AssemblyTitleAttribute("UnoRoute.Sket.Core")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Sket.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.3.0")]
 [assembly: System.Reflection.AssemblyMetadataAttribute("RepositoryUrl", "https://github.com/unoroute/Sket.core")]
 

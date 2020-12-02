@@ -9,6 +9,7 @@ namespace Sket.Core.Init
     /// </summary>
     public class SketSettings : ISketSetting
     {
+        public SketAppInfo AppInfo { get; set; }
         public AuthType AuthType { get; set; } = AuthType.Jwt;
 
         /// <summary>
@@ -20,7 +21,7 @@ namespace Sket.Core.Init
         /// <summary>
         ///     Set JwtKey to setup your token creator
         /// </summary>
-        [Required (ErrorMessage = "Empty Jtwkey, Hit Generate" )]
+        [Required(ErrorMessage = "Empty Jtwkey, Hit Generate")]
         public string JwtKey { get; set; }
 
         /// <summary>
@@ -36,16 +37,16 @@ namespace Sket.Core.Init
 
         [Required(ErrorMessage = "Choose a datasource")]
         public string Datasource { get; set; }
-       
-       
-        public string DBUsername { get; set; } 
-    
+
+
+        public string DBUsername { get; set; }
+
         public string DBPassword { get; set; }
+
         [Required(ErrorMessage = "Port Number needed")]
         public int DBPort { get; set; }
 
-        public SketAppInfo SketAppInfo { get; set; }
-        public bool EnableSwagger { get; set; } 
+        public bool EnableSwagger { get; set; }
 
         /// <summary>
         ///     Set your MongoClientSettings

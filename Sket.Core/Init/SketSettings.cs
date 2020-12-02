@@ -44,7 +44,7 @@ namespace Sket.Core.Init
         [Required(ErrorMessage = "Port Number needed")]
         public int DBPort { get; set; }
 
-        public AppInfo AppInfo { get; set; }
+        public SketAppInfo SketAppInfo { get; set; }
         public bool EnableSwagger { get; set; } 
 
         /// <summary>

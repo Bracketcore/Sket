@@ -1,4 +1,4 @@
-name: .NET Core
+name: Publish NuGet
 
 on:
   check_run:
@@ -27,11 +27,11 @@ jobs:
     - name: Publish NuGet
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
-        PROJECT_FILE_PATH: 'Sket/Sket.csproj'
+        PROJECT_FILE_PATH: 'Sket.Core/Sket.Core.csproj'
         NUGET_KEY: ${{ secrets.NUGET }}
       
     - name: Start github package
       run: dotnet nuget add source https://nuget.pkg.github.com/Bracketcore/index.json -n github -u Bracketcore -p ${{secrets.GH_PACKAGE_PAUL}} --store-password-in-clear-text 
  
     - name: publish to github package
-      run: dotnet nuget push "Sket/bin/Release/*.nupkg" --source "github"
+      run: dotnet nuget push "Sket.core/bin/Release/*.nupkg" --source "github"

@@ -48,7 +48,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                throw;
+                return null;
             }
         }
 
@@ -84,7 +84,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -102,7 +102,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return 0;
             }
         }
 
@@ -121,7 +121,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -139,7 +139,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -163,7 +163,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -188,7 +188,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -214,7 +214,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -245,7 +245,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
@@ -289,7 +289,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 

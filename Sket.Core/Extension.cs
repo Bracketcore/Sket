@@ -106,9 +106,9 @@ namespace Sket.Core
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
-
-            services.TryAddScoped(typeof(SketUserRepository<SketUserModel>));
-            services.TryAddScoped(typeof(SketAccessTokenRepository<SketAccessTokenModel>));
+            //
+            // services.TryAddScoped(typeof(SketUserRepository<SketUserModel>));
+            // services.TryAddScoped(typeof(SketAccessTokenRepository<SketAccessTokenModel>));
 
             services.Add(new ServiceDescriptor(typeof(SketConfig), Init.Sket.Init(settings)));
 

@@ -58,7 +58,7 @@ namespace Sket.Core.Repository
                 {
                     Tk = tk,
                     Ttl = ttl,
-                    OwnerID = userModelInfo.ID
+                    OwnerId = userModelInfo.ID
                 });
             return tk;
         }
@@ -70,7 +70,7 @@ namespace Sket.Core.Repository
             {
                 Tk = token,
                 Ttl = ttl,
-                OwnerID = userId
+                OwnerId = userId
             };
 
             await DB.SaveAsync(access);
@@ -111,7 +111,7 @@ namespace Sket.Core.Repository
         /// <returns></returns>
         public virtual async Task<T> FindByUserId(string userId)
         {
-            var search = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.OwnerID.ID == userId);
+            var search = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.OwnerId.ID == userId);
             return search ?? null;
         }
 
@@ -122,7 +122,7 @@ namespace Sket.Core.Repository
         /// <returns></returns>
         public virtual async Task<string> DestroyByUserId(string userId)
         {
-            var tokenId = await DB.Queryable<T>().Where(i => i.OwnerID.ID == userId).ToListAsync();
+            var tokenId = await DB.Queryable<T>().Where(i => i.OwnerId.ID == userId).ToListAsync();
 
             if (tokenId.Count != 0)
             {

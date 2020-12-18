@@ -33,9 +33,7 @@ namespace Sket.Core.Init
                 GetModels();
                 GetRoles();
             }
-
-          
-
+            
             return Cfg;
         }
 

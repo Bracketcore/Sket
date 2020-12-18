@@ -9,7 +9,7 @@ namespace Sket.Core.Entity
     /// </summary>
     public abstract class SketPersistedModel : MongoDB.Entities.Entity, IDisposable, ICreatedOn, IModifiedOn
     {
-        [JsonIgnore] public One<SketUserModel> OwnerID { get; set; }
+        [JsonIgnore] public One<SketUserModel> OwnerId { get; set; }
 
         [JsonIgnore] public DateTime ModifiedOn { get; set; }
 

@@ -4,39 +4,29 @@ using Microsoft.AspNetCore.Components;
 
 namespace Sket.Core.StateManager
 {
-    public abstract class SketAppState<T> : ComponentBase, IDisposable where T : ISketAppState
+    public abstract class SketAppState<T> : ComponentBase where T : ISketAppState
     {
         [Inject] public T AppState { get; set; }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
+    
         public event Action<ComponentBase> StateChanged;
 
-        protected void NotifyStateChanged(ComponentBase Source)
+        protected void NotifyStateChanged(ComponentBase source)
         {
-            StateChanged?.Invoke(Source);
+            StateChanged?.Invoke(source);
         }
 
-        private async Task AppState_StateChanged(ComponentBase Source)
+        private async Task AppState_StateChanged(ComponentBase source)
         {
-            if (Source != this) await InvokeAsync(StateHasChanged);
+            if (source != this) await InvokeAsync(StateHasChanged);
         }
 
         protected override void OnInitialized()
         {
-            AppState.StateChanged += async Source => await AppState_StateChanged(Source);
+            AppState.StateChanged += async source => await AppState_StateChanged(source);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-        }
+       
     }
 
     public interface ISketAppState

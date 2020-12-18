@@ -90,11 +90,11 @@ namespace Sket.Core.Controllers
 
                 if (access.Ttl.Ticks < DateTime.Now.Ticks)
                 {
-                    await _accessTokenRepository.DestroyByUserId(access.OwnerID.ID);
+                    await _accessTokenRepository.DestroyByUserId(access.OwnerId.ID);
                     return NotFound();
                 }
 
-                var user = await _repo.FindById(access.OwnerID.ID);
+                var user = await _repo.FindById(access.OwnerId.ID);
 
                 if (user is null) return NotFound();
 
@@ -121,7 +121,7 @@ namespace Sket.Core.Controllers
 
             if (access is null) return NotFound();
 
-            await _accessTokenRepository.DestroyByUserId(access.OwnerID.ID);
+            await _accessTokenRepository.DestroyByUserId(access.OwnerId.ID);
 
             // await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LogOutUser(HttpContext);
 

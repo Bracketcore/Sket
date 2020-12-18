@@ -39,31 +39,31 @@ namespace Sket.Core.Manager
         /// <summary>
         ///     Return created token
         /// </summary>
-        /// <param name="Cred"></param>
+        /// <param name="cred"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public virtual async Task<TokenResponse> Authenticate(SketLoginModel Cred)
+        public virtual async Task<TokenResponse> Authenticate(SketLoginModel cred)
         {
             try
             {
                 T user;
 
-                user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == Cred.Username);
+                user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Username == cred.Username);
 
                 if (user is null)
                 {
-                    user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == Cred.Email);
+                    user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Email == cred.Email);
 
                     if (user is null)
                     {
-                        user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Phone == Cred.Phone);
+                        user = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.Phone == cred.Phone);
 
                         if (user is null) throw new Exception("Invalid Credentials");
                     }
                 }
 
 
-                var verify = isPasswordOk(Cred.Password, user.Password);
+                var verify = isPasswordOk(cred.Password, user.Password);
 
                 if (!verify) throw new Exception("Invalid Password");
                 ;
@@ -80,7 +80,7 @@ namespace Sket.Core.Manager
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 

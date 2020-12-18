@@ -35,29 +35,29 @@ namespace Sket.Core.Manager
 
         public CancellationToken CancellationToken { get; set; }
 
-        public async Task LoginUser(string Token, HttpContext httpContext)
+        public async Task LoginUser(string token, HttpContext httpContext)
         {
             try
             {
                 var u = new ClaimsPrincipal();
 
-                var GetToken = await _accessToken.FindByToken(Token);
+                var getToken = await _accessToken.FindByToken(token);
 
-                var LoggedUser = await _userRepository.FindById(GetToken.OwnerID.ID);
+                var loggedUser = await _userRepository.FindById(getToken.OwnerId.ID);
 
-                LoggedUser.Password = string.Empty;
+                loggedUser.Password = string.Empty;
 
-                var verifyUser = JsonConvert.SerializeObject(LoggedUser);
+                var verifyUser = JsonConvert.SerializeObject(loggedUser);
 
-                var RoleValue = string.Join(",", LoggedUser.Role);
+                var roleValue = string.Join(",", loggedUser.Role);
 
                 var identity = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Email, LoggedUser.Email),
-                    new Claim(ClaimTypes.NameIdentifier, LoggedUser.ID),
+                    new Claim(ClaimTypes.Email, loggedUser.Email),
+                    new Claim(ClaimTypes.NameIdentifier, loggedUser.ID),
                     new Claim("Profile", verifyUser),
-                    new Claim("Token", Token),
-                    new Claim(ClaimTypes.Role, RoleValue)
+                    new Claim("Token", token),
+                    new Claim(ClaimTypes.Role, roleValue)
                 }, Init.Sket.Cfg.Settings.AuthType.ToString());
 
                 var user = new ClaimsPrincipal(identity);
@@ -106,14 +106,21 @@ namespace Sket.Core.Manager
                 if (getToken == null) return await Task.FromResult(new AuthenticationState(user));
 
                 var tokenExist = await _accessToken.FindByToken(getToken);
+                
+                if (DateTime.Now.Ticks > tokenExist.Ttl.Ticks)
+                {
+                    _localstorage.ClearAsync();
+                    await _accessToken.DestroyByUserId(tokenExist.ID);
+                    return await Task.FromResult(new AuthenticationState(user));
+                }
 
-                if (tokenExist is null) return await Task.FromResult(new AuthenticationState(user));
+                var getUser = await _userRepository.FindById(tokenExist.OwnerId.ID);
 
-                var getUser = await _userRepository.FindById(tokenExist.OwnerID.ID);
-
+                if (getUser is null) return await Task.FromResult(new AuthenticationState(user));
+                
                 getUser.Password = string.Empty;
 
-                var RoleValue = string.Join(",", getUser.Role);
+                var roleValue = string.Join(",", getUser.Role);
 
                 var identity = new ClaimsIdentity(new[]
                 {
@@ -121,7 +128,7 @@ namespace Sket.Core.Manager
                     new Claim(ClaimTypes.Email, getUser.Email),
                     new Claim(ClaimTypes.NameIdentifier, getUser.ID),
                     new Claim("Token", getToken),
-                    new Claim(ClaimTypes.Role, RoleValue)
+                    new Claim(ClaimTypes.Role, roleValue)
                 }, "SketAuth");
 
                 user = new ClaimsPrincipal(identity);
@@ -131,28 +138,15 @@ namespace Sket.Core.Manager
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                return null;
             }
         }
 
-        public async Task LoginUser(string Token)
+        public async Task LoginUser(string token)
         {
-            await LoginUser(Token, null);
+            await LoginUser(token, null);
         }
 
-        // protected virtual void Dispose(bool disposing)
-        // {
-        //     if (disposing)
-        //     {
-        //         _accessToken?.Dispose();
-        //     }
-        // }
-        //
-        // public void Dispose()
-        // {
-        //     Dispose(true);
-        //     GC.SuppressFinalize(this);
-        // }
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)

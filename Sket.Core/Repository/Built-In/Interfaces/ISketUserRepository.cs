@@ -12,7 +12,7 @@ namespace Sket.Core.Repository.Interfaces
         Task<bool> LogOut(T user);
         Task<string> Confirm(string email, string userId, string token);
         void Reset();
-        void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken);
+        Task<bool> ChangePassword(string userId, string oldPassword, string newPassword, string resetToken);
         Task<T> FindByUsername(string username);
     }
 }

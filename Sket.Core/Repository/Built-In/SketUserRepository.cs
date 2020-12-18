@@ -61,7 +61,7 @@ namespace Sket.Core.Repository
 
                     await DB.SaveAsync(before);
 
-                    before.OwnerID = before.ID;
+                    before.OwnerId = before.ID;
                     await before.SaveAsync();
 
                     await AfterCreate(before);
@@ -235,14 +235,51 @@ namespace Sket.Core.Repository
         /// <summary>
         ///     Reset user password with the sent token.
         /// </summary>
-        /// <param name="newPassword">Users new password</param>
-        /// <param name="resetToken"></param>
         /// <param name="userId">User ID</param>
         /// <param name="oldPassword">Users old password</param>
+        /// <param name="newPassword">Users new password</param>
+        /// <param name="resetToken"></param>
         /// <returns></returns>
-        public virtual void ChangePassword(string userId, string oldPassword, string newPassword, string resetToken)
+        public virtual async Task<bool> ChangePassword(string userId, string oldPassword, string newPassword,
+            string resetToken)
+        {
+
+            try
+            {
+                var user = await FindById(userId);
+                var verifyPassword= _sketAuthenticationManager.isPasswordOk(oldPassword, user.Password);
+
+                if (!verifyPassword) return verifyPassword;
+                
+                user.Password = _sketAuthenticationManager.HashPassword(newPassword);
+                
+                switch (resetToken)
+                {
+                    case null:
+                       await Update(userId, user);
+                       break;
+
+                    default:
+                        if (user.VerificationToken.Equals(resetToken))
+                            await Update(userId, user);
+                        else
+                            return false;
+                        break;
+                }
+
+                return verifyPassword;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        public virtual async Task ChangePassword(string userId, string oldPassword, string newPassword)
         {
             //Todo: verify the reset token and give user a form to change password
+            await ChangePassword(userId, oldPassword, newPassword, null);
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -125,6 +126,20 @@ namespace Sket.Core.Repository
             }
         }
 
+        public virtual async Task<List<T>> Find(Expression<Func<T, bool>> filterExpression)
+        {
+            try
+            {
+
+                var result = await DB.Collection<T>().FindAsync(filterExpression);
+                return await result.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
         /// <summary>
         ///     Get model data by id
         /// </summary>

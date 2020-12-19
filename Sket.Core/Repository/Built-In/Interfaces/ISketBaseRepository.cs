@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
@@ -12,6 +14,7 @@ namespace Sket.Core.Repository.Interfaces
         Task<string> CreateBulk(IEnumerable<T> fix);
         Task<int> Count();
         Task<List<T>> FindAll();
+        Task<List<T>> Find(Expression<Func<T, bool>> filterExpression);
         Task<T> FindById(string id);
         Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter);
         Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort);

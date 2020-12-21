@@ -16,7 +16,7 @@
         <RepositoryUrl>https://github.com/unoroute/Sket.core</RepositoryUrl>
         <LangVersion>9</LangVersion>
         <Company>UnoRoute</Company>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
     </PropertyGroup>
 
 

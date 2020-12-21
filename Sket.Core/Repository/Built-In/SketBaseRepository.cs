@@ -130,7 +130,6 @@ namespace Sket.Core.Repository
         {
             try
             {
-
                 var result = await DB.Collection<T>().FindAsync(filterExpression);
                 return await result.ToListAsync();
             }
@@ -140,6 +139,22 @@ namespace Sket.Core.Repository
                 return null;
             }
         }
+
+        public virtual async Task<T> FindOne(Expression<Func<T, bool>> filterExpression)
+        {
+            try
+            {
+                var result = await DB.Collection<T>().FindAsync(filterExpression);
+                var l = await result.ToListAsync();
+                return l[0] ?? null;
+            }
+            catch (Exception e)
+            {
+                // Console.WriteLine(e);
+                return null;
+            }
+        }
+
         /// <summary>
         ///     Get model data by id
         /// </summary>
@@ -284,6 +299,21 @@ namespace Sket.Core.Repository
             try
             {
                 var exist = await DB.Queryable<T>().FirstOrDefaultAsync(i => i.ID == id);
+
+                return exist != null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+        }
+
+        public virtual async Task<bool> Exist(Expression<Func<T, bool>> filterExpression)
+        {
+            try
+            {
+                var exist = await DB.Queryable<T>().FirstOrDefaultAsync(filterExpression);
 
                 return exist != null;
             }

@@ -15,6 +15,7 @@ namespace Sket.Core.Repository.Interfaces
         Task<int> Count();
         Task<List<T>> FindAll();
         Task<List<T>> Find(Expression<Func<T, bool>> filterExpression);
+        Task<T> FindOne(Expression<Func<T, bool>> filterExpression);
         Task<T> FindById(string id);
         Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter);
         Task<IEnumerable<T>> FindByFilter(FilterDefinition<T> filter, SortDefinition<T> sort);
@@ -27,5 +28,6 @@ namespace Sket.Core.Repository.Interfaces
         Task<string> DestroyById(string id);
         Task<string> AfterDestroyById(string id);
         Task<bool> Exist(string id);
+        Task<bool> Exist(Expression<Func<T, bool>> filterExpression);
     }
 }

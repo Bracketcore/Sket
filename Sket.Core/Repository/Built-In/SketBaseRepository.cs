@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
@@ -130,8 +131,9 @@ namespace Sket.Core.Repository
         {
             try
             {
-                var result = await DB.Collection<T>().FindAsync(filterExpression);
-                return await result.ToListAsync();
+                return await DB.Queryable<T>()
+                    .Where(filterExpression)
+                    .ToListAsync();
             }
             catch (Exception e)
             {
@@ -144,9 +146,7 @@ namespace Sket.Core.Repository
         {
             try
             {
-                var result = await DB.Collection<T>().FindAsync(filterExpression);
-                var l = await result.ToListAsync();
-                return l[0] ?? null;
+                return await DB.Queryable<T>().FirstOrDefaultAsync(filterExpression);
             }
             catch (Exception e)
             {

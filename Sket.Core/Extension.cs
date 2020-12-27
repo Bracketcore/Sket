@@ -106,10 +106,7 @@ namespace Sket.Core
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
-            //
-            // services.TryAddScoped(typeof(SketUserRepository<SketUserModel>));
-            // services.TryAddScoped(typeof(SketAccessTokenRepository<SketAccessTokenModel>));
-
+            
             services.Add(new ServiceDescriptor(typeof(SketConfig), Init.Sket.Init(settings)));
 
             services.AddBlazoredLocalStorage(config =>
@@ -122,6 +119,9 @@ namespace Sket.Core
                     option.AddPolicy(sketRoleEnum.ToString(),
                         policy => policy.RequireRole(sketRoleEnum.ToString()));
             });
+            
+            
+            Sket.Core.Init.Sket.SketAppAuthenticator(services);
 
             //Swagger section
             services.AddSwaggerGen(c =>

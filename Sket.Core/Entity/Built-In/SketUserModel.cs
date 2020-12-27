@@ -8,7 +8,7 @@ namespace Sket.Core.Entity
     ///     Abstract model for the User model
     /// </summary>
     [Name("Users")]
-    public class SketUserModel : SketPersistedModel
+    public  class SketUserModel : SketPersistedModel
     {
         public SketUserModel()
         {

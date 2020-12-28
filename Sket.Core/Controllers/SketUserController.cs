@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sket.Core.Entity;
+using Sket.Core.Manager;
 using Sket.Core.Repository.Interfaces;
 
 namespace Sket.Core.Controllers
@@ -17,6 +18,7 @@ namespace Sket.Core.Controllers
     {
         private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessTokenRepository;
         private readonly ISketUserRepository<T> _repo;
+        public AuthenticationStateProvider _authenticationStateProvider { get; set; }
 
         protected SketUserController(ISketUserRepository<T> repo,
             AuthenticationStateProvider AuthenticationStateProvider,
@@ -27,7 +29,6 @@ namespace Sket.Core.Controllers
             _authenticationStateProvider = AuthenticationStateProvider;
         }
 
-        public AuthenticationStateProvider _authenticationStateProvider { get; set; }
 
         /// <summary>
         ///     Login user
@@ -54,8 +55,7 @@ namespace Sket.Core.Controllers
 
                 // todo auth schema check
                 // await HttpContext.SignInAsync(verify.ClaimsPrincipal);
-                // await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LoginUser(User, verify.Tk,
-                //     HttpContext);
+                await ((SketAuthenticationStateProvider<T>) _authenticationStateProvider).LoginUser(verify.Tk);
                 return Ok(verify);
             }
             catch (Exception e)

@@ -8,6 +8,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
@@ -97,6 +98,12 @@ namespace Sket.Core
             return services;
         }
 
+        public static IServiceCollection AddSket(this IServiceCollection services)
+        {
+            AddSket(services, null);
+            return services;
+        }
+
         private static void SketServices(IServiceCollection services, SketSettings settings)
         {
             services.AddMvc();
@@ -106,7 +113,8 @@ namespace Sket.Core
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
-            
+            services.TryAddScoped(typeof(ISketAuthenticationStateProvider<>), typeof(SketAuthenticationStateProvider<>));
+
             services.Add(new ServiceDescriptor(typeof(SketConfig), Init.Sket.Init(settings)));
 
             services.AddBlazoredLocalStorage(config =>
@@ -119,8 +127,8 @@ namespace Sket.Core
                     option.AddPolicy(sketRoleEnum.ToString(),
                         policy => policy.RequireRole(sketRoleEnum.ToString()));
             });
-            
-            
+
+
             Sket.Core.Init.Sket.SketAppAuthenticator(services);
 
             //Swagger section
@@ -245,11 +253,6 @@ namespace Sket.Core
             #endregion
         }
 
-        public static IServiceCollection AddSket(this IServiceCollection services)
-        {
-            AddSket(services, null);
-            return services;
-        }
 
         /// <summary>
         ///     Initial setup for Sket middleware
@@ -313,6 +316,7 @@ namespace Sket.Core
 
                 app.UseAuthentication();
             }
+
 
             return app;
         }

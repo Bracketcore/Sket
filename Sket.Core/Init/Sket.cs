@@ -78,13 +78,12 @@ namespace Sket.Core.Init
         }
 
         public static void SketStaticFileDirectory(this IApplicationBuilder app, string resourcePath,
-            string reqPath = "")
+            string reqPath = null)
         {
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new PhysicalFileProvider(Path.Combine(Environment.CurrentDirectory, resourcePath)),
-                RequestPath = $"/{reqPath}"
-            });
+                RequestPath = reqPath == null ? $"/{resourcePath}": reqPath});
             
         }
 

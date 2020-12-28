@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Sket.Core.Entity;
@@ -28,7 +30,6 @@ namespace Sket.Core.Repository
         }
 
         public ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
-
 
         /// <summary>
         ///  Create user
@@ -111,7 +112,7 @@ namespace Sket.Core.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                throw;
+                return null;
             }
         }
 

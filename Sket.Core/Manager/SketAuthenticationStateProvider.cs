@@ -17,13 +17,14 @@ namespace Sket.Core.Manager
     ///     used for blazor based application
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SketAuthenticationStateProvider<T> : AuthenticationStateProvider,
+    public class SketAuthenticationStateProvider<T> : AuthenticationStateProvider,
         ISketAuthenticationStateProvider<T>
         where T : SketUserModel
     {
         private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessToken;
         private readonly ILocalStorageService _localstorage;
         private readonly ISketUserRepository<T> _userRepository;
+        private IHttpContextAccessor _HttpContext;
 
         public SketAuthenticationStateProvider(ILocalStorageService localstorage,
             ISketAccessTokenRepository<SketAccessTokenModel> accessToken, ISketUserRepository<T> userRepository)
@@ -31,11 +32,12 @@ namespace Sket.Core.Manager
             _localstorage = localstorage;
             _accessToken = accessToken;
             _userRepository = userRepository;
+            
         }
 
         public CancellationToken CancellationToken { get; set; }
 
-        public async Task LoginUser(string token, HttpContext httpContext)
+        public async Task LoginUser(string token)
         {
             try
             {
@@ -62,8 +64,9 @@ namespace Sket.Core.Manager
 
                 var user = new ClaimsPrincipal(identity);
 
-                if (httpContext != null)
-                    await httpContext.SignInAsync(Init.Sket.Cfg.Settings.AuthType.ToString(), user);
+                // todo work on security here
+                // if(_HttpContext.HttpContext is not null)
+                //     await _HttpContext.HttpContext.SignInAsync(Init.Sket.Cfg.Settings.AuthType.ToString(), user);
 
 
                 NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
@@ -75,9 +78,9 @@ namespace Sket.Core.Manager
             }
         }
 
-        public async Task LogOutUser(HttpContext httpContext)
+        public async Task LogOutUser()
         {
-            await httpContext.SignOutAsync(Init.Sket.Cfg.Settings.AuthType.ToString(),
+            await _HttpContext.HttpContext.SignOutAsync(Init.Sket.Cfg.Settings.AuthType.ToString(),
                 new AuthenticationProperties
                 {
                     AllowRefresh = true,
@@ -110,7 +113,7 @@ namespace Sket.Core.Manager
                 if (DateTime.Now.Ticks > tokenExist.Ttl.Ticks)
                 {
                     _localstorage.ClearAsync();
-                    await _accessToken.DestroyByUserId(tokenExist.ID);
+                   await _accessToken.DestroyByUserId(tokenExist.ID);
                     return await Task.FromResult(new AuthenticationState(user));
                 }
 
@@ -138,14 +141,12 @@ namespace Sket.Core.Manager
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return null;
+                _localstorage.ClearAsync();
+                return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));
             }
         }
 
-        public async Task LoginUser(string token)
-        {
-            await LoginUser(token, null);
-        }
+     
 
         protected virtual void Dispose(bool disposing)
         {

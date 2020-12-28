@@ -7,7 +7,7 @@ namespace Sket.Core.Manager
 {
     public interface ISketAuthenticationStateProvider<T> : IDisposable where T : SketUserModel
     {
-        public Task LogOutUser(HttpContext httpContext);
-        Task LoginUser(string Token, HttpContext httpContext);
+        public Task LogOutUser();
+        Task LoginUser(string Token);
     }
 }

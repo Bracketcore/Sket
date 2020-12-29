@@ -20,6 +20,8 @@ namespace Sket.Core.Entity
                 .CreateAsync();
         }
 
+        public string FullName => $"{FirstName} {LastName}";
+
         public string Username { get; set; }
 
         [Required(ErrorMessage = "Password cant be empty")]

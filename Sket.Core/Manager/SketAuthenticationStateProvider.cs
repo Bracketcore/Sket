@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 
 namespace Sket.Core.Manager

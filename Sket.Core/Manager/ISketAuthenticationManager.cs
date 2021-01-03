@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 using Sket.Core.Responses;
 
 namespace Sket.Core.Manager

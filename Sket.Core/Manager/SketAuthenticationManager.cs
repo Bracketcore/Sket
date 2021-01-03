@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 using Sket.Core.Responses;
 
 namespace Sket.Core.Manager

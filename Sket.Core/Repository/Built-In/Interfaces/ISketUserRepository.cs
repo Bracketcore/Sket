@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 using Sket.Core.Responses;
 
 namespace Sket.Core.Repository.Interfaces

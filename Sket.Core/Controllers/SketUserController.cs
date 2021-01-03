@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Sket.Core.Entity;
 using Sket.Core.Manager;
+using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 
 namespace Sket.Core.Controllers

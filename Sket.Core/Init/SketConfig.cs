@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 
 namespace Sket.Core.Init
 {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 
 namespace Sket.Core.Repository
@@ -15,7 +15,7 @@ namespace Sket.Core.Repository
     ///     Based Repository
     /// </summary>
     /// <typeparam name="T">Repository Model</typeparam>
-    public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : SketPersistedModel
+    public class SketBaseRepository<T> : ISketBaseRepository<T>, IDisposable where T : Entity
     {
         public void Dispose()
         {
@@ -184,7 +184,6 @@ namespace Sket.Core.Repository
             try
             {
                 doc.ID = id;
-                doc.ModifiedOn = DateTime.UtcNow;
                 var filter = Builders<T>.Filter.Eq(i => i.ID, id);
                 await DB.Collection<T>().FindOneAndUpdateAsync(filter, new ObjectUpdateDefinition<T>(doc));
 

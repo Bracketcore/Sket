@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Sket.Core.Entity;
+using MongoDB.Entities;
+using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 
 
@@ -19,7 +20,7 @@ namespace Sket.Core.Controllers
     [ApiController]
     [Route("api/[Controller]")]
     public abstract class SketBaseController<T, TC> : ControllerBase, ISketBaseController<T>, IDisposable
-        where T : SketPersistedModel
+        where T : IEntity
         where TC : ISketBaseRepository<T>
     {
         // public virtual H Hub { get; set; }

@@ -1,4 +1,4 @@
-﻿using Sket.Core.Entity;
+﻿using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 
 namespace Sket.Core.Repository

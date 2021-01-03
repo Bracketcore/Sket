@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Sket.Core.Entity;
+using Sket.Core.Models;
 
 namespace Sket.Core.Controllers
 {

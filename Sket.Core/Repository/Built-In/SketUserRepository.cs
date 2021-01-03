@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using Sket.Core.Entity;
 using Sket.Core.Manager;
 using Sket.Core.Misc;
+using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 using Sket.Core.Responses;
 

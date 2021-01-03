@@ -8,7 +8,7 @@ namespace Sket.Core.StateManager
     public abstract class SketAppState<T> : ComponentBase where T : ISketAppState
     {
         [Inject] public T AppState { get; set; }
-        [Inject] private NetworkDetector NetworkDetector { get; set; }
+        [Inject] public NetworkDetector NetworkDetector { get; set; }
     
         public event Action<ComponentBase> StateChanged;
 

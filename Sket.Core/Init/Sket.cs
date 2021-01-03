@@ -3,8 +3,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using MongoDB.Entities;
@@ -19,7 +17,7 @@ namespace Sket.Core.Init
     /// </summary>
     public static class Sket
     {
-        public static SketConfig Cfg { get; set; } = new SketConfig();
+        public static SketConfig Cfg { get; set; } = new();
 
         public static IServiceCollection SketServices { get; set; }
 
@@ -80,16 +78,16 @@ namespace Sket.Core.Init
         public static void SketStaticFileDirectory(this IApplicationBuilder app, string resourcePath,
             string reqPath = null)
         {
-            app.UseStaticFiles(new StaticFileOptions()
+            app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(Path.Combine(Environment.CurrentDirectory, resourcePath)),
-                RequestPath = reqPath == null ? $"/{resourcePath}": reqPath});
-            
+                RequestPath = reqPath == null ? $"/{resourcePath}" : reqPath
+            });
         }
 
-   
+
         /// <summary>
-        /// This static method adds authentication state provider to the every SketUserModel inheritance
+        ///     This static method adds authentication state provider to the every SketUserModel inheritance
         /// </summary>
         /// <param name="services"></param>
         public static void SketAppAuthenticator(this IServiceCollection services)
@@ -99,15 +97,13 @@ namespace Sket.Core.Init
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p)).ToList();
 
-            for (int i = 0; i < types.Count(); i++)
-            {
+            for (var i = 0; i < types.Count(); i++)
                 if (!types[i].FullName.Contains("Sket.Core.Models.SketUserModel"))
                 {
                     var t = typeof(SketAuthenticationStateProvider<>).MakeGenericType(types[i]);
 
                     services.AddScoped(typeof(AuthenticationStateProvider), t);
                 }
-            }
         }
 
         //todo WIP
@@ -118,15 +114,13 @@ namespace Sket.Core.Init
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p)).ToList();
 
-            for (int i = 0; i < types.Count(); i++)
-            {
+            for (var i = 0; i < types.Count(); i++)
                 if (!types[i].FullName.Contains("Sket.Core.Models.SketPersistedModel"))
                 {
                     var t = typeof(SketBaseRepository<>).MakeGenericType(types[i]);
 
                     services.AddScoped(t);
                 }
-            }
         }
     }
 }

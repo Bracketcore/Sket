@@ -6,7 +6,7 @@ namespace Sket.Core.Repository
     public class SketEmailRepository<T> where T : SketEmailModel
     {
         /// <summary>
-        /// send message 
+        ///     send message
         /// </summary>
         /// <returns></returns>
         public bool TokenSend()

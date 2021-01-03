@@ -8,7 +8,6 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
@@ -53,21 +52,21 @@ namespace Sket.Core
                     if (File.Exists(sketFile))
                     {
                         settings = JsonConvert.DeserializeObject<SketSettings>(File.ReadAllText(sketFile));
-                        Sket.Core.Init.Sket.Cfg.Settings = settings;
+                        Init.Sket.Cfg.Settings = settings;
                         SetupDb();
                         SketServices(services, settings);
                     }
                     else
                     {
                         // goto setup page
-                        Sket.Core.Init.Sket.Cfg.Settings = null;
+                        Init.Sket.Cfg.Settings = null;
                     }
 
                     break;
                 }
                 default:
                     DefaultCheck();
-                    Sket.Core.Init.Sket.Cfg.Settings = settings;
+                    Init.Sket.Cfg.Settings = settings;
                     SetupDb();
                     SketServices(services, settings);
 
@@ -110,13 +109,14 @@ namespace Sket.Core
             services.AddMvc();
             services.AddHttpClient();
             services.AddHttpContextAccessor();
-            services.TryAddScoped<NetworkDetector>();
+            services.AddScoped<NetworkDetector>();
             services.TryAddScoped<ILocalStorageService, LocalStorageService>();
             services.TryAddScoped(typeof(ISketAccessTokenRepository<>), typeof(SketAccessTokenRepository<>));
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));
             services.TryAddScoped(typeof(ISketAuthenticationManager<>), typeof(SketAuthenticationManager<>));
-            services.TryAddScoped(typeof(ISketAuthenticationStateProvider<>), typeof(SketAuthenticationStateProvider<>));
+            services.TryAddScoped(typeof(ISketAuthenticationStateProvider<>),
+                typeof(SketAuthenticationStateProvider<>));
 
             services.Add(new ServiceDescriptor(typeof(SketConfig), Init.Sket.Init(settings)));
 
@@ -132,7 +132,7 @@ namespace Sket.Core
             });
 
 
-            Sket.Core.Init.Sket.SketAppAuthenticator(services);
+            services.SketAppAuthenticator();
 
             //Swagger section
             services.AddSwaggerGen(c =>
@@ -264,9 +264,9 @@ namespace Sket.Core
         /// <returns></returns>
         public static IApplicationBuilder UseSket(this IApplicationBuilder app)
         {
-            if (Sket.Core.Init.Sket.Cfg.Settings is not null)
+            if (Init.Sket.Cfg.Settings is not null)
             {
-                switch (Sket.Core.Init.Sket.Cfg.Settings.EnableSwagger)
+                switch (Init.Sket.Cfg.Settings.EnableSwagger)
                 {
                     case true:
                         app.UseReDoc(c =>
@@ -312,8 +312,6 @@ namespace Sket.Core
                             c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> {{"foo", "bar"}});
                             c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                         });
-                        break;
-                    default:
                         break;
                 }
 

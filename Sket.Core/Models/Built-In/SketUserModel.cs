@@ -10,13 +10,8 @@ namespace Sket.Core.Models
     ///     Abstract model for the User model
     /// </summary>
     [Name("Users")]
-    public class SketUserModel :Entity, IDisposable, ICreatedOn, IModifiedOn
+    public class SketUserModel : Entity, IDisposable, ICreatedOn, IModifiedOn
     {
-        [JsonIgnore] public One<SketUserModel> OwnerId { get; set; }
-
-        [JsonIgnore] public DateTime ModifiedOn { get; set; }
-
-        [JsonIgnore] public DateTime CreatedOn { get; set; }
         public SketUserModel()
         {
             DB.Index<SketUserModel>()
@@ -26,6 +21,8 @@ namespace Sket.Core.Models
                 .Option(o => o.Unique = true)
                 .CreateAsync();
         }
+
+        [JsonIgnore] public One<SketUserModel> OwnerId { get; set; }
 
         public string FullName => $"{FirstName} {LastName}";
 
@@ -48,8 +45,12 @@ namespace Sket.Core.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
+        [JsonIgnore] public DateTime CreatedOn { get; set; }
+
         public void Dispose()
         {
         }
+
+        [JsonIgnore] public DateTime ModifiedOn { get; set; }
     }
 }

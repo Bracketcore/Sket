@@ -4,17 +4,23 @@ using System.Security.Cryptography;
 namespace Sket.Core.Misc
 {
     /// <summary>
-    /// Auto generate JWT secret key
+    ///     Auto generate JWT secret key
     /// </summary>
     public class JwtSecretKeyGenerator : IDisposable
     {
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
-        /// Create auto jwt secret keys
+        ///     Create auto jwt secret keys
         /// </summary>
         /// <returns></returns>
         public static string Create()
         {
-            HMACSHA256 hmac = new HMACSHA256();
+            var hmac = new HMACSHA256();
             return Convert.ToBase64String(hmac.Key);
         }
 
@@ -23,12 +29,6 @@ namespace Sket.Core.Misc
             if (disposing)
             {
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

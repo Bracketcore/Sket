@@ -32,7 +32,6 @@ namespace Sket.Core.Manager
             _localstorage = localstorage;
             _accessToken = accessToken;
             _userRepository = userRepository;
-            
         }
 
         public CancellationToken CancellationToken { get; set; }
@@ -109,18 +108,18 @@ namespace Sket.Core.Manager
                 if (getToken == null) return await Task.FromResult(new AuthenticationState(user));
 
                 var tokenExist = await _accessToken.FindByToken(getToken);
-                
+
                 if (DateTime.Now.Ticks > tokenExist.Ttl.Ticks)
                 {
                     _localstorage.ClearAsync();
-                   await _accessToken.DestroyByUserId(tokenExist.ID);
+                    await _accessToken.DestroyByUserId(tokenExist.ID);
                     return await Task.FromResult(new AuthenticationState(user));
                 }
 
                 var getUser = await _userRepository.FindById(tokenExist.OwnerId.ID);
 
                 if (getUser is null) return await Task.FromResult(new AuthenticationState(user));
-                
+
                 getUser.Password = string.Empty;
 
                 var roleValue = string.Join(",", getUser.Role);
@@ -146,7 +145,6 @@ namespace Sket.Core.Manager
             }
         }
 
-     
 
         protected virtual void Dispose(bool disposing)
         {

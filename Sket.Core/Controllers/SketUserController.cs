@@ -18,7 +18,6 @@ namespace Sket.Core.Controllers
     {
         private readonly ISketAccessTokenRepository<SketAccessTokenModel> _accessTokenRepository;
         private readonly ISketUserRepository<T> _repo;
-        public AuthenticationStateProvider _authenticationStateProvider { get; set; }
 
         protected SketUserController(ISketUserRepository<T> repo,
             AuthenticationStateProvider AuthenticationStateProvider,
@@ -28,6 +27,8 @@ namespace Sket.Core.Controllers
             _accessTokenRepository = accessTokenRepository;
             _authenticationStateProvider = AuthenticationStateProvider;
         }
+
+        public AuthenticationStateProvider _authenticationStateProvider { get; set; }
 
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Sket.Core.Models;
 
 namespace Sket.Core.Manager

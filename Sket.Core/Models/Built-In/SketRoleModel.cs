@@ -3,15 +3,12 @@
 namespace Sket.Core.Models
 {
     /// <summary>
-    /// Abstract model for the Role model
+    ///     Abstract model for the Role model
     /// </summary>
     [Name("Roles")]
     public class SketRoleModel :
         SketPersistedModel
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-
         public SketRoleModel()
         {
             DB.Index<SketRoleModel>()
@@ -19,5 +16,8 @@ namespace Sket.Core.Models
                 .Option(o => o.Unique = true)
                 .CreateAsync();
         }
+
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 }

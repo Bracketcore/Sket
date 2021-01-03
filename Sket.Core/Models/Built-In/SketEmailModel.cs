@@ -1,7 +1,7 @@
 namespace Sket.Core.Models
 {
     /// <summary>
-    /// Abstract model for the Email model
+    ///     Abstract model for the Email model
     /// </summary>
     public abstract class SketEmailModel : SketPersistedModel
     {

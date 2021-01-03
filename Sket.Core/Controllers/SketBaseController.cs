@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
-using Sket.Core.Models;
 using Sket.Core.Repository.Interfaces;
 
 

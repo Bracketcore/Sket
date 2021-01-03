@@ -9,7 +9,7 @@ namespace Sket.Core.StateManager
     {
         [Inject] public T AppState { get; set; }
         [Inject] public NetworkDetector NetworkDetector { get; set; }
-    
+
         public event Action<ComponentBase> StateChanged;
 
         protected void NotifyStateChanged(ComponentBase source)
@@ -26,8 +26,6 @@ namespace Sket.Core.StateManager
         {
             AppState.StateChanged += async source => await AppState_StateChanged(source);
         }
-
-       
     }
 
     public interface ISketAppState

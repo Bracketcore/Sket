@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Sket.Core.Manager;
@@ -20,7 +18,7 @@ namespace Sket.Core.Repository
     /// <typeparam name="T"></typeparam>
     public class SketUserRepository<T> : SketBaseRepository<T>, ISketUserRepository<T> where T : SketUserModel
     {
-        private ISketAuthenticationManager<T> _sketAuthenticationManager;
+        private readonly ISketAuthenticationManager<T> _sketAuthenticationManager;
 
         public SketUserRepository(ISketAccessTokenRepository<SketAccessTokenModel> accessToken,
             ISketAuthenticationManager<T> sketAuthenticationManager)
@@ -32,7 +30,7 @@ namespace Sket.Core.Repository
         public ISketAccessTokenRepository<SketAccessTokenModel> _accessToken { get; set; }
 
         /// <summary>
-        ///  Create user
+        ///     Create user
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
@@ -244,21 +242,20 @@ namespace Sket.Core.Repository
         public virtual async Task<bool> ChangePassword(string userId, string oldPassword, string newPassword,
             string resetToken)
         {
-
             try
             {
                 var user = await FindById(userId);
-                var verifyPassword= _sketAuthenticationManager.isPasswordOk(oldPassword, user.Password);
+                var verifyPassword = _sketAuthenticationManager.isPasswordOk(oldPassword, user.Password);
 
                 if (!verifyPassword) return verifyPassword;
-                
+
                 user.Password = _sketAuthenticationManager.HashPassword(newPassword);
-                
+
                 switch (resetToken)
                 {
                     case null:
-                       await Update(userId, user);
-                       break;
+                        await Update(userId, user);
+                        break;
 
                     default:
                         if (user.VerificationToken.Equals(resetToken))
@@ -275,12 +272,6 @@ namespace Sket.Core.Repository
                 Console.WriteLine(e);
                 return false;
             }
-        }
-
-        public virtual async Task ChangePassword(string userId, string oldPassword, string newPassword)
-        {
-            //Todo: verify the reset token and give user a form to change password
-            await ChangePassword(userId, oldPassword, newPassword, null);
         }
 
         /// <summary>
@@ -300,6 +291,12 @@ namespace Sket.Core.Repository
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        public virtual async Task ChangePassword(string userId, string oldPassword, string newPassword)
+        {
+            //Todo: verify the reset token and give user a form to change password
+            await ChangePassword(userId, oldPassword, newPassword, null);
         }
 
         protected override void Dispose(bool disposing)

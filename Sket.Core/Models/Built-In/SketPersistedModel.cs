@@ -11,8 +11,6 @@ namespace Sket.Core.Models
     {
         [JsonIgnore] public One<SketUserModel> OwnerId { get; set; }
 
-        [JsonIgnore] public DateTime ModifiedOn { get; set; }
-
         [JsonIgnore] public DateTime CreatedOn { get; set; }
 
         public void Dispose()
@@ -20,6 +18,8 @@ namespace Sket.Core.Models
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        [JsonIgnore] public DateTime ModifiedOn { get; set; }
 
         protected virtual void Dispose(bool disposing)
         {

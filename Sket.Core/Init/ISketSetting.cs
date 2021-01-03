@@ -22,6 +22,5 @@ namespace Sket.Core.Init
 
         public string JwtKey { get; set; }
         public string ConnectionString { get; set; }
-      
     }
 }

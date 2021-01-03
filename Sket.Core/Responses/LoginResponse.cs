@@ -3,7 +3,7 @@
 namespace Sket.Core.Responses
 {
     /// <summary>
-    /// Get Login data response.
+    ///     Get Login data response.
     /// </summary>
     public class LoginResponse : IDisposable
     {
@@ -12,6 +12,12 @@ namespace Sket.Core.Responses
         public DateTime CreatedOn { get; set; } = DateTime.Now;
         public bool IsStatueOk { get; set; } = false;
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         // public ClaimsPrincipal ClaimsPrincipal { get; set; }
 
         protected virtual void Dispose(bool disposing)
@@ -19,12 +25,6 @@ namespace Sket.Core.Responses
             if (disposing)
             {
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

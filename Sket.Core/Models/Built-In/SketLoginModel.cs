@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Sket.Core.Entity
+namespace Sket.Core.Models
 {
     public class SketLoginModel
     {

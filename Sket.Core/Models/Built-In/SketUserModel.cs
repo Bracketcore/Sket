@@ -1,15 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MongoDB.Entities;
 
-namespace Sket.Core.Entity
+namespace Sket.Core.Models
 {
     /// <summary>
     ///     Abstract model for the User model
     /// </summary>
     [Name("Users")]
-    public  class SketUserModel : SketPersistedModel
+    public class SketUserModel :Entity, IDisposable, ICreatedOn, IModifiedOn
     {
+        [JsonIgnore] public One<SketUserModel> OwnerId { get; set; }
+
+        [JsonIgnore] public DateTime ModifiedOn { get; set; }
+
+        [JsonIgnore] public DateTime CreatedOn { get; set; }
         public SketUserModel()
         {
             DB.Index<SketUserModel>()
@@ -40,5 +47,9 @@ namespace Sket.Core.Entity
         public double PhoneVerification { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
+        public void Dispose()
+        {
+        }
     }
 }

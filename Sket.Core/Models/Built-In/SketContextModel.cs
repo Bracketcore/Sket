@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sket.Core.Entity
+namespace Sket.Core.Models
 {
     public class SketContextModel<T> : IDisposable
     {

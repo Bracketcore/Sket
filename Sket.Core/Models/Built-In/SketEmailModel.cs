@@ -1,4 +1,4 @@
-namespace Sket.Core.Entity
+namespace Sket.Core.Models
 {
     /// <summary>
     /// Abstract model for the Email model

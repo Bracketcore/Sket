@@ -2,12 +2,12 @@ using System;
 using System.Text.Json.Serialization;
 using MongoDB.Entities;
 
-namespace Sket.Core.Entity
+namespace Sket.Core.Models
 {
     /// <summary>
     ///     Abstract model for the Persisted model
     /// </summary>
-    public abstract class SketPersistedModel : MongoDB.Entities.Entity, IDisposable, ICreatedOn, IModifiedOn
+    public class SketPersistedModel : Entity, IDisposable, ICreatedOn, IModifiedOn
     {
         [JsonIgnore] public One<SketUserModel> OwnerId { get; set; }
 

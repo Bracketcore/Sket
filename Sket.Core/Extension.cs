@@ -93,8 +93,7 @@ namespace Sket.Core
             }
 
             #endregion
-
-
+            
             return services;
         }
 

@@ -19,7 +19,7 @@ namespace Sket.Core.Misc
             GC.SuppressFinalize(this);
         }
 
-        public async Task Connect()
+        private async Task Connect()
         {
             using var axios = new System.Net.Http.HttpClient();
             var UserIp = await axios.GetAsync("https://api.ipify.org/?format=json");

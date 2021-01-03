@@ -7,7 +7,6 @@ namespace Sket.Core.StateManager
 {
     public abstract class SketAppState<T> : ComponentBase where T : ISketAppState
     {
-        public NetworkDetector _networkDetector;
         [Inject] public T AppState { get; set; }
         [Inject] private NetworkDetector NetworkDetector { get; set; }
     
@@ -25,8 +24,6 @@ namespace Sket.Core.StateManager
 
         protected override void OnInitialized()
         {
-            NetworkDetector.Connect();
-            _networkDetector = NetworkDetector;
             AppState.StateChanged += async source => await AppState_StateChanged(source);
         }
 

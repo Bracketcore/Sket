@@ -20,6 +20,7 @@ using Sket.Core.Entity;
 using Sket.Core.Init;
 using Sket.Core.Manager;
 using Sket.Core.Middleware;
+using Sket.Core.Misc;
 using Sket.Core.Repository;
 using Sket.Core.Repository.Interfaces;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -109,6 +110,7 @@ namespace Sket.Core
             services.AddMvc();
             services.AddHttpClient();
             services.AddHttpContextAccessor();
+            services.TryAddScoped<NetworkDetector>();
             services.TryAddScoped(typeof(ISketAccessTokenRepository<>), typeof(SketAccessTokenRepository<>));
             services.TryAddScoped(typeof(ISketRoleRepository<>), typeof(SketRoleRepository<>));
             services.TryAddScoped(typeof(ISketUserRepository<>), typeof(SketUserRepository<>));

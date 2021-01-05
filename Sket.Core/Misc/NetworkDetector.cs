@@ -8,27 +8,21 @@ namespace Sket.Core.Misc
     {
         public GeoPlugin info;
 
-        public NetworkDetector()
-        {
-            Connect().ConfigureAwait(false);
-        }
-
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        private async Task Connect()
+        public async Task Initialize()
         {
             using var axios = new System.Net.Http.HttpClient();
-            var UserIp = await axios.GetAsync("https://api.ipify.org/?format=json");
-            var d = JsonConvert.DeserializeObject<Ipfy>(await UserIp.Content.ReadAsStringAsync()
-                .ConfigureAwait(false));
-            var network = await axios.GetAsync($"http://www.geoplugin.net/json.gp?ip={d.ip}");
-            info = JsonConvert.DeserializeObject<GeoPlugin>(await network.Content.ReadAsStringAsync()
-                .ConfigureAwait(false));
-            ;
+            var UserIp =  axios.GetAsync("https://api.ipify.org/?format=json").Result;
+            
+            var d = JsonConvert.DeserializeObject<Ipfy>( UserIp.Content.ReadAsStringAsync().Result);
+           
+            var network =  axios.GetAsync($"http://www.geoplugin.net/json.gp?ip={d.ip}").Result;
+            info = JsonConvert.DeserializeObject<GeoPlugin>( network.Content.ReadAsStringAsync().Result);
         }
 
         protected virtual void Dispose(bool disposing)

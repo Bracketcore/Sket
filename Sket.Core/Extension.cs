@@ -60,6 +60,8 @@ namespace Sket.Core
                     {
                         // goto setup page
                         Init.Sket.Cfg.Settings = null;
+                        SetupDb("Sket");
+                        SketServices(services, null);
                     }
 
                     break;
@@ -85,15 +87,15 @@ namespace Sket.Core
 
             #region Db Section
 
-            void SetupDb()
+            void SetupDb(string db = null)
             {
-                DB.InitAsync(settings.DatabaseName, string.IsNullOrEmpty(settings.ConnectionString)
+                DB.InitAsync(db ?? settings?.DatabaseName, string.IsNullOrEmpty(settings?.ConnectionString)
                     ? new MongoClientSettings {Server = new MongoServerAddress("localhost", 27017)}
-                    : MongoClientSettings.FromConnectionString(settings.ConnectionString));
+                    : MongoClientSettings.FromConnectionString(settings?.ConnectionString));
             }
 
             #endregion
-            
+
             return services;
         }
 
@@ -223,18 +225,48 @@ namespace Sket.Core
                 AddCookies();
             }
 
-
-            switch (settings.AuthType)
+            if (settings is not null)
             {
-                case AuthType.Jwt:
-                    AddJwt();
-                    break;
-                case AuthType.Both:
-                    AddBoth();
-                    break;
-                default:
-                    AddCookies();
-                    break;
+                switch (settings.AuthType)
+                {
+                    case AuthType.Jwt:
+                        AddJwt();
+                        break;
+                    case AuthType.Both:
+                        AddBoth();
+                        break;
+                    default:
+                        AddCookies();
+                        break;
+                }
+            }
+            else
+            {
+                var appSetting = DB.Queryable<SketAppConfig>().FirstOrDefault();
+                if (Init.Sket.Cfg.Settings == null)
+                {
+                    
+                    Init.Sket.Cfg.Settings = new SketSettings();
+                    Init.Sket.Cfg.Settings.AuthType = AuthType.Jwt;
+                    Init.Sket.Cfg.Settings.EnableSwagger = true;
+                }
+
+                if (appSetting == null)
+                {
+                    var j = new SketAppConfig()
+                    {
+                        Jwt = JwtSecretKeyGenerator.Create()
+                    };
+
+                    j.SaveAsync();
+
+
+                    Init.Sket.Cfg.Settings.JwtKey = j.Jwt;
+                }
+                else
+                {
+                    Init.Sket.Cfg.Settings.JwtKey = appSetting.Jwt;
+                }
             }
 
             #endregion
@@ -242,7 +274,7 @@ namespace Sket.Core
 
             #region CORS security Section
 
-            if (settings.CorsDomains is not null)
+            if (settings is not null && settings.CorsDomains is not null)
                 services.AddCors(options =>
                 {
                     options.AddPolicy("Custom", builder =>

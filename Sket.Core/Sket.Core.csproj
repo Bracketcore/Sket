@@ -8,8 +8,8 @@
         <PackageId>Sket.Core</PackageId>
         <Product>Sket.Core</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.3.0-Beta</Version>
-        <PackageVersion>0.3.0-Beta</PackageVersion>
+        <Version>0.3.1-Beta</Version>
+        <PackageVersion>0.3.1-Beta</PackageVersion>
         <Copyright>UnoRoute</Copyright>
         <PackageProjectUrl>https://github.com/UnoRoute/Sket.Core</PackageProjectUrl>
         <PackageIconUrl>https://avatars2.githubusercontent.com/u/26839530?s=200&amp;v=4</PackageIconUrl>

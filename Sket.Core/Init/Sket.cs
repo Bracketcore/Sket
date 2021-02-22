@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using MongoDB.Entities;
@@ -84,6 +85,7 @@ namespace Sket.Core.Init
                 RequestPath = reqPath == null ? $"/{resourcePath}" : reqPath
             });
         }
+   //todo create a middleware to handle easy creation of site route from the content root folder which will use SketStaticFileDirectory to handle the static directory
 
 
         /// <summary>

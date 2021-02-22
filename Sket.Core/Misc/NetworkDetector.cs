@@ -17,9 +17,9 @@ namespace Sket.Core.Misc
         public async Task Initialize()
         {
             using var axios = new System.Net.Http.HttpClient();
-            var UserIp =  axios.GetAsync("https://api.ipify.org/?format=json").Result;
+            var UserIp = await   axios.GetAsync("https://api.ipify.org/?format=json");
             
-            var d = JsonConvert.DeserializeObject<Ipfy>( UserIp.Content.ReadAsStringAsync().Result);
+            var d = JsonConvert.DeserializeObject<Ipfy>( await UserIp.Content.ReadAsStringAsync());
            
             var network =  axios.GetAsync($"http://www.geoplugin.net/json.gp?ip={d.ip}").Result;
             info = JsonConvert.DeserializeObject<GeoPlugin>( network.Content.ReadAsStringAsync().Result);

@@ -111,7 +111,7 @@ namespace Sket.Core.Manager
 
                 if (DateTime.Now.Ticks > tokenExist.Ttl.Ticks)
                 {
-                    _localstorage.ClearAsync();
+                    await _localstorage.ClearAsync();
                     await _accessToken.DestroyByUserId(tokenExist.ID);
                     return await Task.FromResult(new AuthenticationState(user));
                 }
@@ -140,7 +140,7 @@ namespace Sket.Core.Manager
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                _localstorage.ClearAsync();
+                await _localstorage.ClearAsync();
                 return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));
             }
         }

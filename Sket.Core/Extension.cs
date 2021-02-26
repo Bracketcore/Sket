@@ -89,9 +89,9 @@ namespace Sket.Core
 
             void SetupDb(string db = null)
             {
-                DB.InitAsync(db ?? settings?.DatabaseName, string.IsNullOrEmpty(settings?.ConnectionString)
-                    ? new MongoClientSettings {Server = new MongoServerAddress("localhost", 27017)}
-                    : MongoClientSettings.FromConnectionString(settings?.ConnectionString));
+              DB.InitAsync(db ?? settings?.DatabaseName, string.IsNullOrEmpty(settings?.ConnectionString)
+                ? new MongoClientSettings {Server = new MongoServerAddress("localhost", 27017)}
+                : MongoClientSettings.FromConnectionString(settings?.ConnectionString));
             }
 
             #endregion

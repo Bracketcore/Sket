@@ -8,8 +8,8 @@
         <PackageId>Sket.Core</PackageId>
         <Product>Sket.Core</Product>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.3.2-Beta</Version>
-        <PackageVersion>0.3.2-Beta</PackageVersion>
+        <Version>0.3.3-Beta</Version>
+        <PackageVersion>0.3.3-Beta</PackageVersion>
         <Copyright>UnoRoute</Copyright>
         <PackageProjectUrl>https://github.com/UnoRoute/Sket.Core</PackageProjectUrl>
         <PackageIconUrl></PackageIconUrl>
@@ -52,7 +52,7 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.9" />
         <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="3.1.9" />
         <PackageReference Include="Microsoft.JSInterop" Version="3.1.9" />
-        <PackageReference Include="MongoDB.Entities" Version="20.5.0" />
+        <PackageReference Include="MongoDB.Entities" Version="20.7.0" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
         <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.6.3" />
